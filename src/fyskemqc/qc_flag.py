@@ -1,0 +1,14 @@
+from enum import Enum
+
+
+class QcFlag(Enum):
+    NO_QC_PERFORMED = 0
+    GOOD_DATA = 1
+    PROBABLY_GOOD_DATA = 2
+    BAD_DATA_CORRECTABLE = 3
+    BAD_DATA = 4
+    VALUE_CHANGED = 5
+    BELOW_DETECTION = 6
+    NOMINAL_VALUE = 7
+    INTERPOLATED_VALUE = 8
+    MISSING_VALUE = 9
