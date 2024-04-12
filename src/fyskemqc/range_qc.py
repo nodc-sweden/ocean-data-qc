@@ -3,6 +3,7 @@ import numpy as np
 from fyskemqc.parameter import Parameter
 from fyskemqc.qc_checks import RangeCheck
 from fyskemqc.qc_flag import QcFlag
+from fyskemqc.qc_flag_tuple import QcField
 
 
 class RangeQc:
@@ -22,4 +23,5 @@ class RangeQc:
                 qc_flag = QcFlag.GOOD_DATA
             else:
                 qc_flag = QcFlag.BAD_DATA
-        parameter.qc.automatic[0] = qc_flag
+
+        parameter.qc.automatic[QcField.RangeCheck] = qc_flag

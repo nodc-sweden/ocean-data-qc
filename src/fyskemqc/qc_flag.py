@@ -1,7 +1,7 @@
-from enum import Enum
+import enum
 
 
-class QcFlag(Enum):
+class QcFlag(enum.IntEnum):
     NO_QC_PERFORMED = 0
     GOOD_DATA = 1
     PROBABLY_GOOD_DATA = 2

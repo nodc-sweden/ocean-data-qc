@@ -2,17 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 from fyskemqc.parameter import Parameter
-from fyskemqc.qc_checks import RangeCheck
-from fyskemqc.qc_configuration import QcConfiguration
 from fyskemqc.qc_flag import QcFlag
+from fyskemqc.qc_flag_tuple import QcField
 from fyskemqc.range_qc import RangeQc
-
-
-def generate_configuration(parameter: str, min_range: float, max_range: float):
-    parameter_configuration = RangeCheck(
-        min_range_value=min_range, max_range_value=max_range
-    )
-    return QcConfiguration({parameter: {"global": parameter_configuration}})
+from setup_methods import generate_configuration
 
 
 @pytest.mark.parametrize(
@@ -37,17 +30,22 @@ def test_quality_flag_for_value_with_global_limits_using_override_configuration(
     )
 
     # And no QC has been made
+    assert expected_flag != QcFlag.NO_QC_PERFORMED
     assert expected_flag not in parameter.qc.automatic
 
     # And a limits object has been initiated with an override configuration that includes
     # given parameter
-    given_override_configuration = generate_configuration(
+    given_configuration = generate_configuration(
         given_parameter_name, *given_global_range
     )
-    limits_qc = RangeQc(given_override_configuration.get(parameter))
+    limits_qc = RangeQc(given_configuration.get(parameter))
 
     # When performing QC
     limits_qc.check(parameter)
 
-    # Then the parameter is given the expected flag
-    assert expected_flag in parameter.qc.automatic
+    # Then the automatic QC flags has at least as many positions
+    # to include the field for Range Check
+    assert len(parameter.qc.automatic) >= (QcField.RangeCheck + 1)
+
+    # Then the parameter is given the expected flag at the expected position
+    assert parameter.qc.automatic[QcField.RangeCheck] == expected_flag

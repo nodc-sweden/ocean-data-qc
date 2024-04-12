@@ -1,28 +1,16 @@
-from dataclasses import dataclass, field
-
 import pandas as pd
 
-from fyskemqc.qc_flag import QcFlag
-
-
-@dataclass
-class QcObject:
-    incoming: QcFlag = QcFlag.NO_QC_PERFORMED
-    automatic: list[QcFlag] = field(default_factory=lambda: [QcFlag.NO_QC_PERFORMED])
-    manual: QcFlag = QcFlag.NO_QC_PERFORMED
-
-    def __str__(self):
-        return (
-            f"{self.incoming.value}_"
-            f"{''.join(str(flag.value) for flag in self.automatic)}_"
-            f"{self.manual.value}"
-        )
+from fyskemqc.qc_flags import QcFlags
 
 
 class Parameter:
-    def __init__(self, data: pd.Series):
+    def __init__(self, data: pd.Series, index: int = None):
+        self._index = index
         self._data = data
-        self._qc = QcObject()
+        if "QC_FLAGS" in data:
+            self._qc = QcFlags.from_string(data["QC_FLAGS"])
+        else:
+            self._qc = QcFlags()
 
     @property
     def name(self):
@@ -33,10 +21,10 @@ class Parameter:
         return self._data.value
 
     @property
-    def qc(self) -> QcObject:
+    def qc(self) -> QcFlags:
         return self._qc
 
     @property
     def data(self):
-        self._data.QC_FLAGS = str(self._qc)
-        return self._data
+        self._data["QC_FLAGS"] = str(self._qc)
+        return self._index, self._data

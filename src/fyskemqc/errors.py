@@ -4,3 +4,7 @@ class FysKemQcError(Exception):
 
 class InputDataError(FysKemQcError):
     pass
+
+
+class QcFlagTupleError(FysKemQcError):
+    pass

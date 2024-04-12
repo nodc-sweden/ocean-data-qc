@@ -2,15 +2,83 @@ import uuid
 from pathlib import Path
 
 import pandas as pd
+from fyskemqc.qc_checks import RangeCheck
+from fyskemqc.qc_configuration import QcConfiguration
+
+PARAMETER_CHOICE = (
+    "ALKY",
+    "AMON",
+    "CNDC_CTD",
+    "CPHL",
+    "DEPH",
+    "DOXY_BTL",
+    "DOXY_CTD",
+    "H2S",
+    "HUMUS",
+    "NTOT",
+    "NTRA",
+    "NTRI",
+    "NTRZ",
+    "PRES_CTD",
+    "SALT_BTL",
+    "SALT_CTD",
+    "TEMP_BTL",
+    "TEMP_CTD",
+)
 
 
-def given_data_frame():
-    return pd.DataFrame()
+def generate_data_frame(rows: list[dict] = None):
+    return pd.DataFrame(rows or [])
 
 
-def given_data_file_path(dir_path: Path, dataframe: pd.DataFrame = None) -> Path:
+def random_number_generator(number_range: tuple = (0, 10), decimal_places: int = 0):
+    """Generate a pseudo random integer or float
+
+    The sequence of numbers will always be repeated on all machines. This means that tests
+    using these numbers should always behave exactly the same. Algorithm is based on the
+    MINSTD method."""
+
+    multiplier = 48271
+    increment = 1
+    modulo = 2**31 - 1
+    previous = (multiplier * increment) % modulo
+
+    while True:
+        previous = (multiplier * previous + increment) % modulo
+        number = int(
+            (previous / (modulo - 1)) * (number_range[1] - number_range[0])
+            + number_range[0]
+        )
+        if decimal_places:
+            previous = (multiplier * previous + increment) % modulo
+            decimals = int((previous / (modulo - 1)) * (10**decimal_places - 1) + 1)
+            number = float(f"{number}.{decimals:02}")
+        yield number
+
+
+def generate_data_frame_of_length(number_of_rows: int):
+    rows = []
+    random_floats = random_number_generator(number_range=(0, 10), decimal_places=2)
+    random_parameter_indices = random_number_generator(
+        number_range=(0, len(PARAMETER_CHOICE) - 1)
+    )
+    for n in range(number_of_rows):
+        value = next(random_floats)
+        parameter = PARAMETER_CHOICE[next(random_parameter_indices)]
+        rows.append({"parameter": parameter, "value": value})
+    return generate_data_frame(rows)
+
+
+def generate_data_file_path(dir_path: Path, dataframe: pd.DataFrame = None) -> Path:
     file_path = (dir_path / str(uuid.uuid4())).with_suffix(".csv")
     if not dataframe:
-        dataframe = given_data_frame()
+        dataframe = generate_data_frame()
     dataframe.to_csv(file_path)
     return file_path
+
+
+def generate_configuration(parameter: str, min_range: float, max_range: float):
+    parameter_configuration = RangeCheck(
+        min_range_value=min_range, max_range_value=max_range
+    )
+    return QcConfiguration({parameter: {"global": parameter_configuration}})
