@@ -13,6 +13,13 @@ class QcFlags:
     )
     manual: QcFlag = QcFlag.NO_QC_PERFORMED
 
+    def __post_init__(self):
+        self.incoming = self.incoming or QcFlag.NO_QC_PERFORMED
+        self._automatic = self.automatic or QcFlagTuple(
+            (QcFlag.NO_QC_PERFORMED,) * len(QcField)
+        )
+        self.manual = self.manual or QcFlag.NO_QC_PERFORMED
+
     def get_field(self, field_name: QcField):
         return self.automatic[field_name]
 
@@ -23,6 +30,23 @@ class QcFlags:
     @automatic.setter
     def automatic(self, value: Sequence):
         self._automatic = QcFlagTuple(value)
+
+    @property
+    def total(self):
+        if self.manual:
+            return self.manual
+
+        # Get the total value for all automatic flags
+        automatic = min(
+            self._automatic, key=QcFlag.key_function, default=QcFlag.NO_QC_PERFORMED
+        )
+
+        # Remove NO_QC_PERFORMED and return the worst remaining value
+        return min(
+            [flag for flag in (self.incoming, automatic) if flag],
+            key=QcFlag.key_function,
+            default=QcFlag.NO_QC_PERFORMED,
+        )
 
     def __str__(self):
         return (

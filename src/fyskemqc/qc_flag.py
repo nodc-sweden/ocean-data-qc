@@ -12,3 +12,16 @@ class QcFlag(enum.IntEnum):
     NOMINAL_VALUE = 7
     INTERPOLATED_VALUE = 8
     MISSING_VALUE = 9
+
+    __PRIORITY = (0, 4, 9, 8, 7, 6, 5, 3, 2, 1)
+
+    @classmethod
+    def key_function(cls, value):
+        """Key function for QcFlag
+
+        Used for sorting, min and max.
+        """
+        return cls.__PRIORITY.index(value)
+
+    def __str__(self):
+        return self.name.replace("_", " ").capitalize().replace("qc", "QC")
