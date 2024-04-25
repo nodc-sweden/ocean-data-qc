@@ -1,6 +1,6 @@
 # fyskemqc
 
-Automatic quality control of FysKem data,
+Automatic quality control of FysKem data.
 
 ## Setup
 
@@ -49,6 +49,25 @@ Mac/Linux:
 /home/JohnP/code/fyskemqc/venv/bin/python
 ```
 
+### pre-commit
+
+To manage git pre-commit hooks, the tool `pre-commit` is used. This tool is installed as a
+dev-dependency but it must be activated with the following command:
+
+```bash
+$ pre-commit install
+```
+
+After activation, a commit will be aborted if a series of checks are not passed. Which
+checks should run is configured in `.pre-commit-config.yaml`.
+
+Do avoid the checks (e.g. when commiting to a topic branch), the`--no-verify` flag can be
+added to the commit command.
+
+```bash
+$ git commit --no-verify
+```
+
 ## Working with the project
 
 ### Handling dependencies
@@ -60,7 +79,8 @@ Add new dependencies with the following command:
 $ pdm add pandas
 ```
 
-Dependencies that only are used for development (e.g. testing, formatting etc.) are installed with the -d flag:
+Dependencies that only are used for development (e.g. testing, formatting etc.) areinstalled
+with the -d flag:
 
 ```bash
 $ pdm add -d pytest
@@ -73,7 +93,60 @@ environment, use the following command:
 $ pdm install -d
 ```
 
-### End user installations
+You can also use use the sync command which is advisable after pulling remote code where
+someone else might have added or updated the dependencies.
+
+```bash
+$ pdm sync
+```
+
+### ruff
+
+The code is linted and formated by `ruff`.
+
+#### Lintning
+
+Lint the code with the following command:
+
+```bash
+$ ruff check
+```
+
+This will check that the code complies to the configured linting rules. The configuration
+is stored in `pyproject.yaml` under the section `[tool.ruff.lint]`. Some identified problems
+can be fixed by `ruff` by adding the `--fix` flag.
+
+```bash
+$ ruff check --fix
+```
+
+Information about all available rules can be found here:
+
+- https://docs.astral.sh/ruff/rules/
+
+#### Formatering
+
+Format the code with the following command:
+
+```bash
+$ ruff format
+```
+
+### Testing
+
+You can run all tests using PDM with the following command in the project root:
+
+```bash
+$ pdm run pytest
+```
+
+This is equivalent to running pytest inside the configured virtualenv.
+
+```bash
+(venv) $ pytest
+```
+
+## End user installations
 
 The easiest way to install `fyskemqc`is by pointing pip to github. This will install the
 latest version:
@@ -101,17 +174,3 @@ $ pdm build
 
 The resulting wheel is saved in the`dist` directory. Installing it with pip will make sure
 that all dependencies are also installed.
-
-## Testing
-
-You can run all tests using PDM with the following command in the project root:
-
-```bash
-$ pdm run pytest
-```
-
-This is equivalent to running pytest inside the configured virtualenv.
-
-```bash
-(venv) $ pytest
-```
