@@ -7,10 +7,8 @@ authors = [
 ]
 dependencies = [
     "pandas>=2.2.1",
-    "nodc-codes @ git+https://github.com/nodc-sweden/nodc-codes@v0.1.1",
-    "sharkadm @ git+https://github.com/nodc-sweden/SHARKadm@v0.1.1",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 readme = "README.md"
 license = { file = "LICENSE" }
 

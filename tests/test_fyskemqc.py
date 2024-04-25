@@ -2,7 +2,8 @@ import pytest
 from fyskemqc.fyskemqc import FysKemQc
 from fyskemqc.qc_flag import QcFlag
 from fyskemqc.qc_flag_tuple import QcField
-from setup_methods import generate_data_frame_of_length
+
+from tests.setup_methods import generate_data_frame_of_length
 
 
 @pytest.mark.parametrize("given_number_of_rows", (0, 42, 99))
