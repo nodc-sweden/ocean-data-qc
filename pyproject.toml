@@ -1,16 +1,14 @@
 [project]
 name = "fyskemqc"
-version = "2024.1"
+version = "2024.2"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
 ]
 dependencies = [
     "pandas>=2.2.1",
-    "nodc-codes @ git+https://github.com/nodc-sweden/nodc-codes@v0.1.1",
-    "sharkadm @ git+https://github.com/nodc-sweden/SHARKadm@v0.1.1",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 readme = "README.md"
 license = { file = "LICENSE" }
 

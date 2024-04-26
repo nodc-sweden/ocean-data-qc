@@ -5,7 +5,8 @@ from fyskemqc.parameter import Parameter
 from fyskemqc.qc_flag import QcFlag
 from fyskemqc.qc_flag_tuple import QcField
 from fyskemqc.range_qc import RangeQc
-from setup_methods import generate_configuration
+
+from tests.setup_methods import generate_configuration
 
 
 @pytest.mark.parametrize(
