@@ -27,6 +27,17 @@ class QcFlag(enum.IntEnum):
     def __str__(self):
         return self.name.replace("_", " ").capitalize().replace("qc", "QC")
 
+    @classmethod
+    def parse(cls, value):
+        """A more liberal parser for the Enum
+
+        The parser will accept str, int and None. None and the empty string will be
+        interpreted as "NO_QC_PERFORMED".
+        """
+        if value in ("", None):
+            return cls.NO_QC_PERFORMED
+        return cls(int(value))
+
 
 QC_FLAG_CSS_COLORS = defaultdict(
     lambda: "gray",
