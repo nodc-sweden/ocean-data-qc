@@ -46,5 +46,6 @@ QC_FLAG_CSS_COLORS = defaultdict(
         QcFlag.BAD_DATA_CORRECTABLE: "orange",
         QcFlag.BAD_DATA: "red",
         QcFlag.GOOD_DATA: "green",
+        QcFlag.BELOW_DETECTION: "pink",
     },
 )
