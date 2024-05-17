@@ -1,6 +1,6 @@
 [project]
 name = "fyskemqc"
-version = "2024.2.2"
+version = "2024.3.0"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
