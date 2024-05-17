@@ -11,9 +11,8 @@ class QcField(enum.IntEnum):
     comment) when there are more actual values.
     """
 
-    Placeholder1 = 0
-    Placeholder2 = 1
-    RangeCheck = 2
+    DetectionLimitCheck = 0
+    RangeCheck = 1
 
 
 class QcFlagTuple:

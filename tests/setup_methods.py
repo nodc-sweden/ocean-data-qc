@@ -2,8 +2,7 @@ import uuid
 from pathlib import Path
 
 import pandas as pd
-from fyskemqc.qc_checks import RangeCheck
-from fyskemqc.qc_configuration import QcConfiguration
+from fyskemqc.qc_checks import DetectionLimitCheck, RangeCheck
 
 PARAMETER_CHOICE = (
     "ALKY",
@@ -77,8 +76,15 @@ def generate_data_file_path(dir_path: Path, dataframe: pd.DataFrame = None) -> P
     return file_path
 
 
-def generate_configuration(parameter: str, min_range: float, max_range: float):
+def generate_range_check_configuration(
+    parameter: str, min_range: float, max_range: float
+):
     parameter_configuration = RangeCheck(
         min_range_value=min_range, max_range_value=max_range
     )
-    return QcConfiguration({parameter: {"global": parameter_configuration}})
+    return parameter_configuration
+
+
+def generate_detection_limit_configuration(parameter: str, limit: float):
+    parameter_configuration = DetectionLimitCheck(limit=limit)
+    return parameter_configuration
