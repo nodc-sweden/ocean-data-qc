@@ -1,8 +1,14 @@
 import pandas as pd
 
+from fyskemqc.detection_limit_qc import DetectionLimitQc
 from fyskemqc.parameter import Parameter
 from fyskemqc.qc_configuration import QcConfiguration
 from fyskemqc.range_qc import RangeQc
+
+QC_CATEGORIES = {
+    "range_check": RangeQc,
+    "detection_limit_check": DetectionLimitQc,
+}
 
 
 class FysKemQc:
@@ -26,12 +32,12 @@ class FysKemQc:
 
     def run_automatic_qc(self):
         for parameter in self.parameters:
-            # Get config for parameter
-            config = self._configuration.get(parameter)
+            for category in self._configuration.categories:
+                # Get config for parameter
+                if config := self._configuration.get(category, parameter):
+                    # Perform all checks
+                    QC_CATEGORIES[category](config).check(parameter)
 
-            # Perform all checks
-            RangeQc(config).check(parameter)
-
-            # Resync QC-flags with data
-            index, data = parameter.data
-            self._data.iloc[index] = data
+                    # Resync QC-flags with data
+                    index, data = parameter.data
+                    self._data.iloc[index] = data

@@ -6,7 +6,7 @@ from fyskemqc.qc_flag import QcFlag
 from fyskemqc.qc_flag_tuple import QcField
 from fyskemqc.range_qc import RangeQc
 
-from tests.setup_methods import generate_configuration
+from tests.setup_methods import generate_range_check_configuration
 
 
 @pytest.mark.parametrize(
@@ -36,10 +36,10 @@ def test_quality_flag_for_value_with_global_limits_using_override_configuration(
 
     # And a limits object has been initiated with an override configuration that includes
     # given parameter
-    given_configuration = generate_configuration(
+    given_configuration = generate_range_check_configuration(
         given_parameter_name, *given_global_range
     )
-    limits_qc = RangeQc(given_configuration.get(parameter))
+    limits_qc = RangeQc(given_configuration)
 
     # When performing QC
     limits_qc.check(parameter)

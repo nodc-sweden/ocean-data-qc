@@ -60,9 +60,8 @@ def test_qc_flags_roundtrip(given_qc_flags: str):
 @pytest.mark.parametrize(
     "given_qc_flags, given_field, expected_value",
     (
-        ("1_0123456789_2", QcField.Placeholder1, QcFlag.NO_QC_PERFORMED),
-        ("3_2357111317_4", QcField.Placeholder2, QcFlag.BAD_DATA_CORRECTABLE),
-        ("5_9876543210_6", QcField.RangeCheck, QcFlag.NOMINAL_VALUE),
+        ("3_2357111317_4", QcField.DetectionLimitCheck, QcFlag.PROBABLY_GOOD_DATA),
+        ("5_9876543210_6", QcField.RangeCheck, QcFlag.INTERPOLATED_VALUE),
     ),
 )
 def test_get_automatic_qc_flag_by_position(given_qc_flags, given_field, expected_value):
