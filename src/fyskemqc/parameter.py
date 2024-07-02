@@ -28,3 +28,8 @@ class Parameter:
     def data(self):
         self._data["quality_flag_long"] = str(self._qc)
         return self._index, self._data
+    
+    @property
+    def quality_flag_long(self):
+        str(self._qc)
+        return str(self._qc)

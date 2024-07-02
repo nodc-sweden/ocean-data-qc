@@ -14,7 +14,7 @@ class QcFlag(enum.IntEnum):
     INTERPOLATED_VALUE = 8
     MISSING_VALUE = 9
 
-    __PRIORITY = (0, 4, 9, 8, 7, 6, 5, 3, 2, 1)
+    __PRIORITY = (4, 9, 8, 7, 6, 5, 3, 2, 1, 0)
 
     @classmethod
     def key_function(cls, value):
