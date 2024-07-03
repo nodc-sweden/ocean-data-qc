@@ -14,7 +14,13 @@ class QcFlag(enum.IntEnum):
     INTERPOLATED_VALUE = 8
     MISSING_VALUE = 9
 
-    __PRIORITY = (4, 9, 8, 7, 6, 5, 3, 2, 1, 0)
+    __PRIORITY = (9, 4, 3, 6, 8, 7, 5, 2, 1, 0)
+
+    """
+    Priority i ord:
+    MISSING_VALUE < BAD_DATA < BAD_DATA_CORRECTABLE < BELOW_DETECTION < INTERPOLATED_VALUE < NOMINAL_VALUE < VALUE_CHANGED < PROBABLY_GOOD_DATA < GOOD_DATA < NO_QC_PERFORMED
+    Med den här ordningen så förutsätter vi att vi matchar SMHIs S-flagga mot 3. 
+    """
 
     @classmethod
     def key_function(cls, value):

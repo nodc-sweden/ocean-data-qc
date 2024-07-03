@@ -16,7 +16,6 @@ class FysKemQc:
         """
         data: en dataframe med all data från en station
         """
-
         self._station_subset = data
         self._configuration = QcConfiguration()
 
@@ -61,20 +60,15 @@ class FysKemQc:
                     # Perform all checks
                     QC_CATEGORIES[category](config).check(value)
 
-                    # Resync QC-flags with data
+                    # Resync QC-flags with data, här läggs också quality_flags_long till i data...eller?
                     index, data = value.data                    
                     try:
-                        # Här försöker du att göra din operation som kan kasta IndexError
-                        print(value.quality_flag_long)
                         self._updates[index] = value.quality_flag_long
                         # self._station_subset.loc[index, "quality_flag_long"] = value.quality_flag_long
                     except IndexError as e:
-                        print(f"this is the value:\n{data}")
                         print(f"Error at index {index}: {e}")
+                        print(f"this is the value:\n{data}")
                         print(f"self._data max index {max(self._station_subset.index)}, min index is {min(self._station_subset.index)}")
                         print(f"The DataFrame has len {len(self._station_subset.index)}")
                         print(f"DataFrame segment:\n{self._station_subset.loc[max(0, index-5):index+5]}")
                         raise  # Eller hantera felet på annat sätt
-                    # self._station_subset.loc[index] = data
-        print(len(self._updates))
-        print(len(self.updates))
