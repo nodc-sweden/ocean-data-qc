@@ -1,11 +1,11 @@
 ALKY:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 5000
+    max_range_value: 10
 AMON:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 1500
+    max_range_value: 20
 CNDC_CTD:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
@@ -17,7 +17,7 @@ CPHL:
 DEPH:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 4000
+    max_range_value: 1000
 DOXY_BTL:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
@@ -29,7 +29,7 @@ DOXY_CTD:
 H2S:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 2000
+    max_range_value: 20
 HUMUS:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
@@ -37,11 +37,11 @@ HUMUS:
 NTOT:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 1500
+    max_range_value: 100
 NTRA:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 300
+    max_range_value: 50
 NTRI:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
@@ -49,7 +49,15 @@ NTRI:
 NTRZ:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 350
+    max_range_value: 50
+PHOS:
+  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 15
+PTOT:
+  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 15
 PRES_CTD:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
@@ -65,11 +73,11 @@ SALT_CTD:
 TEMP_BTL:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: -1
-    max_range_value: 24
+    max_range_value: 30
 TEMP_CTD:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: -1
-    max_range_value: 24
+    max_range_value: 30
 TOC:
   global: !!python/object:fyskemqc.qc_checks.RangeCheck
     min_range_value: 0
