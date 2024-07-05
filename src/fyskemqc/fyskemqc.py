@@ -40,9 +40,6 @@ class FysKemQc:
     
     def run_automatic_qc(self):
 
-        """
-        
-        """
         index_out_of_bounds = False
         for index, series in self._station_subset.iterrows():
             if index > max(self._station_subset.index):
@@ -60,11 +57,9 @@ class FysKemQc:
                     # Perform all checks
                     QC_CATEGORIES[category](config).check(value)
 
-                    # Resync QC-flags with data, här läggs också quality_flags_long till i data...eller?
-                    index, data = value.data                    
+                    index, data = value.data
                     try:
                         self._updates[index] = value.quality_flag_long
-                        # self._station_subset.loc[index, "quality_flag_long"] = value.quality_flag_long
                     except IndexError as e:
                         print(f"Error at index {index}: {e}")
                         print(f"this is the value:\n{data}")
