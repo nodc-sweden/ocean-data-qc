@@ -2,9 +2,7 @@ from pathlib import Path
 
 import yaml
 
-# from fyskemqc.parameter import Parameter
 import fyskemqc.qc_checks  # noqa: F401
-from fyskemqc.parameter import Parameter
 
 
 class QcConfiguration:
@@ -20,10 +18,13 @@ class QcConfiguration:
                     yaml_file.read_text(), Loader=yaml.Loader
                 )
 
-    def get(self, category: str, parameter: Parameter):
-        if configuration := self._configuration.get(category, {}).get(parameter.name):
+    def get(self, category: str, parameter: str):
+        if configuration := self._configuration.get(category, {}).get(parameter):
             return configuration.get("global")
         return None
+
+    def parameters(self, category: str):
+        return self._configuration.get(category, {}).keys()
 
     @property
     def categories(self):

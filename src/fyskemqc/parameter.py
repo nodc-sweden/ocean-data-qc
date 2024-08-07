@@ -4,11 +4,10 @@ from fyskemqc.qc_flags import QcFlags
 
 
 class Parameter:
-    def __init__(self, data: pd.Series, index: int = None):
-        self._index = index
+    def __init__(self, data: pd.Series):
         self._data = data
-        if "QC_FLAGS" in data:
-            self._qc = QcFlags.from_string(data["QC_FLAGS"])
+        if "quality_flag_long" in data:
+            self._qc = QcFlags.from_string(data["quality_flag_long"])
         else:
             self._qc = QcFlags()
 
@@ -26,5 +25,5 @@ class Parameter:
 
     @property
     def data(self):
-        self._data["QC_FLAGS"] = str(self._qc)
-        return self._index, self._data
+        self._data["quality_flag_long"] = str(self._qc)
+        return self._data
