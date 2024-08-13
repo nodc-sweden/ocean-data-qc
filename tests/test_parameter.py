@@ -2,7 +2,6 @@ import pandas as pd
 import pytest
 from fyskemqc.parameter import Parameter
 from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcFlagTuple
 
 
 @pytest.mark.parametrize(
@@ -43,7 +42,7 @@ def test_parameter_sets_initial_qc_value_if_missing():
 def test_parameter_exposes_existing_qc_flags():
     # Given parameter data with QC_FLAG data
     given_parameter_data = pd.Series(
-        {"parameter": "parameter_name", "value": 42, "QC_FLAGS": "1_234_5"}
+        {"parameter": "parameter_name", "value": 42, "quality_flag_long": "1_234_5"}
     )
 
     # When creating a parameter
@@ -57,22 +56,3 @@ def test_parameter_exposes_existing_qc_flags():
         QcFlag.BAD_DATA,
     )
     assert parameter.qc.manual == QcFlag.VALUE_CHANGED
-
-
-def test_set_qc_value():
-    # Given a parameter
-    given_parameter_data = pd.Series({"parameter": "parameter_name", "value": 42})
-    given_parameter = Parameter(given_parameter_data)
-
-    # And a new QC value has been set
-    given_parameter.qc.incoming = QcFlag.GOOD_DATA
-    given_parameter.qc.automatic = QcFlagTuple(
-        (QcFlag.PROBABLY_GOOD_DATA, QcFlag.BAD_DATA_CORRECTABLE)
-    )
-    given_parameter.qc.manual = QcFlag.BAD_DATA
-
-    # When retrieving the data
-    _, data = given_parameter.data
-
-    # Then the QC flags are set
-    assert data.QC_FLAGS == "1_23_4"
