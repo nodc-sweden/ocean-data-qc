@@ -24,7 +24,7 @@ class QcFlags:
         return self.automatic[field_name]
 
     @property
-    def automatic(self):
+    def automatic(self) -> QcFlagTuple:
         return self._automatic
 
     @automatic.setter
@@ -33,17 +33,13 @@ class QcFlags:
 
     @property
     def total(self):
+        # Manual QC should always be used if it is performed.
         if self.manual:
             return self.manual
 
-        # Get the total value for all automatic flags
-        automatic = min(
-            self._automatic, key=QcFlag.key_function, default=QcFlag.NO_QC_PERFORMED
-        )
-
-        # Remove NO_QC_PERFORMED and return the worst remaining value
+        # If not, return the worst flag.
         return min(
-            [flag for flag in (self.incoming, automatic) if flag],
+            [flag for flag in (self.incoming,) + tuple(self.automatic)],
             key=QcFlag.key_function,
             default=QcFlag.NO_QC_PERFORMED,
         )

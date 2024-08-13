@@ -57,3 +57,36 @@ def test_without_manual_the_total_flag_is_worst_from_incoming_and_automatic(
     # When reading the total flag
     # Then the total flag is the lowest individual flag
     assert given_qc_flags.total == expected_total
+
+
+@pytest.mark.parametrize(
+    "given_flag_string",
+    (
+        "0_1_0",
+        "0_01_0",
+        "0_1234567890_0",
+        "1_10234_0",
+        "2_98706_0",
+        "3_30456_0",
+        "4_65403_0",
+        "5_56078_0",
+        "6_87065_0",
+        "7_20345_0",
+        "8_54320_0",
+        "9_02936_0",
+    ),
+)
+def test_no_qc_performed_should_always_be_chosen_last(given_flag_string):
+    # Given QC flags
+    given_qc_flags = QcFlags.from_string(given_flag_string)
+
+    # Given "No QC performed" is present in either incoming or automatic.
+    all_present_flags = {given_qc_flags.incoming} | set(given_qc_flags.automatic)
+    assert QcFlag.NO_QC_PERFORMED in all_present_flags
+
+    # Given there are other flags present
+    assert all_present_flags - {QcFlag.NO_QC_PERFORMED}
+
+    # When reading the total flag
+    # Then the total flag is not "No QC performed"
+    assert given_qc_flags.total != QcFlag.NO_QC_PERFORMED
