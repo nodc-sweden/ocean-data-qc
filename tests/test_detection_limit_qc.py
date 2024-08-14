@@ -15,7 +15,7 @@ from tests.setup_methods import (
     "given_value, given_detection_limit, expected_flag",
     (
         (1.234, 1.233, QcFlag.GOOD_DATA),
-        (1.234, 1.234, QcFlag.GOOD_DATA),
+        (1.234, 1.234, QcFlag.BELOW_DETECTION),
         (1.234, 1.235, QcFlag.BELOW_DETECTION),
         (np.nan, 1.234, QcFlag.MISSING_VALUE),
         (None, 1.234, QcFlag.MISSING_VALUE),
