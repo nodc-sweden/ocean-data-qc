@@ -19,7 +19,7 @@ class DetectionLimitQc(BaseQcCategory):
             pd.isna(selection.value),
             str(QcFlag.MISSING_VALUE.value),
             np.where(
-                selection.value >= configuration.limit,
+                selection.value > configuration.limit,
                 str(QcFlag.GOOD_DATA.value),
                 str(QcFlag.BELOW_DETECTION.value),
             ),

@@ -1,9 +1,10 @@
 import pytest
 from fyskemqc.fyskemqc import FysKemQc
 from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcField
+from fyskemqc.qc_flag_tuple import QcField, QcFlagTuple
+from fyskemqc.qc_flags import QcFlags
 
-from tests.setup_methods import generate_data_frame_of_length
+from tests.setup_methods import generate_data_frame, generate_data_frame_of_length
 
 
 @pytest.mark.parametrize("given_number_of_rows", (0, 42, 99))
@@ -49,3 +50,43 @@ def test_run_checks_for_parameters():
     assert parameter_3.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
     assert parameter_4.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
     assert parameter_5.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
+
+
+@pytest.mark.parametrize(
+    "given_incoming_qc, given_manual_qc",
+    (
+        (QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA),
+        (QcFlag.BAD_DATA, QcFlag.BAD_DATA_CORRECTABLE),
+        (QcFlag.VALUE_CHANGED, QcFlag.BELOW_DETECTION),
+        (QcFlag.NOMINAL_VALUE, QcFlag.INTERPOLATED_VALUE),
+        (QcFlag.MISSING_VALUE, QcFlag.MISSING_VALUE),
+    ),
+)
+def test_manual_cq_does_not_alter_incoming_or_manual_qc(
+    given_incoming_qc,
+    given_manual_qc,
+):
+    # Given data with incoming and manual CQ flags
+    given_qc = QcFlags(given_incoming_qc, QcFlagTuple(), given_manual_qc)
+    given_data = generate_data_frame(
+        [
+            {"parameter": "AMON", "value": 0.01, "quality_flag_long": str(given_qc)},
+            {"parameter": "AMON", "value": 200, "quality_flag_long": str(given_qc)},
+        ]
+    )
+
+    # Given FysKemQc object
+    given_fyskemeqc = FysKemQc(given_data)
+
+    # When performing auto CQ
+    given_fyskemeqc.run_automatic_qc()
+
+    # Then the original incoming flags are preserved
+    parameter_1 = given_fyskemeqc[0]
+    parameter_2 = given_fyskemeqc[1]
+
+    assert parameter_1.qc.incoming == given_incoming_qc
+    assert parameter_1.qc.manual == given_manual_qc
+
+    assert parameter_2.qc.incoming == given_incoming_qc
+    assert parameter_2.qc.manual == given_manual_qc

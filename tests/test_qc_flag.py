@@ -11,7 +11,6 @@ def test_sort_flags_using_key_function():
 
     # Then the order is as expected
     expected_order = [
-        QcFlag.NO_QC_PERFORMED,
         QcFlag.BAD_DATA,
         QcFlag.MISSING_VALUE,
         QcFlag.INTERPOLATED_VALUE,
@@ -21,6 +20,7 @@ def test_sort_flags_using_key_function():
         QcFlag.BAD_DATA_CORRECTABLE,
         QcFlag.PROBABLY_GOOD_DATA,
         QcFlag.GOOD_DATA,
+        QcFlag.NO_QC_PERFORMED,
     ]
 
     assert sorted_list == expected_order
@@ -29,7 +29,7 @@ def test_sort_flags_using_key_function():
 @pytest.mark.parametrize(
     "lesser_flag, greater_flag",
     (
-        (QcFlag.NO_QC_PERFORMED, QcFlag.GOOD_DATA),
+        (QcFlag.GOOD_DATA, QcFlag.NO_QC_PERFORMED),
         (QcFlag.BAD_DATA, QcFlag.PROBABLY_GOOD_DATA),
         (QcFlag.MISSING_VALUE, QcFlag.BAD_DATA_CORRECTABLE),
         (QcFlag.INTERPOLATED_VALUE, QcFlag.VALUE_CHANGED),
