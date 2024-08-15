@@ -14,9 +14,9 @@ from tests.setup_methods import (
 @pytest.mark.parametrize(
     "given_value, given_detection_limit, expected_flag",
     (
-        (1.234, 1.233, QcFlag.GOOD_DATA),
-        (1.234, 1.234, QcFlag.BELOW_DETECTION),
-        (1.234, 1.235, QcFlag.BELOW_DETECTION),
+        (1.234, 1.233, QcFlag.GOOD_DATA),  # Strictly above detection limit
+        (1.234, 1.234, QcFlag.GOOD_DATA),  # On detection limit
+        (1.234, 1.235, QcFlag.BELOW_DETECTION),  # Strictly below detection limit
         (np.nan, 1.234, QcFlag.MISSING_VALUE),
         (None, 1.234, QcFlag.MISSING_VALUE),
     ),
