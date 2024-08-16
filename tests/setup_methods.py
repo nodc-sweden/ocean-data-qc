@@ -55,16 +55,48 @@ def random_number_generator(number_range: tuple = (0, 10), decimal_places: int =
         yield number
 
 
-def generate_data_frame_of_length(number_of_rows: int):
+def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
     rows = []
     random_floats = random_number_generator(number_range=(0, 10), decimal_places=2)
     random_parameter_indices = random_number_generator(
         number_range=(0, len(PARAMETER_CHOICE) - 1)
     )
-    for n in range(number_of_rows):
+    random_depth_factors = random_number_generator(number_range=(0, 1), decimal_places=2)
+
+    random_visit = random_number_generator(number_range=(1, number_of_visits))
+
+    for _ in range(number_of_rows):
         value = next(random_floats)
         parameter = PARAMETER_CHOICE[next(random_parameter_indices)]
-        rows.append({"parameter": parameter, "value": value})
+        visit_id = next(random_visit)
+        visit = f"{visit_id:03}"
+        wadep = 75 + visit_id * 10
+        deph = int(wadep * next(random_depth_factors))
+        station = f"Station {visit_id}"
+        rows.append(
+            {
+                "parameter": parameter,
+                "value": value,
+                "SERNO": visit,
+                "STATN": station,
+                "WADEP": wadep,
+                "DEPH": deph,
+            }
+        )
+    return generate_data_frame(rows)
+
+
+def generate_data_frame_from_data_list(data_list: list[dict]):
+    rows = []
+    random_floats = random_number_generator(number_range=(0, 10), decimal_places=2)
+    random_parameter_indices = random_number_generator(
+        number_range=(0, len(PARAMETER_CHOICE) - 1)
+    )
+    for data in data_list:
+        value = next(random_floats)
+        parameter = PARAMETER_CHOICE[next(random_parameter_indices)]
+        row = {"parameter": parameter, "value": value}
+        rows.append(row | data)
     return generate_data_frame(rows)
 
 

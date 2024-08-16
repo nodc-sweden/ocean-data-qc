@@ -8,3 +8,11 @@ class InputDataError(FysKemQcError):
 
 class QcFlagTupleError(FysKemQcError):
     pass
+
+
+class MetadataQcError(Exception):
+    pass
+
+
+class VisitError(MetadataQcError):
+    pass
