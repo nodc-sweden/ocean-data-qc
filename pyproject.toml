@@ -1,5 +1,5 @@
 [project]
-name = "ocean_data_qc"
+name = "ocean-data-qc"
 version = "2024.5.0"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
