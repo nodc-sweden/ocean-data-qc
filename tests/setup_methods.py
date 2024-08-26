@@ -2,7 +2,7 @@ import uuid
 from pathlib import Path
 
 import pandas as pd
-from fyskemqc.qc_checks import DetectionLimitCheck, RangeCheck
+from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck, RangeCheck
 
 PARAMETER_CHOICE = (
     "ALKY",

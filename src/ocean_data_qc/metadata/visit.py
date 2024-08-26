@@ -1,8 +1,8 @@
 import pandas as pd
 
-from fyskemqc.errors import VisitError
-from fyskemqc.metadata_qc.metadata_flag import MetadataFlag
-from fyskemqc.metadata_qc.metadata_qc_field import MetadataQcField
+from ocean_data_qc.errors import VisitError
+from ocean_data_qc.metadata.metadata_flag import MetadataFlag
+from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
 
 
 class Visit:

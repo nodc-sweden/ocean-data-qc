@@ -1,0 +1,84 @@
+ALKY:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 10
+AMON:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 20
+CNDC_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 5
+CPHL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 150
+DEPH:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 1000
+DOXY_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 12
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 12
+H2S:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 20
+HUMUS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 100
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 100
+NTRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 50
+NTRI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 20
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 50
+PHOS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 15
+PRES_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 1000
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 15
+SALT_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 36
+SALT_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 36
+TEMP_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: -1
+    max_range_value: 30
+TEMP_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: -1
+    max_range_value: 30
+TOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 10

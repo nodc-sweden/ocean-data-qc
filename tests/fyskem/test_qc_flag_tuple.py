@@ -1,7 +1,7 @@
 import pytest
-from fyskemqc import errors
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcFlagTuple
+from ocean_data_qc import errors
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcFlagTuple
 
 
 def test_qc_flag_tuple_behaves_like_a_tuple():

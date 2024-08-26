@@ -1,7 +1,7 @@
 import enum
 
-from fyskemqc import errors
-from fyskemqc.qc_flag import QcFlag
+from ocean_data_qc import errors
+from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
 class QcField(enum.IntEnum):

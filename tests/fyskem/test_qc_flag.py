@@ -1,5 +1,5 @@
 import pytest
-from fyskemqc.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
 def test_sort_flags_using_key_function():

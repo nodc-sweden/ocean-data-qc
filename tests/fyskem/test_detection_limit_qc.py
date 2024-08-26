@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
-from fyskemqc.detection_limit_qc import DetectionLimitQc
-from fyskemqc.parameter import Parameter
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcField
+from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
+from ocean_data_qc.fyskem.parameter import Parameter
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 from tests.setup_methods import (
     generate_data_frame,

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-import fyskemqc.qc_checks  # noqa: F401
+import ocean_data_qc.fyskem.qc_checks  # noqa: F401
 
 
 class QcConfiguration:

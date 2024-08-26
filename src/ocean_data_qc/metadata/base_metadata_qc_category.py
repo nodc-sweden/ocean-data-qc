@@ -1,6 +1,6 @@
 import abc
 
-from fyskemqc.visit import Visit
+from ocean_data_qc.metadata.visit import Visit
 
 
 class BaseMetadataQcCategory(abc.ABC):

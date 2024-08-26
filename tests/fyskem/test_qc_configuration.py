@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from fyskemqc.parameter import Parameter
-from fyskemqc.qc_configuration import QcConfiguration
+from ocean_data_qc.fyskem.parameter import Parameter
+from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 
 
 def given_parameter_with_data(data: dict):

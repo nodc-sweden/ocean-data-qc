@@ -1,6 +1,6 @@
 import pandas as pd
 
-from fyskemqc.qc_flags import QcFlags
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 
 class Parameter:
