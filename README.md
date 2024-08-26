@@ -1,4 +1,4 @@
-# ocean_data_qc
+# ocean-data-qc
 
 Automatic quality control of ocean data.
 
