@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Sequence
 
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcField, QcFlagTuple
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
 
 
 @dataclass

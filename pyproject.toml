@@ -1,5 +1,5 @@
 [project]
-name = "fyskemqc"
+name = "ocean_data_qc"
 version = "2024.4.1"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [

@@ -1,9 +1,9 @@
 import pandas as pd
 
-from fyskemqc.detection_limit_qc import DetectionLimitQc
-from fyskemqc.parameter import Parameter
-from fyskemqc.qc_configuration import QcConfiguration
-from fyskemqc.range_qc import RangeQc
+from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
+from ocean_data_qc.fyskem.parameter import Parameter
+from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
+from ocean_data_qc.fyskem.range_qc import RangeQc
 
 QC_CATEGORIES = {
     "range_check": RangeQc,

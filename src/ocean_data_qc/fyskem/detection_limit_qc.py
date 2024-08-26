@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from fyskemqc.base_qc_category import BaseQcCategory
-from fyskemqc.qc_checks import DetectionLimitCheck
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcField
+from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
+from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 
 class DetectionLimitQc(BaseQcCategory):

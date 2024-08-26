@@ -1,6 +1,6 @@
 import abc
 
-from fyskemqc.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
 class BaseQcCategory(abc.ABC):

@@ -1,6 +1,6 @@
-from fyskemqc.metadata_qc.base_metadata_qc_category import BaseMetadataQcCategory
-from fyskemqc.metadata_qc.metadata_flag import MetadataFlag
-from fyskemqc.metadata_qc.metadata_qc_field import MetadataQcField
+from ocean_data_qc.metadata.base_metadata_qc_category import BaseMetadataQcCategory
+from ocean_data_qc.metadata.metadata_flag import MetadataFlag
+from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
 
 
 class WadepQc(BaseMetadataQcCategory):

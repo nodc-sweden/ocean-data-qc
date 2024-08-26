@@ -1,6 +1,6 @@
-from fyskemqc.metadata_qc.metadata_flag import MetadataFlag
-from fyskemqc.metadataqc import MetadataQc
-from fyskemqc.visit import Visit
+from ocean_data_qc.metadata.metadata_flag import MetadataFlag
+from ocean_data_qc.metadata.visit import Visit
+from ocean_data_qc.metadataqc import MetadataQc
 from setup_methods import generate_data_frame_of_length
 
 

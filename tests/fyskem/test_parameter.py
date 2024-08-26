@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
-from fyskemqc.parameter import Parameter
-from fyskemqc.qc_flag import QcFlag
+from ocean_data_qc.fyskem.parameter import Parameter
+from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
 @pytest.mark.parametrize(

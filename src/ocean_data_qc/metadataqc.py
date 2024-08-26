@@ -1,6 +1,6 @@
-from fyskemqc.metadata_qc.metadata_qc_field import MetadataQcField
-from fyskemqc.metadata_qc.wadep_qc import WadepQc
-from fyskemqc.visit import Visit
+from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
+from ocean_data_qc.metadata.visit import Visit
+from ocean_data_qc.metadata.wadep_qc import WadepQc
 
 METADATA_CATEGORIES = {
     MetadataQcField.Wadep: WadepQc,

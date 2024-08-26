@@ -1,6 +1,6 @@
 import pytest
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flags import QcFlags
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 
 @pytest.mark.parametrize(

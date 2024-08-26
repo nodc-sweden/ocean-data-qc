@@ -1,6 +1,6 @@
-# fyskemqc
+# ocean_data_qc
 
-Automatic quality control of FysKem data.
+Automatic quality control of ocean data.
 
 ## Setup
 

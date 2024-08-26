@@ -1,7 +1,7 @@
 import pytest
-from fyskemqc.qc_flag import QcFlag
-from fyskemqc.qc_flag_tuple import QcField, QcFlagTuple
-from fyskemqc.qc_flags import QcFlags
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 
 def test_qc_flags_has_three_sections():
