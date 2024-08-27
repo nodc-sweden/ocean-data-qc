@@ -1,7 +1,8 @@
 from ocean_data_qc.metadata.metadata_flag import MetadataFlag
 from ocean_data_qc.metadata.visit import Visit
 from ocean_data_qc.metadataqc import MetadataQc
-from setup_methods import generate_data_frame_of_length
+
+from tests.setup_methods import generate_data_frame_of_length
 
 
 def test_run_checks_for_parameters():
