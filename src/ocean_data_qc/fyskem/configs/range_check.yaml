@@ -5,7 +5,7 @@ ALKY:
 AMON:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 20
+    max_range_value: 60
 CNDC_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
@@ -29,11 +29,11 @@ DOXY_CTD:
 H2S:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 20
+    max_range_value: 300
 HUMUS:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
-    max_range_value: 100
+    max_range_value: 200
 NTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
@@ -62,6 +62,18 @@ PTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
     max_range_value: 15
+SIO3-SI:
+  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+    min_range_value: 0
+    max_range_value: 200
+PH_TOT:
+  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+    min_range_value: 5
+    max_range_value: 9
+PH:
+  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+    min_range_value: 5
+    max_range_value: 9
 SALT_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
