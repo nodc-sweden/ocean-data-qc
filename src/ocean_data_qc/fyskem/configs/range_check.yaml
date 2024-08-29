@@ -63,15 +63,15 @@ PTOT:
     min_range_value: 0
     max_range_value: 15
 SIO3-SI:
-  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 0
     max_range_value: 200
 PH_TOT:
-  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 5
     max_range_value: 9
 PH:
-  global: !!python/object:fyskemqc.qc_checks.RangeCheck
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RangeCheck
     min_range_value: 5
     max_range_value: 9
 SALT_BTL:
