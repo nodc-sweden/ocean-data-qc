@@ -1,27 +1,32 @@
 import pandas as pd
 
-from ocean_data_qc.errors import VisitError
 from ocean_data_qc.metadata.metadata_flag import MetadataFlag
 from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
 
 
 class Visit:
-    METADATA_FIELDS = ("WADEP",)
+    METADATA_FIELDS = (
+        "AIRPRES",
+        "AIRTEMP",
+        "COMNT_VISIT",
+        "CRUISE_NO",
+        "CTRYID",
+        "LATIT",
+        "LONGI",
+        "SDATE",
+        "SHIPC",
+        "STATN",
+        "STIME",
+        "SERNO",
+        "WADEP",
+        "WINDIR",
+        "WINSP",
+    )
 
     def __init__(self, data: pd.DataFrame):
         self._data = data
-
-        if len(series_ids := self._data.SERNO.unique()) > 1:
-            formated_ids = "', '".join(series_ids)
-            raise VisitError(f"Visit data contains multiple series ids: '{formated_ids}'")
-        self._series = series_ids[0]
-
-        if len(station_names := self._data.STATN.unique()) > 1:
-            formated_stations = "', '".join(station_names)
-            raise VisitError(
-                f"Visit data contains multiple stations: '{formated_stations}'"
-            )
-        self._station = station_names[0]
+        self._series = self._data.SERNO.unique()
+        self._station = self._data.STATN.unique()
 
         self._qc_fields = {
             field: MetadataFlag.NO_QC_PERFORMED for field in MetadataQcField
@@ -34,11 +39,7 @@ class Visit:
         for field in self.METADATA_FIELDS:
             if field not in self._data.columns:
                 continue
-
-            if len(values := self._data[field].unique()) > 1:
-                print("Gör något")
-            else:
-                self._metadata[field] = values[0]
+            self._metadata[field] = self._data[field].unique()
 
     @property
     def series(self):
