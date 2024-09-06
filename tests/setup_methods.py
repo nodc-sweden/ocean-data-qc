@@ -86,17 +86,20 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
     return generate_data_frame(rows)
 
 
-def generate_data_frame_from_data_list(data_list: list[dict]):
+def generate_data_frame_from_data_list(data_list: list[dict], depths: list[int] = None):
     rows = []
+    depths = depths or [20]
     random_floats = random_number_generator(number_range=(0, 10), decimal_places=2)
     random_parameter_indices = random_number_generator(
         number_range=(0, len(PARAMETER_CHOICE) - 1)
     )
-    for data in data_list:
-        value = next(random_floats)
-        parameter = PARAMETER_CHOICE[next(random_parameter_indices)]
-        row = {"parameter": parameter, "value": value}
-        rows.append(row | data)
+
+    for depth in depths:
+        for data in data_list:
+            value = next(random_floats)
+            parameter = PARAMETER_CHOICE[next(random_parameter_indices)]
+            row = {"parameter": parameter, "value": value, "DEPH": depth}
+            rows.append(row | data)
     return generate_data_frame(rows)
 
 
