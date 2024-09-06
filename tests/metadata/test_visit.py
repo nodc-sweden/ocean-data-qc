@@ -32,7 +32,7 @@ def test_visit_wraps_pandas_series(given_series_id, given_station_name):
     assert visit.station == given_station_name
 
 
-def test_visit_handles_non_unique_series_id():
+def test_visit_handles_conflicting_values_for_series_id():
     # Given three visit series numbers
     given_series_number_1 = "001"
     given_series_number_2 = "002"
@@ -58,7 +58,7 @@ def test_visit_handles_non_unique_series_id():
     assert given_series_number_3 in visit._series
 
 
-def test_visit_raises_if_station_not_unique():
+def test_visit_handles_conflicting_values_for_station_name():
     # Given three station names
     given_station_name_1 = "Yavin"
     given_station_name_2 = "Echo"
@@ -93,3 +93,28 @@ def test_visit_initializes_all_metadata_qc_flags_as_not_performed():
     assert len(MetadataQcField)
     for category in MetadataQcField:
         assert visit.qc[category] == MetadataFlag.NO_QC_PERFORMED
+
+
+def test_visit_handles_date_and_time_together():
+    # Given a list of pairs of date and time including repeated values
+    given_date_time_pairs = (
+        ("2024-09-09", "23:58"),
+        ("2024-09-09", "23:59"),
+        ("2024-09-10", "0:00"),
+        ("2024-09-10", "0:01"),
+        ("2024-09-10", "0:01"),
+    )
+    # Given data with a spread in date and time
+    given_data = generate_data_frame_from_data_list(
+        [
+            {"SERNO": "123", "STATN": "Station", "SDATE": date, "STIME": time}
+            for date, time in given_date_time_pairs
+        ]
+    )
+
+    # When creating a visit
+    visit = Visit(given_data)
+
+    # Then all unique date, time pairs are kept together
+    assert len(visit.times()) < len(given_date_time_pairs)
+    assert set(visit.times()) == set(given_date_time_pairs)
