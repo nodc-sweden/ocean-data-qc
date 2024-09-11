@@ -5,4 +5,5 @@ class MetadataQcField(enum.Enum):
     """All metadata QC categories"""
 
     Wadep = 0
-    CommonValues = 1
+    DateAndTime = 1
+    CommonValues = 2

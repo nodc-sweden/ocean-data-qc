@@ -13,10 +13,8 @@ class Visit:
         "CTRYID",
         "LATIT",
         "LONGI",
-        "SDATE",
         "SHIPC",
         "STATN",
-        "STIME",
         "SERNO",
         "WADEP",
         "WINDIR",
@@ -25,8 +23,8 @@ class Visit:
 
     def __init__(self, data: pd.DataFrame):
         self._data = data
-        self._series = self._data.SERNO.unique()
-        self._station = self._data.STATN.unique()
+        self._series = self._data.SERNO.unique() if "SERNO" in self._data.columns else []
+        self._station = self._data.STATN.unique() if "STATN" in self._data.columns else []
 
         self._qc_fields = {
             field: MetadataFlag.NO_QC_PERFORMED for field in MetadataQcField
@@ -36,6 +34,15 @@ class Visit:
 
     def _init_metadata(self):
         self._metadata = {}
+
+        if "SDATE" not in self._data.columns:
+            self._data["SDATE"] = ""
+        if "STIME" not in self._data.columns:
+            self._data["STIME"] = ""
+
+        self._times = set(
+            tuple(self._data[["SDATE", "STIME"]].itertuples(index=False, name=None))
+        )
         for field in self.METADATA_FIELDS:
             if field not in self._data.columns:
                 continue
@@ -55,6 +62,9 @@ class Visit:
 
     def water_depths(self):
         return self._data.DEPH.unique()
+
+    def times(self):
+        return self._times
 
     @property
     def metadata(self):
