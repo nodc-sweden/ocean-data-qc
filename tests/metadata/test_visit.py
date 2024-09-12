@@ -117,4 +117,97 @@ def test_visit_handles_date_and_time_together():
 
     # Then all unique date, time pairs are kept together
     assert len(visit.times()) < len(given_date_time_pairs)
-    assert set(visit.times()) == set(given_date_time_pairs)
+    assert visit.times() == set(given_date_time_pairs)
+
+
+def test_visit_handles_latitude_and_longitude_together():
+    # Given a list of pairs of date and time including repeated values
+    given_position_pairs = (
+        ("5606.984", "1631.162"),
+        ("5606.985", "1631.162"),
+        ("5606.985", "1631.163"),
+        ("5606.986", "1631.163"),
+        ("5606.986", "1631.163"),
+    )
+
+    # Given data with a spread in date and time
+    given_data = generate_data_frame_from_data_list(
+        [
+            {"SERNO": "123", "STATN": "Station", "LATIT": latitude, "LONGI": longitude}
+            for latitude, longitude in given_position_pairs
+        ]
+    )
+
+    # When creating a visit
+    visit = Visit(given_data)
+
+    # Then all unique date, time pairs are kept together
+    assert len(visit.positions()) < len(given_position_pairs)
+    assert visit.positions() == set(given_position_pairs)
+
+
+def test_visit_uses_nominal_position_when_measured_position_is_missing():
+    # Given nominal positions
+    given_nominal_positions = (
+        ("5606", "1631"),
+        ("5605", "1630"),
+    )
+    # Given data with LONGI_NOM and LATIIT_NOM but not LATIT and LONGO
+    given_data = generate_data_frame_from_data_list(
+        [
+            {
+                "SERNO": "123",
+                "STATN": "Station",
+                "LATIT_NOM": latitude,
+                "LONGI_NOM": longitude,
+            }
+            for latitude, longitude in given_nominal_positions
+        ]
+    )
+
+    # When creating a visit
+    visit = Visit(given_data)
+
+    # Then positions will be taken from the nominal values
+    assert visit.positions() == set(given_nominal_positions)
+
+
+def test_visit_uses_measured_position_over_nominal_position_when_both_are_available():
+    # Given measured positions
+    given_measured_positions = (
+        ("5606.984", "1631.162"),
+        ("5606.985", "1631.163"),
+        ("5606.986", "1631.164"),
+    )
+
+    # Given nominal positions
+    given_nominal_positions = (
+        ("5606", "1631"),
+        ("5605", "1630"),
+        ("5604", "1629"),
+    )
+    # Given data with LONGI_NOM and LATIIT_NOM but not LATIT and LONGO
+    given_data = generate_data_frame_from_data_list(
+        [
+            {
+                "SERNO": "123",
+                "STATN": "Station",
+                "LATIT": latitude,
+                "LONGI": longitude,
+                "LATIT_NOM": nominal_latitude,
+                "LONGI_NOM": nominal_longitude,
+            }
+            for (latitude, longitude), (nominal_latitude, nominal_longitude) in zip(
+                given_measured_positions, given_nominal_positions
+            )
+        ]
+    )
+
+    # When creating a visit
+    visit = Visit(given_data)
+
+    # Then positions will be taken from the nominal values
+    assert visit.positions() == set(given_measured_positions)
+
+    # And none of the nominal values are presented
+    assert visit.positions() ^ set(given_nominal_positions)
