@@ -25,6 +25,8 @@ class Visit:
         self._data = data
         self._series = self._data.SERNO.unique() if "SERNO" in self._data.columns else []
         self._station = self._data.STATN.unique() if "STATN" in self._data.columns else []
+        self._times = set()
+        self._positions = set()
 
         self._qc_fields = {
             field: MetadataFlag.NO_QC_PERFORMED for field in MetadataQcField
@@ -43,6 +45,20 @@ class Visit:
         self._times = set(
             tuple(self._data[["SDATE", "STIME"]].itertuples(index=False, name=None))
         )
+
+        if "LATIT" in self._data.columns and "LONGI" in self._data.columns:
+            self._positions = set(
+                tuple(self._data[["LATIT", "LONGI"]].itertuples(index=False, name=None))
+            )
+        elif "LATIT_NOM" in self._data.columns and "LONGI_NOM" in self._data.columns:
+            self._positions = set(
+                tuple(
+                    self._data[["LATIT_NOM", "LONGI_NOM"]].itertuples(
+                        index=False, name=None
+                    )
+                )
+            )
+
         for field in self.METADATA_FIELDS:
             if field not in self._data.columns:
                 continue
@@ -65,6 +81,9 @@ class Visit:
 
     def times(self):
         return self._times
+
+    def positions(self):
+        return self._positions
 
     @property
     def metadata(self):

@@ -6,4 +6,5 @@ class MetadataQcField(enum.Enum):
 
     Wadep = 0
     DateAndTime = 1
-    CommonValues = 2
+    Position = 2
+    CommonValues = 3
