@@ -186,7 +186,7 @@ def test_visit_uses_measured_position_over_nominal_position_when_both_are_availa
         ("5605", "1630"),
         ("5604", "1629"),
     )
-    # Given data with LONGI_NOM and LATIIT_NOM but not LATIT and LONGO
+    # Given data with LONGI_NOM and LATIIT_NOM but not LATIT and LONGI
     given_data = generate_data_frame_from_data_list(
         [
             {
