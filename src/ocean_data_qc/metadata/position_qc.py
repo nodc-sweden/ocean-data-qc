@@ -28,6 +28,11 @@ class PositionQc(BaseMetadataQcCategory):
                 and self.WGS84_DDDMM_SSS_PATTERN.fullmatch(longitude)
             ):
                 bad_position |= True
+                self._visit.log(
+                    MetadataQcField.Position,
+                    ("LATIT", "LONGI"),
+                    f"Bad position format: {latitude}, {longitude}",
+                )
                 continue
             else:
                 latitude = float(latitude)
@@ -41,6 +46,11 @@ class PositionQc(BaseMetadataQcCategory):
 
         if bad_position:
             self._visit.qc[MetadataQcField.Position] = MetadataFlag.BAD_DATA
+            self._visit.log(
+                MetadataQcField.Position,
+                ("LATIT", "LONGI"),
+                f"Position outside rough area: {latitude}, {longitude}",
+            )
         else:
             self._visit.qc[MetadataQcField.Position] = MetadataFlag.GOOD_DATA
 

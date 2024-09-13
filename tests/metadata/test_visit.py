@@ -85,14 +85,19 @@ def test_visit_handles_conflicting_values_for_station_name():
 
 
 def test_visit_initializes_all_metadata_qc_flags_as_not_performed():
+    # Given data
     given_data = generate_data_frame_from_data_list([{"SERNO": "123", "STATN": "ABC"}])
 
+    # When creating a visit
     visit = Visit(given_data)
 
     # Then all metadata is set to 'No QC performed'
     assert len(MetadataQcField)
     for category in MetadataQcField:
         assert visit.qc[category] == MetadataFlag.NO_QC_PERFORMED
+
+    # And the qc log is empty
+    assert not visit.qc_log
 
 
 def test_visit_handles_date_and_time_together():

@@ -46,6 +46,9 @@ def test_common_metadata_with_same_value_is_flagged_as_good():
     # Then the parameter is flagged as being good
     assert visit.qc[MetadataQcField.CommonValues] == MetadataFlag.GOOD_DATA
 
+    # And the qc log is empty
+    assert not visit.qc_log
+
 
 @pytest.mark.parametrize(
     "given_field, first_value, second_value",
@@ -111,3 +114,9 @@ def test_common_metadata_with_different_values_are_flagged_as_bad(
 
     # Then the parameter is flagged as being bad
     assert visit.qc[MetadataQcField.CommonValues] == MetadataFlag.BAD_DATA
+
+    # And the qc log is not empty
+    assert visit.qc_log
+
+    # And the specific field is present in the qc log
+    assert given_field in visit.qc_log[MetadataQcField.CommonValues]

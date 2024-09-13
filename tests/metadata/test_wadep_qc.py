@@ -37,3 +37,10 @@ def test_quality_flag_for_metadata(given_wadep, given_parameter_depths, expected
 
     # Then the parameter is given the expected flag at the expected position
     assert visit.qc[MetadataQcField.Wadep] == expected_flag
+
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected, the value is added to the qc log
+        assert "WADEP" in visit.qc_log[MetadataQcField.Wadep]

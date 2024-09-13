@@ -1,3 +1,5 @@
+from typing import Union
+
 import pandas as pd
 
 from ocean_data_qc.metadata.metadata_flag import MetadataFlag
@@ -33,6 +35,7 @@ class Visit:
         self._qc_fields = {
             field: MetadataFlag.NO_QC_PERFORMED for field in MetadataQcField
         }
+        self._qc_log = {}
 
         self._init_metadata()
 
@@ -77,6 +80,21 @@ class Visit:
     @property
     def qc(self):
         return self._qc_fields
+
+    @property
+    def qc_log(self):
+        return self._qc_log
+
+    def log(self, qc_field: MetadataQcField, parameters: Union[str, tuple], message: str):
+        if isinstance(parameters, str):
+            parameters = (parameters,)
+
+        for parameter in parameters:
+            if qc_field not in self._qc_log:
+                self._qc_log[qc_field] = {parameter: []}
+            if parameter not in self._qc_log[qc_field]:
+                self._qc_log[qc_field][parameter] = []
+            self._qc_log[qc_field][parameter].append(message)
 
     def water_depths(self):
         return self._data.DEPH.unique()
