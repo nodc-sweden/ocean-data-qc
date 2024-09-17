@@ -11,7 +11,6 @@ from tests.setup_methods import generate_data_frame_from_data_list
 @pytest.mark.parametrize(
     "given_missing_parameters, expected_flag",
     (
-        ((), MetadataFlag.GOOD_DATA),
         (("SDATE",), MetadataFlag.BAD_DATA),
         (("STIME",), MetadataFlag.BAD_DATA),
         (("SDATE", "STIME"), MetadataFlag.BAD_DATA),
@@ -35,14 +34,17 @@ def test_both_date_and_time_are_required(given_missing_parameters, expected_flag
     # Then the parameter is given the expected flag at the expected position
     assert visit.qc[MetadataQcField.DateAndTime] == expected_flag
 
+    # And the missing parameters are in the qc log
+    assert set(visit.qc_log[MetadataQcField.DateAndTime].keys()) == set(
+        given_missing_parameters
+    )
+
 
 @pytest.mark.parametrize(
     "given_current_date, given_date, expected_flag",
     (
         ("2024-09-07", "2024-09-06", MetadataFlag.GOOD_DATA),  # YYYY-MM-DD
         ("2024-09-07", "Today", MetadataFlag.BAD_DATA),  # Literal date
-        ("2024-09-07", "", MetadataFlag.BAD_DATA),  # Missing date
-        ("2024-09-07", None, MetadataFlag.BAD_DATA),  # Missing date
         ("2024-09-07", "240906", MetadataFlag.BAD_DATA),  # YYMMDD
         ("2024-09-07", "24-09-06", MetadataFlag.BAD_DATA),  # YY-MM-DD
         ("2024-09-07", "20240906", MetadataFlag.BAD_DATA),  # YYYYMMDD
@@ -74,8 +76,19 @@ def test_dates_check_for_various_date_formats(
         date_qc = DateQc(visit)
         date_qc.check()
 
-        # Then the parameter is given the expected flag at the expected position
-        assert visit.qc[MetadataQcField.DateAndTime] == expected_flag
+    # Then the parameter is given the expected flag at the expected position
+    assert visit.qc[MetadataQcField.DateAndTime] == expected_flag
+
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected, the value is added to the qc log
+        assert "SDATE" in visit.qc_log[MetadataQcField.DateAndTime]
+        assert any(
+            given_date in entry
+            for entry in visit.qc_log[MetadataQcField.DateAndTime]["SDATE"]
+        )
 
 
 @pytest.mark.parametrize(
@@ -104,6 +117,17 @@ def test_date_check_for_various_time_formats(given_time, expected_flag: Metadata
 
     # Then the parameter is given the expected flag at the expected position
     assert visit.qc[MetadataQcField.DateAndTime] == expected_flag
+
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected, the value is added to the qc log
+        assert "STIME" in visit.qc_log[MetadataQcField.DateAndTime]
+        assert any(
+            given_time in entry
+            for entry in visit.qc_log[MetadataQcField.DateAndTime]["STIME"]
+        )
 
 
 @pytest.mark.parametrize(
@@ -155,3 +179,12 @@ def test_combined_check_of_date_and_time(
 
         # Then the parameter is given the expected flag at the expected position
         assert visit.qc[MetadataQcField.DateAndTime] == expected_flag
+
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected,
+        # the value is added to thed qc log for both SDATE and STIME
+        assert "SDATE" in visit.qc_log[MetadataQcField.DateAndTime]
+        assert "STIME" in visit.qc_log[MetadataQcField.DateAndTime]

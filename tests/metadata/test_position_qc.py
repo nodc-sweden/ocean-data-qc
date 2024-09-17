@@ -44,6 +44,24 @@ def test_position_check_for_various_position_formats(
     # Then the parameter is given the expected flag at the expected position
     assert visit.qc[MetadataQcField.Position] == expected_flag
 
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected, the value is added to the qc log
+        assert (
+            "LATIT" in visit.qc_log[MetadataQcField.Position]
+            and "LONGI" in visit.qc_log[MetadataQcField.Position]
+        )
+        assert any(
+            given_latitude in entry
+            for entry in visit.qc_log[MetadataQcField.Position]["LATIT"]
+        )
+        assert any(
+            given_longitude in entry
+            for entry in visit.qc_log[MetadataQcField.Position]["LONGI"]
+        )
+
 
 @pytest.mark.parametrize(
     "given_latitude, given_longitude, expected_latitude, expected_longitude",
@@ -96,3 +114,21 @@ def test_position_check_within_rough_area(given_latitude, given_longitude, expec
 
     # Then the parameter is given the expected flag at the expected position
     assert visit.qc[MetadataQcField.Position] == expected_flag
+
+    if expected_flag == MetadataFlag.GOOD_DATA:
+        # And if good data is expected, the qc log is empty
+        assert not visit.qc_log
+    else:
+        # And if bad data is expected, the value is added to the qc log
+        assert (
+            "LATIT" in visit.qc_log[MetadataQcField.Position]
+            and "LONGI" in visit.qc_log[MetadataQcField.Position]
+        )
+        assert any(
+            given_latitude in entry
+            for entry in visit.qc_log[MetadataQcField.Position]["LATIT"]
+        )
+        assert any(
+            given_longitude in entry
+            for entry in visit.qc_log[MetadataQcField.Position]["LONGI"]
+        )

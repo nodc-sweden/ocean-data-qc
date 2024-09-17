@@ -16,12 +16,15 @@ def test_common_metadata_with_same_value_is_flagged_as_good():
         "CRUISE_NO": 123,
         "CTRYID": 123,
         "LATIT": 5711.562,
+        "LATIT_NOM": 5711.562,
         "LONGI": 1139.446,
+        "LONGI_NOM": 1139.446,
         "SDATE": "2024-07-15",
+        "SERNO": 123,
         "SHIPC": 123,
         "STATN": "FLADEN",
+        "STDATE": "2024-09-13",
         "STIME": "13:10",
-        "SERNO": 123,
         "WADEP": 123,
         "WINDIR": 18,
         "WINSP": 1,
@@ -43,6 +46,9 @@ def test_common_metadata_with_same_value_is_flagged_as_good():
     # Then the parameter is flagged as being good
     assert visit.qc[MetadataQcField.CommonValues] == MetadataFlag.GOOD_DATA
 
+    # And the qc log is empty
+    assert not visit.qc_log
+
 
 @pytest.mark.parametrize(
     "given_field, first_value, second_value",
@@ -52,10 +58,12 @@ def test_common_metadata_with_same_value_is_flagged_as_good():
         ("CRUISE_NO", 123, 121),
         ("CTRYID", 123, None),
         ("LATIT", 5711.562, 5711.561),
+        ("LATIT_NOM", 5711.562, 5711.561),
         ("LONGI", 1139.446, 1139.44),
+        ("LONGI_NOM", 1139.446, 1139.44),
+        ("SERNO", 123, 321),
         ("SHIPC", 123, 0),
         ("STATN", "FLADEN", "fladen"),
-        ("SERNO", 123, 321),
         ("WADEP", 123, 121),
         ("WINDIR", 18, 17),
         ("WINSP", 1, 10),
@@ -74,12 +82,14 @@ def test_common_metadata_with_different_values_are_flagged_as_bad(
         "CRUISE_NO": 123,
         "CTRYID": 123,
         "LATIT": 5711.562,
+        "LATIT_NOM": 5711.562,
         "LONGI": 1139.446,
+        "LONGI_NOM": 1139.446,
         "SDATE": "2024-07-15",
+        "SERNO": 123,
         "SHIPC": 123,
         "STATN": "FLADEN",
         "STIME": "13:10",
-        "SERNO": 123,
         "WADEP": 123,
         "WINDIR": 18,
         "WINSP": 1,
@@ -104,3 +114,9 @@ def test_common_metadata_with_different_values_are_flagged_as_bad(
 
     # Then the parameter is flagged as being bad
     assert visit.qc[MetadataQcField.CommonValues] == MetadataFlag.BAD_DATA
+
+    # And the qc log is not empty
+    assert visit.qc_log
+
+    # And the specific field is present in the qc log
+    assert given_field in visit.qc_log[MetadataQcField.CommonValues]
