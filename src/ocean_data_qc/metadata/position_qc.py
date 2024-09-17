@@ -19,14 +19,9 @@ class PositionQc(BaseMetadataQcCategory):
     def check(self):
         bad_position = False
         for latitude, longitude in self._visit.positions():
-            if self.SWEREF99TM_PATTERN.fullmatch(
-                latitude
-            ) and self.SWEREF99TM_PATTERN.fullmatch(longitude):
+            if self._is_sweref99tm(latitude, longitude):
                 latitude, longitude = self.sweref99tm_to_wgs84(latitude, longitude)
-            elif not (
-                self.WGS84_DDDMM_SSS_PATTERN.fullmatch(latitude)
-                and self.WGS84_DDDMM_SSS_PATTERN.fullmatch(longitude)
-            ):
+            elif not self._is_wgs84(latitude, longitude):
                 bad_position |= True
                 self._visit.log(
                     MetadataQcField.Position,
@@ -43,14 +38,14 @@ class PositionQc(BaseMetadataQcCategory):
                 and self.western_limit <= longitude <= self.eastern_limit
             ):
                 bad_position |= True
+                self._visit.log(
+                    MetadataQcField.Position,
+                    ("LATIT", "LONGI"),
+                    f"Position outside rough area: {latitude}, {longitude}",
+                )
 
         if bad_position:
             self._visit.qc[MetadataQcField.Position] = MetadataFlag.BAD_DATA
-            self._visit.log(
-                MetadataQcField.Position,
-                ("LATIT", "LONGI"),
-                f"Position outside rough area: {latitude}, {longitude}",
-            )
         else:
             self._visit.qc[MetadataQcField.Position] = MetadataFlag.GOOD_DATA
 
@@ -71,3 +66,52 @@ class PositionQc(BaseMetadataQcCategory):
     def _dd_to_dm(dd_value):
         remainder, degrees = math.modf(dd_value)
         return degrees * 100 + remainder * 60
+
+    @classmethod
+    def _is_sweref99tm(cls, latitude, longitude):
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            return False
+
+        if not 181896.33 <= longitude <= 1086312.94:
+            return False
+
+        if not 6090353.78 <= latitude <= 7689478.31:
+            return False
+
+        return True
+
+    @classmethod
+    def _is_wgs84(cls, latitude, longitude):
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except ValueError:
+            return False
+
+        latitude_degrees, latitude_hours = cls._split_ddhh(latitude)
+        if latitude_degrees > 90:
+            return False
+
+        if latitude_hours >= 60:
+            return False
+
+        longitude_degrees, longitude_hours = cls._split_ddhh(longitude)
+        if longitude_degrees > 180:
+            return False
+
+        if longitude_hours >= 60:
+            return False
+
+        return True
+
+    @classmethod
+    def _split_ddhh(cls, latitude):
+        degrees_hours_latitude = f"{abs(int(latitude)):04}"
+        latitude_degrees, latitude_hours = (
+            int(degrees_hours_latitude[:2]),
+            int(degrees_hours_latitude[2:]),
+        )
+        return latitude_degrees, latitude_hours
