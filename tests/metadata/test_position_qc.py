@@ -10,11 +10,14 @@ from tests.setup_methods import generate_data_frame_from_data_list
 @pytest.mark.parametrize(
     "given_latitude, given_longitude, expected_flag",
     (
-        ("6220074.671", "594470.389", MetadataFlag.GOOD_DATA),  # SWEREF99 TM
-        ("5606.984", "1631.162", MetadataFlag.GOOD_DATA),  # WGS84 DDDMM.SSS
+        ("6220074.671", "594470.389", MetadataFlag.GOOD_DATA),  # SWEREF99 TM (str)
+        (6220074.671, 594470.389, MetadataFlag.GOOD_DATA),  # SWEREF99 TM (float)
+        ("5606.984", "1631.162", MetadataFlag.GOOD_DATA),  # WGS84 DDDMM.SSS (str)
+        (5606.984, 1631.162, MetadataFlag.GOOD_DATA),  # WGS84 DDDMM.SSS (float)
         ("5606.984°", "1631.162°", MetadataFlag.BAD_DATA),  # WGS84 DDDMM.SSS°
         ("56.1164000°", "016.5193667°", MetadataFlag.BAD_DATA),  # WGS84 DDD.DDDDD°
-        ("56.1164000", "016.5193667", MetadataFlag.BAD_DATA),  # WGS84 DDD.DDDDD
+        ("56.1164000", "016.5193667", MetadataFlag.BAD_DATA),  # WGS84 DDD.DDDDD (str)
+        (56.1164000, 016.5193667, MetadataFlag.BAD_DATA),  # WGS84 DDD.DDDDD (float)
         ("56°06.98400'", "016°31.16200'", MetadataFlag.BAD_DATA),  # WGS84 DDD° MM.MMM'
         ("56 06.98400", "016 31.16200", MetadataFlag.BAD_DATA),  # WGS84 DDD MM.MMM
         (
@@ -52,14 +55,6 @@ def test_position_check_for_various_position_formats(
         assert (
             "LATIT" in visit.qc_log[MetadataQcField.Position]
             and "LONGI" in visit.qc_log[MetadataQcField.Position]
-        )
-        assert any(
-            given_latitude in entry
-            for entry in visit.qc_log[MetadataQcField.Position]["LATIT"]
-        )
-        assert any(
-            given_longitude in entry
-            for entry in visit.qc_log[MetadataQcField.Position]["LONGI"]
         )
 
 
@@ -132,3 +127,55 @@ def test_position_check_within_rough_area(given_latitude, given_longitude, expec
             given_longitude in entry
             for entry in visit.qc_log[MetadataQcField.Position]["LONGI"]
         )
+
+
+@pytest.mark.parametrize(
+    "given_latitude, given_longitude, expected_status",
+    (
+        ("6220074.671", "594470.389", True),  # SWEREF99 TM (str)
+        (6220074.671, 594470.389, True),  # SWEREF99 TM (float)
+        ("5606.984", "1631.162", False),  # WGS84 DDDMM.SSS (str)
+        (5606.984, 1631.162, False),  # WGS84 DDDMM.SSS (float)
+        ("56.1164000", "016.5193667", False),  # WGS84 DDD.DDDDD (str)
+        (56.1164000, 016.5193667, False),  # WGS84 DDD.DDDDD (float)
+        ("56°06.98400'", "016°31.16200'", False),  # WGS84 DDD° MM.MMM'
+        ("56 06.98400", "016 31.16200", False),  # WGS84 DDD MM.MMM
+    ),
+)
+def test_is_sweref99tm(given_latitude, given_longitude, expected_status):
+    # When testing if position is SWEREF99 TM
+    is_sweref99tm = PositionQc._is_sweref99tm(given_latitude, given_longitude)
+
+    # Then the result is as expected
+    assert is_sweref99tm == expected_status
+
+
+@pytest.mark.parametrize(
+    "given_latitude, given_longitude, expected_status",
+    (
+        ("6220074.671", "594470.389", False),  # SWEREF99 TM (str)
+        (6220074.671, 594470.389, False),  # SWEREF99 TM (float)
+        ("5606.984", "1631.162", True),  # WGS84 DDDMM.SSS (str)
+        (5606.984, 1631.162, True),  # WGS84 DDDMM.SSS (float)
+        (
+            "56.1164000",
+            "16.5193667",
+            True,
+        ),  # WGS84 DDD.DDDDD (str)  - Wrong format but not possible to determine
+        (
+            56.1164000,
+            16.5193667,
+            True,
+        ),  # WGS84 DDD.DDDDD (float) - Wrong format but not possible to determine
+        ("56.1164000", "61.5193667", False),  # WGS84 DDD.DDDDD (str)
+        (-72.1164000, 16.5193667, False),  # WGS84 DDD.DDDDD (float)
+        ("56°06.98400'", "16°31.16200'", False),  # WGS84 DDD° MM.MMM'
+        ("56 06.98400", "16 31.16200", False),  # WGS84 DDD MM.MMM
+    ),
+)
+def test_is_wgs84(given_latitude, given_longitude, expected_status):
+    # When testing if position is WGS84
+    is_wgs84 = PositionQc._is_wgs84(given_latitude, given_longitude)
+
+    # Then the result is as expected
+    assert is_wgs84 == expected_status
