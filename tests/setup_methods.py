@@ -74,6 +74,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         wadep = 75 + visit_id * 10
         deph = int(wadep * next(random_depth_factors))
         station = f"Station {visit_id}"
+        qc_flag_long = "1_00_0_1"
         rows.append(
             {
                 "parameter": parameter,
@@ -82,6 +83,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
                 "STATN": station,
                 "WADEP": wadep,
                 "DEPH": deph,
+                "quality_flag_long": qc_flag_long,
             }
         )
     return generate_data_frame(rows)

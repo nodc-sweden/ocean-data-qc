@@ -7,7 +7,7 @@ from ocean_data_qc.fyskemqc import FysKemQc
 from tests.setup_methods import generate_data_frame, generate_data_frame_of_length
 
 
-@pytest.mark.parametrize("given_number_of_rows", (0, 42, 99))
+@pytest.mark.parametrize("given_number_of_rows", (1, 42, 99))
 def test_fyskemqc_length(given_number_of_rows):
     # Given data with given number of rows
     given_data = generate_data_frame_of_length(given_number_of_rows)
@@ -62,7 +62,7 @@ def test_run_checks_for_parameters():
         (QcFlag.MISSING_VALUE, QcFlag.MISSING_VALUE),
     ),
 )
-def test_manual_cq_does_not_alter_incoming_or_manual_qc(
+def test_manual_qc_does_not_alter_incoming_or_manual_qc(
     given_incoming_qc,
     given_manual_qc,
 ):

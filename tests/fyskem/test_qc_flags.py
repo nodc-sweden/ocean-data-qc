@@ -48,7 +48,9 @@ def test_empty_flags_string_becomes_non_empty_qc_flags_object():
     assert qc_flags.manual == QcFlag.NO_QC_PERFORMED
 
 
-@pytest.mark.parametrize("given_qc_flags", ("0_0_0", "1_23_4", "5_4321_0", "1_2345678_9"))
+@pytest.mark.parametrize(
+    "given_qc_flags", ("0_0_0_0", "1_23_4_4", "5_4321_0_4", "1_235678_9_9")
+)  # noqa: E501
 def test_qc_flags_roundtrip(given_qc_flags: str):
     # Given a qc flags string
     # When creating a QcFlags object
@@ -61,8 +63,8 @@ def test_qc_flags_roundtrip(given_qc_flags: str):
 @pytest.mark.parametrize(
     "given_qc_flags, given_field, expected_value",
     (
-        ("3_2357111317_4", QcField.DetectionLimitCheck, QcFlag.PROBABLY_GOOD_DATA),
-        ("5_9876543210_6", QcField.RangeCheck, QcFlag.INTERPOLATED_VALUE),
+        ("3_2357111317_4_4", QcField.DetectionLimitCheck, QcFlag.PROBABLY_GOOD_DATA),
+        ("5_9876543210_6_4", QcField.RangeCheck, QcFlag.INTERPOLATED_VALUE),
     ),
 )
 def test_get_automatic_qc_flag_by_position(given_qc_flags, given_field, expected_value):
