@@ -12,6 +12,7 @@ class QcFlags:
         default_factory=lambda: QcFlagTuple((QcFlag.NO_QC_PERFORMED,))
     )
     manual: QcFlag = QcFlag.NO_QC_PERFORMED
+    _total: QcFlag = QcFlag.NO_QC_PERFORMED
 
     def __post_init__(self):
         self.incoming = self.incoming or QcFlag.NO_QC_PERFORMED
@@ -19,6 +20,7 @@ class QcFlags:
             (QcFlag.NO_QC_PERFORMED,) * len(QcField)
         )
         self.manual = self.manual or QcFlag.NO_QC_PERFORMED
+        self._total = self.total
 
     def get_field(self, field_name: QcField):
         return self.automatic[field_name]
@@ -48,7 +50,8 @@ class QcFlags:
         return (
             f"{self.incoming.value}_"
             f"{''.join(str(flag.value) for flag in self.automatic)}_"
-            f"{self.manual.value}"
+            f"{self.manual.value}_"
+            f"{self.total.value}"
         )
 
     @classmethod
@@ -56,8 +59,7 @@ class QcFlags:
         if not value:
             return cls()
 
-        incoming, automatic, manual = value.split("_")
-
+        incoming, automatic, manual, total = value.split("_")
         incoming = QcFlag(int(incoming))
         automatic = QcFlagTuple(QcFlag(flag) for flag in map(int, automatic))
         manual = QcFlag(int(manual))

@@ -15,11 +15,11 @@ class BaseQcCategory(abc.ABC):
     def expand_qc_columns(self):
         # Add minimal quality flags if missing
         if "quality_flag_long" not in self._data.columns:
-            self._data["quality_flag_long"] = "0_0_0"
+            self._data["quality_flag_long"] = "0_0_0_0"
 
         # Split QC flags to separate columns for incoming, auto and manual
         if not self._data.empty:
-            self._data[["INCOMING_QC", "AUTO_QC", "MANUAL_QC"]] = self._data[
+            self._data[["INCOMING_QC", "AUTO_QC", "MANUAL_QC", "TOTAL_QC"]] = self._data[
                 "quality_flag_long"
             ].str.split("_", expand=True)
 
@@ -42,4 +42,6 @@ class BaseQcCategory(abc.ABC):
             + self._data["AUTO_QC"]
             + "_"
             + self._data["MANUAL_QC"]
+            + "_"
+            + self._data["TOTAL_QC"]
         )
