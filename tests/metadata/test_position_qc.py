@@ -1,9 +1,9 @@
 import pytest
+
 from ocean_data_qc.metadata.metadata_flag import MetadataFlag
 from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
 from ocean_data_qc.metadata.position_qc import PositionQc
 from ocean_data_qc.metadata.visit import Visit
-
 from tests.setup_methods import generate_data_frame_from_data_list
 
 
