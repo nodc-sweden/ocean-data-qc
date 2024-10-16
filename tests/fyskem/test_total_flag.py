@@ -1,21 +1,43 @@
 import pytest
 
 from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flag_tuple import QcFlagTuple
 from ocean_data_qc.fyskem.qc_flags import QcFlags
+
+
+@pytest.mark.parametrize(
+    "given_flag_string, expected_flag_string",
+    (
+        ("0_000_0_1", "0_000_0_0"),  # All values zero
+        ("0_123_0_0", "0_123_0_3"),  # Worst auto qc flag
+        ("7_000_0_0", "7_000_0_7"),  # Only incoming flag
+        ("9_876_0_0", "9_876_0_9"),  # Worst flag
+        ("2_345_0_0", "2_345_0_4"),  # Worst flag
+        ("1_234_5_6", "1_234_5_5"),  # Manual flag selected
+        ("9_999_1_9", "9_999_1_1"),  # Manual flag selected
+    ),
+)
+def test_inconsistent_total_flags_are_corrected(given_flag_string, expected_flag_string):
+    # Given a QC flag string where the total flag is wrong
+    # When creating a QzFlags object
+    qc_flags = QcFlags.from_string(given_flag_string)
+
+    # Then the flag string is corrected
+    assert str(qc_flags) == expected_flag_string
 
 
 @pytest.mark.parametrize(
     "given_flag_string",
     (
-        "0_000_1_1",
-        "1_345_2_4",
-        "2_456_3_4",
-        "3_567_4_4",
-        "4_678_5_4",
-        "5_789_6_6",
-        "6_890_7_6",
-        "7_901_8_7",
-        "8_012_9_8",
+        "0_000_1_0",
+        "1_345_2_0",
+        "2_456_3_0",
+        "3_567_4_0",
+        "4_678_5_0",
+        "5_789_6_0",
+        "6_890_7_0",
+        "7_901_8_0",
+        "8_012_9_0",
     ),
 )
 def test_manual_qc_trumps_all_other_flags(given_flag_string):
@@ -91,3 +113,29 @@ def test_no_qc_performed_should_always_be_chosen_last(given_flag_string):
     # When reading the total flag
     # Then the total flag is not "No QC performed"
     assert given_qc_flags.total != QcFlag.NO_QC_PERFORMED
+
+
+def test_changing_incoming_auto_or_manual_flags_changes_total():
+    # Given default QC flags
+    given_qc_flag = QcFlags()
+    assert given_qc_flag.total == QcFlag.NO_QC_PERFORMED
+
+    # When setting incoming value
+    given_qc_flag.incoming = QcFlag.VALUE_CHANGED
+
+    # Then total value changes
+    assert given_qc_flag.total == QcFlag.VALUE_CHANGED
+
+    # When setting auto flags (including a worse value)
+    given_qc_flag.automatic = QcFlagTuple(
+        (QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA, QcFlag.BAD_DATA)
+    )
+
+    # Then total value changes
+    assert given_qc_flag.total == QcFlag.BAD_DATA
+
+    # When setting manual value (to a different value)
+    given_qc_flag.manual = QcFlag.GOOD_DATA
+
+    # Then total value changes
+    assert given_qc_flag.total == QcFlag.GOOD_DATA

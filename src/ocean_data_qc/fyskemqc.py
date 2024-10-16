@@ -49,6 +49,4 @@ class FysKemQc:
         if changed_mask.any():
             self._data.loc[changed_mask, "quality_flag_long"] = self._data.loc[
                 changed_mask, "quality_flag_long"
-            ].apply(  # noqa: E501
-                lambda x: str(QcFlags.from_string(x))
-            )
+            ].apply(lambda x: str(QcFlags.from_string(x)))
