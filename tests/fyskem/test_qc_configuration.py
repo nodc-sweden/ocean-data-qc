@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 

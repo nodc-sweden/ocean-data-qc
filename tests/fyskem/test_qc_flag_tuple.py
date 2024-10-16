@@ -1,4 +1,5 @@
 import pytest
+
 from ocean_data_qc import errors
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flag_tuple import QcFlagTuple
