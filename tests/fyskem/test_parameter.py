@@ -43,7 +43,7 @@ def test_parameter_sets_initial_qc_value_if_missing():
 def test_parameter_exposes_existing_qc_flags():
     # Given parameter data with QC_FLAG data
     given_parameter_data = pd.Series(
-        {"parameter": "parameter_name", "value": 42, "quality_flag_long": "1_234_5"}
+        {"parameter": "parameter_name", "value": 42, "quality_flag_long": "1_234_5_4"}
     )
 
     # When creating a parameter

@@ -3,6 +3,7 @@ import pandas as pd
 from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 from ocean_data_qc.fyskem.range_qc import RangeQc
 
 QC_CATEGORIES = {
@@ -15,6 +16,7 @@ class FysKemQc:
     def __init__(self, data: pd.DataFrame):
         self._data = data
         self._configuration = QcConfiguration()
+        self._original_automatic_flags = self._data["quality_flag_long"].copy()
 
     def __len__(self):
         return len(self._data)
@@ -38,3 +40,13 @@ class FysKemQc:
                     category_checker.check(parameter, config)
 
             category_checker.collapse_qc_columns()
+
+        self._update_total()
+
+    def _update_total(self):
+        changed_mask = self._data["quality_flag_long"] != self._original_automatic_flags
+
+        if changed_mask.any():
+            self._data.loc[changed_mask, "quality_flag_long"] = self._data.loc[
+                changed_mask, "quality_flag_long"
+            ].apply(lambda x: str(QcFlags.from_string(x)))
