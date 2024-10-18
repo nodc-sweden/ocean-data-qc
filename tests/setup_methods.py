@@ -1,6 +1,6 @@
 import pandas as pd
 
-from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck, RangeCheck
+from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck, RangeCheck, TotalCheck
 
 PARAMETER_CHOICE = (
     "ALKY",
@@ -88,6 +88,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         deph = int(wadep * next(random_depth_factors))
         station = f"Station {visit_id}"
         qc_flag_long = "1_00_0_1"
+        visit_key = ("20240111_0720_10_FLADEN",)
         rows.append(
             {
                 "parameter": parameter,
@@ -97,6 +98,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
                 "WADEP": wadep,
                 "DEPH": deph,
                 "quality_flag_long": qc_flag_long,
+                "visit_key": visit_key,
             }
         )
     return generate_data_frame(rows)
@@ -152,4 +154,9 @@ def generate_detection_limit_configuration(parameter: str, limit: float):
     Comparable to reading a parameter from a configuration yaml file.
     """
     parameter_configuration = DetectionLimitCheck(limit=limit)
+    return parameter_configuration
+
+
+def generate_total_check_configuration(parameter: str, parameter_list: list):
+    parameter_configuration = TotalCheck(parameter_list=parameter_list)
     return parameter_configuration

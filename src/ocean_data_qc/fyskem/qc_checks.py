@@ -10,3 +10,8 @@ class DetectionLimitCheck:
 class RangeCheck:
     min_range_value: float
     max_range_value: float
+
+
+@dataclass
+class TotalCheck:
+    parameter_list: list
