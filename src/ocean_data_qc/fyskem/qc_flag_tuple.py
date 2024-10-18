@@ -13,6 +13,7 @@ class QcField(enum.IntEnum):
 
     DetectionLimitCheck = 0
     RangeCheck = 1
+    TotalCheck = 2
 
 
 class QcFlagTuple:

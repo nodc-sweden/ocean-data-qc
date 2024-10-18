@@ -62,7 +62,7 @@ def test_run_checks_for_parameters():
         (QcFlag.MISSING_VALUE, QcFlag.MISSING_VALUE),
     ),
 )
-def test_manual_qc_does_not_alter_incoming_or_manual_qc(
+def test_automatic_qc_does_not_alter_incoming_or_manual_qc(
     given_incoming_qc,
     given_manual_qc,
 ):
@@ -70,8 +70,18 @@ def test_manual_qc_does_not_alter_incoming_or_manual_qc(
     given_qc = QcFlags(given_incoming_qc, QcFlagTuple(), given_manual_qc)
     given_data = generate_data_frame(
         [
-            {"parameter": "AMON", "value": 0.01, "quality_flag_long": str(given_qc)},
-            {"parameter": "AMON", "value": 200, "quality_flag_long": str(given_qc)},
+            {
+                "parameter": "AMON",
+                "value": 0.01,
+                "quality_flag_long": str(given_qc),
+                "visit_key": "20240111_0720_10_FLADEN",
+            },
+            {
+                "parameter": "AMON",
+                "value": 200,
+                "quality_flag_long": str(given_qc),
+                "visit_key": "20240111_0720_10_FLADEN",
+            },
         ]
     )
 
