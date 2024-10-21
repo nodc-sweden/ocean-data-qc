@@ -11,9 +11,12 @@ class QcField(enum.IntEnum):
     comment) when there are more actual values.
     """
 
+    # kan detta synkas med info från QC_CATEGORIES i fyskemqc.py?
+    # här kanske också kan kontrolleras att testen gör i ordningen nedan?
     DetectionLimitCheck = 0
     RangeCheck = 1
     ConsistencyCheck = 2
+    H2sCheck = 3
 
 
 class QcFlagTuple:

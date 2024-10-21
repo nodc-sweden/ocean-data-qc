@@ -15,3 +15,8 @@ class RangeCheck:
 @dataclass
 class ConsistencyCheck:
     parameter_list: list
+
+
+@dataclass
+class H2sCheck:
+    skip_flag: str

@@ -2,6 +2,7 @@ import pandas as pd
 
 from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
 from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
+from ocean_data_qc.fyskem.h2s_qc import H2sQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flags import QcFlags
@@ -13,6 +14,7 @@ QC_CATEGORIES = {
     "range_check": RangeQc,
     "detection_limit_check": DetectionLimitQc,
     "consistency_check": ConsistencyQc,
+    "h2s_check": H2sQc,
 }
 
 
