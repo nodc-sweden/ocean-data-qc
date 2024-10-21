@@ -36,7 +36,7 @@ class FysKemQc:
         return {Parameter(series) for _, series in self._data.iterrows()}
 
     def run_automatic_qc(self):
-        for category in self._configuration.categories:
+        for category in QC_CATEGORIES.keys():
             # Get config for parameter
             category_checker = QC_CATEGORIES[category](self._data)
             category_checker.expand_qc_columns()

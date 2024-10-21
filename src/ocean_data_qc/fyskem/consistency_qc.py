@@ -26,19 +26,28 @@ class ConsistencyQc(BaseQcCategory):
         if other_selection.empty:
             return
 
-        total = (
+        summation = (
             other_selection.groupby(["visit_key", "DEPH"])["value"]
             .sum()
-            .reset_index(name="total")
+            .reset_index(name="summation")
         )
-        selection = pd.merge(selection, total, on=["visit_key", "DEPH"], how="left")
+        selection = pd.merge(selection, summation, on=["visit_key", "DEPH"], how="left")
 
         self._data.loc[self._data.parameter == parameter, self._column_name] = np.where(
             pd.isna(selection.value),
             str(QcFlag.MISSING_VALUE.value),
             np.where(
-                selection.value > selection.total,
+                (selection.value - selection.summation) >= 0,
                 str(QcFlag.GOOD_DATA.value),
-                str(QcFlag.BAD_DATA.value),
+                np.where(
+                    np.logical_and(
+                        (selection.value - selection.summation)
+                        >= configuration.lower_deviation,
+                        (selection.value - selection.summation)
+                        <= configuration.upper_deviation,
+                    ),
+                    str(QcFlag.PROBABLY_GOOD_DATA.value),
+                    str(QcFlag.BAD_DATA.value),
+                ),
             ),
         )

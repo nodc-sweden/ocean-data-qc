@@ -75,12 +75,14 @@ def test_automatic_qc_does_not_alter_incoming_or_manual_qc(
                 "value": 0.01,
                 "quality_flag_long": str(given_qc),
                 "visit_key": "20240111_0720_10_FLADEN",
+                "DEPH": 5,
             },
             {
                 "parameter": "AMON",
                 "value": 200,
                 "quality_flag_long": str(given_qc),
                 "visit_key": "20240111_0720_10_FLADEN",
+                "DEPH": 150,
             },
         ]
     )

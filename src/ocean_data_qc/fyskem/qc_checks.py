@@ -15,6 +15,8 @@ class RangeCheck:
 @dataclass
 class ConsistencyCheck:
     parameter_list: list
+    lower_deviation: float
+    upper_deviation: float
 
 
 @dataclass
