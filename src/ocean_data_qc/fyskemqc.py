@@ -8,8 +8,6 @@ from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flags import QcFlags
 from ocean_data_qc.fyskem.range_qc import RangeQc
 
-# kan detta synkas med info från QCField?
-# vi vill styra testordning så att vi är säkra på att ordningen.
 QC_CATEGORIES = {
     "range_check": RangeQc,
     "detection_limit_check": DetectionLimitQc,

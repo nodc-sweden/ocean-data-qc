@@ -8,12 +8,6 @@ PTOT:
     parameter_list: ['PHOS']
     upper_deviation: 0
     lower_deviation: -0.2
-# TOC:
-# 20% incertainty. TOC in mg/l, POC, DOC umol/l
-#   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
-#     parameter_list: ['POC', DOC]
-#     upper_deviation: 0
-#     lower_deviation: 0
 DOXY_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_list: ['DOXY_CTD']
