@@ -1,6 +1,10 @@
 import pandas as pd
 
-from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck, RangeCheck, TotalCheck
+from ocean_data_qc.fyskem.qc_checks import (
+    ConsistencyCheck,
+    DetectionLimitCheck,
+    RangeCheck,
+)
 
 PARAMETER_CHOICE = (
     "ALKY",
@@ -158,5 +162,5 @@ def generate_detection_limit_configuration(parameter: str, limit: float):
 
 
 def generate_total_check_configuration(parameter: str, parameter_list: list):
-    parameter_configuration = TotalCheck(parameter_list=parameter_list)
+    parameter_configuration = ConsistencyCheck(parameter_list=parameter_list)
     return parameter_configuration

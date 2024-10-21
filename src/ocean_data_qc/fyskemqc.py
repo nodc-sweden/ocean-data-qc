@@ -1,18 +1,18 @@
 import pandas as pd
 
+from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
 from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flags import QcFlags
 from ocean_data_qc.fyskem.range_qc import RangeQc
-from ocean_data_qc.fyskem.total_qc import TotalQc
 
 # kan detta synkas med info från QCField?
 # vi vill styra testordning så att vi är säkra på att ordningen.
 QC_CATEGORIES = {
     "range_check": RangeQc,
     "detection_limit_check": DetectionLimitQc,
-    "total_check": TotalQc,
+    "consistency_check": ConsistencyQc,
 }
 
 

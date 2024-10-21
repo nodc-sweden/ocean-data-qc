@@ -13,5 +13,5 @@ class RangeCheck:
 
 
 @dataclass
-class TotalCheck:
+class ConsistencyCheck:
     parameter_list: list

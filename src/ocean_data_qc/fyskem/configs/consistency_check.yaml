@@ -1,0 +1,9 @@
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['NTRA', 'NTRI','AMON']
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['PHOS']
+TOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['POC', DOC]

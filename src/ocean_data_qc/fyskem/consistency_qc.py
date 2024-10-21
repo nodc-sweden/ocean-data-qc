@@ -2,16 +2,18 @@ import numpy as np
 import pandas as pd
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
-from ocean_data_qc.fyskem.qc_checks import TotalCheck
+from ocean_data_qc.fyskem.qc_checks import ConsistencyCheck
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 
-class TotalQc(BaseQcCategory):
+class ConsistencyQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.TotalCheck, f"AUTO_QC_{QcField.TotalCheck}")
+        super().__init__(
+            data, QcField.ConsistencyCheck, f"AUTO_QC_{QcField.ConsistencyCheck}"
+        )
 
-    def check(self, parameter: str, configuration: TotalCheck):
+    def check(self, parameter: str, configuration: ConsistencyCheck):
         selection = self._data.loc[self._data.parameter == parameter]
 
         if selection.empty:
