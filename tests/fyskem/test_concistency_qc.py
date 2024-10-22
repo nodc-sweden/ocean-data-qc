@@ -15,15 +15,43 @@ from tests.setup_methods import (
     "given_parameter, given_value, given_other_parameters_with_values, "
     "given_upper_deviation, given_lower_deviation, expected_flag",
     (
-        ("A", 1.23, {"B": 0.123, "C": 0.123}, 0, -1, QcFlag.GOOD_DATA), # 1.23-(0.123+0.123)=0.984 vilket är >= 0  # noqa: E501
-        ("A", 1, {"B": 0.5, "C": 0.5}, 0, -1, QcFlag.GOOD_DATA), # 1-(0.5+0.5)=0 vilket är >= 0  # noqa: E501
-        ("A", 1, {"B": 1, "C": 0.5}, 0, -1, QcFlag.PROBABLY_GOOD_DATA), # 1-(1+0.5)=-0.5 vilket är > -1  # noqa: E501
-        ("A", 1, {"B": 1, "C": 2}, 0, -1, QcFlag.BAD_DATA), # 1-(1+2)=-2 vilket är < -1
+        (
+            "A",
+            1.23,
+            {"B": 0.123, "C": 0.123},
+            0,
+            -1,
+            QcFlag.GOOD_DATA,
+        ),  # 1.23-(0.123+0.123)=0.984 vilket är >= 0
+        (
+            "A",
+            1,
+            {"B": 0.5, "C": 0.5},
+            0,
+            -1,
+            QcFlag.GOOD_DATA,
+        ),  # 1-(0.5+0.5)=0 vilket är >= 0
+        (
+            "A",
+            1,
+            {"B": 1, "C": 0.5},
+            0,
+            -1,
+            QcFlag.PROBABLY_GOOD_DATA,
+        ),  # 1-(1+0.5)=-0.5 vilket är > -1
+        ("A", 1, {"B": 1, "C": 2}, 0, -1, QcFlag.BAD_DATA),  # 1-(1+2)=-2 vilket är < -1
         ("A", np.nan, {"B": 1, "C": 2}, 0, -1, QcFlag.MISSING_VALUE),
-        ("A", 1, {"B": np.nan, "C": 2}, 0, -1, QcFlag.PROBABLY_GOOD_DATA), # 1-(2)=-1 vilket är >= -1  # noqa: E501
+        (
+            "A",
+            1,
+            {"B": np.nan, "C": 2},
+            0,
+            -1,
+            QcFlag.PROBABLY_GOOD_DATA,
+        ),  # 1-(2)=-1 vilket är >= -1
         # TODO:
         #  - Lägg till hantering av att alla parametrar i parameter list saknas
-        #("A", 1, {"B": None, "C": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
+        # ("A", 1, {"B": None, "C": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
     ),
 )
 def test_consistency_qc_using_override_configuration(

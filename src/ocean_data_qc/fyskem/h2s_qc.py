@@ -13,19 +13,17 @@ class H2sQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: H2sCheck):
         """
-        BAD_DATA: H2S and given parameter not BELOW_DETECTION
-        GOOD_DATA: all other cases
-        no changes: if H2S or given parameter BELOW_DETECTION
+        GOOD_DATA: H2S has flag bad or below detection or value isna
+        BAD_DATA: all other H2S flags or value not isna
+        BELOW_DETECTIONs: given parameter flag BELOW_DETECTION
         """
 
-        parameter_boolean = (self._data.parameter == parameter) & ~self._data[
-            "quality_flag_long"
-        ].str.contains(configuration.skip_flag)
+        parameter_boolean = self._data.parameter == parameter
 
         selection = self._data[parameter_boolean]
         other_selection = self._data[
             (self._data.parameter == "H2S")
-            & ~self._data["quality_flag_long"].str.contains(configuration.skip_flag)
+            & ~self._data["quality_flag_long"].str.contains("(6|4)")
         ].rename(columns={"value": "h2s"})
         selection = pd.merge(
             selection,
@@ -33,13 +31,16 @@ class H2sQc(BaseQcCategory):
             on=["visit_key", "DEPH"],
             how="left",
         )
-
         self._data.loc[parameter_boolean, self._column_name] = np.where(
-            pd.isna(selection.value),
+            pd.isna(selection.value),  # no value means missing flag
             str(QcFlag.MISSING_VALUE.value),
-            np.where(
-                pd.isna(selection.h2s),
-                str(QcFlag.GOOD_DATA.value),
-                str(QcFlag.BAD_DATA.value),
+            np.where(  # if not missing
+                selection.quality_flag_long.str.contains(configuration.skip_flag),
+                str(QcFlag.BELOW_DETECTION.value),  # keep Below detection
+                np.where(  # if not below detection
+                    pd.isna(selection.h2s),
+                    str(QcFlag.GOOD_DATA.value),  # good when no h2s
+                    str(QcFlag.BAD_DATA.value),  # bad when h2s
+                ),
             ),
         )
