@@ -14,6 +14,12 @@ class ConsistencyQc(BaseQcCategory):
         )
 
     def check(self, parameter: str, configuration: ConsistencyCheck):
+        """
+        This check is applied on the difference of the parameter value and the sum of the values in parameter list
+        GOOD_DATA: difference >= 0
+        PROBABLY_GOOD_DATA: lower_deviation <= difference <= upper_deviation
+        BAD_DATA: everything outside the deviation bounds
+        """  # noqa: E501
         selection = self._data.loc[self._data.parameter == parameter]
 
         if selection.empty:
@@ -21,7 +27,7 @@ class ConsistencyQc(BaseQcCategory):
 
         other_selection = self._data.loc[
             self._data.parameter.isin(configuration.parameter_list)
-        ]
+        ].dropna(subset=["parameter"])
 
         if other_selection.empty:
             return
