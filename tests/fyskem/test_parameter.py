@@ -36,8 +36,10 @@ def test_parameter_sets_initial_qc_value_if_missing():
 
     # Then no QC has been performed
     assert parameter.qc.incoming == QcFlag.NO_QC_PERFORMED
-    assert parameter.qc.automatic == (QcFlag.NO_QC_PERFORMED,)
+    assert len(parameter.qc.automatic)
+    assert all(flag == QcFlag.NO_QC_PERFORMED for flag in parameter.qc.automatic)
     assert parameter.qc.manual == QcFlag.NO_QC_PERFORMED
+    assert parameter.qc.total == QcFlag.NO_QC_PERFORMED
 
 
 def test_parameter_exposes_existing_qc_flags():

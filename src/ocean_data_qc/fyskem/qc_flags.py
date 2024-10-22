@@ -9,7 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
 class QcFlags:
     _incoming: QcFlag = QcFlag.NO_QC_PERFORMED
     _automatic: QcFlagTuple = field(
-        default_factory=lambda: QcFlagTuple((QcFlag.NO_QC_PERFORMED,))
+        default_factory=lambda: QcFlagTuple((QcFlag.NO_QC_PERFORMED,) * len(QcField))
     )
     _manual: QcFlag = QcFlag.NO_QC_PERFORMED
     _total: QcFlag = QcFlag.NO_QC_PERFORMED
