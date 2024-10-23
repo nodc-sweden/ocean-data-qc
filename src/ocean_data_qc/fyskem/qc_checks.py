@@ -22,3 +22,9 @@ class ConsistencyCheck:
 @dataclass
 class H2sCheck:
     skip_flag: str
+
+
+@dataclass
+class IncreaseDecreaseCheck:
+    allowed_decrease: float
+    allowed_increase: float

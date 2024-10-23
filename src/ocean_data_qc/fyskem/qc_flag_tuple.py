@@ -11,6 +11,7 @@ class QcField(enum.IntEnum):
     RangeCheck = 1
     ConsistencyCheck = 2
     H2sCheck = 3
+    IncreaseDecreaseCheck = 4
 
 
 class QcFlagTuple:

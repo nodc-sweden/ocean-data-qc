@@ -4,6 +4,7 @@ from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
     DetectionLimitCheck,
     H2sCheck,
+    IncreaseDecreaseCheck,
     RangeCheck,
 )
 from ocean_data_qc.fyskem.qc_flag import QcFlag
@@ -190,4 +191,18 @@ def generate_h2s_configuration(parameter: str, skip_flag: str):
     Comparable to reading a parameter from a configuration yaml file.
     """
     parameter_configuration = H2sCheck(skip_flag)
+    return parameter_configuration
+
+
+def generate_increasedecrease_configuration(
+    parameter: str, allowed_decrease: float, allowed_increase: float
+):
+    """
+    Generate a IncreaseDecreaseCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
     return parameter_configuration

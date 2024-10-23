@@ -1,0 +1,10 @@
+SALT_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.IncreaseDecreaseCheck
+    allowed_decrease: 0.1
+    allowed_increase: 10
+SALT_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.IncreaseDecreaseCheck
+    allowed_decrease: 0.1
+    allowed_increase: 10
+    
+
