@@ -22,19 +22,13 @@ class ConsistencyQc(BaseQcCategory):
         """  # noqa: E501
         selection = self._data.loc[self._data.parameter == parameter]
 
-        if selection.empty:
-            return
-
         other_selection = self._data.loc[
             self._data.parameter.isin(configuration.parameter_list)
-        ].dropna(subset=["parameter"])
-
-        if other_selection.empty:
-            return
+        ]
 
         summation = (
             other_selection.groupby(["visit_key", "DEPH"])["value"]
-            .sum()
+            .sum(min_count=1)
             .reset_index(name="summation")
         )
         selection = pd.merge(selection, summation, on=["visit_key", "DEPH"], how="left")
@@ -43,17 +37,21 @@ class ConsistencyQc(BaseQcCategory):
             pd.isna(selection.value),
             str(QcFlag.MISSING_VALUE.value),
             np.where(
-                (selection.value - selection.summation) >= 0,
-                str(QcFlag.GOOD_DATA.value),
+                pd.isna(selection.summation),
+                str(QcFlag.NO_QC_PERFORMED.value),
                 np.where(
-                    np.logical_and(
-                        (selection.value - selection.summation)
-                        >= configuration.lower_deviation,
-                        (selection.value - selection.summation)
-                        <= configuration.upper_deviation,
+                    (selection.value - selection.summation) >= 0,
+                    str(QcFlag.GOOD_DATA.value),
+                    np.where(
+                        np.logical_and(
+                            (selection.value - selection.summation)
+                            >= configuration.lower_deviation,
+                            (selection.value - selection.summation)
+                            <= configuration.upper_deviation,
+                        ),
+                        str(QcFlag.PROBABLY_GOOD_DATA.value),
+                        str(QcFlag.BAD_DATA.value),
                     ),
-                    str(QcFlag.PROBABLY_GOOD_DATA.value),
-                    str(QcFlag.BAD_DATA.value),
                 ),
             ),
         )

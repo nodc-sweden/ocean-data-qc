@@ -75,6 +75,9 @@ def test_increasedecrease_qc_using_override_configuration(
         Parameter(row)
         for _, row in given_data[given_data.parameter == given_parameter].iterrows()
     ]
+
+    assert zip(parameter_after_list, expected_flags, strict=True)
+
     for parameter_after, expected_flag in zip(parameter_after_list, expected_flags):
         assert len(parameter_after.qc.automatic) >= (QcField.IncreaseDecreaseCheck + 1)
 

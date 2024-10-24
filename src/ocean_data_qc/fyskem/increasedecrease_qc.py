@@ -25,13 +25,6 @@ class IncreaseDecreaseQc(BaseQcCategory):
         boolean_selection = self._data.parameter == parameter
 
         selection = self._data.loc[boolean_selection]
-        print(f"selection: {selection}")
-        if selection.empty:
-            return
-
-        # selection["percent_change"] = selection.groupby("visit_key")["value"].apply(
-        #     lambda x: x.pct_change() * 100
-        # )
 
         # First value (normally surface) will always be nan.
         selection["difference"] = selection.groupby("visit_key")["value"].diff()

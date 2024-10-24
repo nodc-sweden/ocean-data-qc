@@ -8,11 +8,6 @@ PTOT:
     parameter_list: ['PHOS']
     upper_deviation: 0
     lower_deviation: -0.2
-DOXY_BTL:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
-    parameter_list: ['DOXY_CTD']
-    upper_deviation: 0.2
-    lower_deviation: -0.2
 DOXY_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_list: ['DOXY_BTL']

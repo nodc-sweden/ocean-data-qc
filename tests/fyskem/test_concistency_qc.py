@@ -64,7 +64,7 @@ from tests.setup_methods import (
             {"B": np.nan, "C": np.nan},
             0,
             -1,
-            QcFlag.GOOD_DATA,
+            QcFlag.NO_QC_PERFORMED,
         ),  # 1-(np.nan)=1 vilket är >=0  # noqa: E501
         (
             "A",
@@ -74,6 +74,14 @@ from tests.setup_methods import (
             -1,
             QcFlag.MISSING_VALUE,
         ),  # 1-(np.nan)=1 vilket är >=0  # noqa: E501
+        (
+            "A",
+            1,
+            {},
+            0,
+            -1,
+            QcFlag.NO_QC_PERFORMED,
+        ),
         # TODO:
         #  - Lägg till hantering av att alla parametrar i parameter list saknas
         # ("A", 1, {"B": None, "C": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
@@ -109,10 +117,10 @@ def test_consistency_qc_using_override_configuration(
             ),
         ]
     )
-
+    print(given_data)
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
-    given_other_parameters = list(given_other_parameters_with_values.keys())
+    given_other_parameters = ["B", "C", "D"]
     given_configuration = generate_consistency_check_configuration(
         given_parameter,
         given_other_parameters,
@@ -131,6 +139,7 @@ def test_consistency_qc_using_override_configuration(
 
     # Then the automatic QC flags has at least as many positions
     # to include the field for Consistency Check
+    print(given_data[given_data.parameter == given_parameter].loc[0])
     parameter_after = Parameter(
         given_data[given_data.parameter == given_parameter].loc[0]
     )
