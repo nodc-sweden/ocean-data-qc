@@ -1,0 +1,15 @@
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['NTRA', 'NTRI','AMON']
+    upper_deviation: 0
+    lower_deviation: -1
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['PHOS']
+    upper_deviation: 0
+    lower_deviation: -0.2
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['DOXY_BTL']
+    upper_deviation: 0.2
+    lower_deviation: -0.2

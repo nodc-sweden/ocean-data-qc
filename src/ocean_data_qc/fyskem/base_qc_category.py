@@ -1,6 +1,7 @@
 import abc
 
 from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 
 class BaseQcCategory(abc.ABC):
@@ -15,7 +16,7 @@ class BaseQcCategory(abc.ABC):
     def expand_qc_columns(self):
         # Add minimal quality flags if missing
         if "quality_flag_long" not in self._data.columns:
-            self._data["quality_flag_long"] = "0_0_0_0"
+            self._data["quality_flag_long"] = str(QcFlags())
 
         # Split QC flags to separate columns for incoming, auto and manual
         if not self._data.empty:

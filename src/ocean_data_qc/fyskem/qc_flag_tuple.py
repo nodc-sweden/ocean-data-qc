@@ -5,14 +5,13 @@ from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
 class QcField(enum.IntEnum):
-    """Flag positions in the QcFlagTuple
-
-    Placeholder values are only here to make early tests meaningful. Remove them (and this
-    comment) when there are more actual values.
-    """
+    """Flag positions in the QcFlagTuple"""
 
     DetectionLimitCheck = 0
     RangeCheck = 1
+    ConsistencyCheck = 2
+    H2sCheck = 3
+    IncreaseDecreaseCheck = 4
 
 
 class QcFlagTuple:

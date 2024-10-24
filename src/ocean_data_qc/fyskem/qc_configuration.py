@@ -2,8 +2,6 @@ from pathlib import Path
 
 import yaml
 
-import ocean_data_qc.fyskem.qc_checks  # noqa: F401
-
 
 class QcConfiguration:
     def __init__(self, configuration: dict = None):

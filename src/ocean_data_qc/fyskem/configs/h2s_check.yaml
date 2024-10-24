@@ -1,0 +1,16 @@
+NTRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
+    skip_flag: "6"
+NTRI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
+    skip_flag: "6"
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
+    skip_flag: "6"
+DOXY_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
+    skip_flag: "6"
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
+    skip_flag: "6"
+    

@@ -43,6 +43,7 @@ QC_FLAG_CSS_COLORS = defaultdict(
     lambda: "gray",
     {
         QcFlag.NO_QC_PERFORMED: "navy",
+        QcFlag.PROBABLY_GOOD_DATA: "palegreen",
         QcFlag.BAD_DATA_CORRECTABLE: "orange",
         QcFlag.BAD_DATA: "red",
         QcFlag.GOOD_DATA: "green",

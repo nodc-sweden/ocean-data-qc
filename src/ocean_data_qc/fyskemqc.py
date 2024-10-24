@@ -1,6 +1,9 @@
 import pandas as pd
 
+from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
 from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
+from ocean_data_qc.fyskem.h2s_qc import H2sQc
+from ocean_data_qc.fyskem.increasedecrease_qc import IncreaseDecreaseQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flags import QcFlags
@@ -9,6 +12,9 @@ from ocean_data_qc.fyskem.range_qc import RangeQc
 QC_CATEGORIES = {
     "range_check": RangeQc,
     "detection_limit_check": DetectionLimitQc,
+    "consistency_check": ConsistencyQc,
+    "h2s_check": H2sQc,
+    "increasedecrease_check": IncreaseDecreaseQc,
 }
 
 
@@ -30,7 +36,7 @@ class FysKemQc:
         return {Parameter(series) for _, series in self._data.iterrows()}
 
     def run_automatic_qc(self):
-        for category in self._configuration.categories:
+        for category in QC_CATEGORIES.keys():
             # Get config for parameter
             category_checker = QC_CATEGORIES[category](self._data)
             category_checker.expand_qc_columns()

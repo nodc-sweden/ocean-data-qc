@@ -4,7 +4,8 @@ import pytest
 from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_flag import QcFlag
-from ocean_data_qc.fyskem.qc_flag_tuple import QcField
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 from tests.setup_methods import (
     generate_data_frame,
     generate_detection_limit_configuration,
@@ -12,26 +13,54 @@ from tests.setup_methods import (
 
 
 @pytest.mark.parametrize(
-    "given_value, given_detection_limit, expected_flag",
+    "given_value, given_detection_limit, given_incoming_qc, expected_flag",
     (
-        (1.234, 1.233, QcFlag.GOOD_DATA),  # Strictly above detection limit
-        (1.234, 1.234, QcFlag.GOOD_DATA),  # On detection limit
-        (1.234, 1.235, QcFlag.BELOW_DETECTION),  # Strictly below detection limit
-        (np.nan, 1.234, QcFlag.MISSING_VALUE),
-        (None, 1.234, QcFlag.MISSING_VALUE),
+        (
+            1.234,
+            1.233,
+            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_DATA,
+        ),  # Strictly above detection limit
+        (1.234, 1.234, QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA),  # On detection limit
+        (
+            1.234,
+            1.234,
+            QcFlag.BELOW_DETECTION,
+            QcFlag.BELOW_DETECTION,
+        ),  # On detection limit
+        (
+            1.234,
+            1.235,
+            QcFlag.GOOD_DATA,
+            QcFlag.BELOW_DETECTION,
+        ),  # Strictly below detection limit
+        (np.nan, 1.234, QcFlag.GOOD_DATA, QcFlag.MISSING_VALUE),
+        (None, 1.234, QcFlag.GOOD_DATA, QcFlag.MISSING_VALUE),
     ),
 )
+
+# TODO:
+# - a test that includes incoming flag
+
 def test_quality_flag_for_value_with_global_limit_using_override_configuration(
-    given_value, given_detection_limit, expected_flag
+    given_value, given_detection_limit, given_incoming_qc, expected_flag
 ):
     # Given a parameter with given value
     given_parameter_name = "parameter_name"
+    given_manual_qc = given_incoming_qc
+    given_qc = QcFlags(given_incoming_qc, QcFlagTuple(), given_manual_qc)
     given_data = generate_data_frame(
-        [{"parameter": given_parameter_name, "value": given_value}]
+        [
+            {
+                "parameter": given_parameter_name,
+                "value": given_value,
+                "quality_flag_long": str(given_qc),
+            }
+        ]
     )
 
     # And no QC has been made
-    parameter_before = Parameter(given_data)
+    parameter_before = Parameter(given_data.loc[0])
     assert expected_flag != QcFlag.NO_QC_PERFORMED
     assert expected_flag not in parameter_before.qc.automatic
 

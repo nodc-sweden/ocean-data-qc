@@ -1,6 +1,14 @@
 import pandas as pd
 
-from ocean_data_qc.fyskem.qc_checks import DetectionLimitCheck, RangeCheck
+from ocean_data_qc.fyskem.qc_checks import (
+    ConsistencyCheck,
+    DetectionLimitCheck,
+    H2sCheck,
+    IncreaseDecreaseCheck,
+    RangeCheck,
+)
+from ocean_data_qc.fyskem.qc_flag import QcFlag
+from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 PARAMETER_CHOICE = (
     "ALKY",
@@ -87,7 +95,8 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         wadep = 75 + visit_id * 10
         deph = int(wadep * next(random_depth_factors))
         station = f"Station {visit_id}"
-        qc_flag_long = "1_00_0_1"
+        qc_flag_long = str(QcFlags(QcFlag.GOOD_DATA))
+        visit_key = ("20240111_0720_10_FLADEN",)
         rows.append(
             {
                 "parameter": parameter,
@@ -97,6 +106,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
                 "WADEP": wadep,
                 "DEPH": deph,
                 "quality_flag_long": qc_flag_long,
+                "visit_key": visit_key,
             }
         )
     return generate_data_frame(rows)
@@ -152,4 +162,47 @@ def generate_detection_limit_configuration(parameter: str, limit: float):
     Comparable to reading a parameter from a configuration yaml file.
     """
     parameter_configuration = DetectionLimitCheck(limit=limit)
+    return parameter_configuration
+
+
+def generate_consistency_check_configuration(
+    parameter: str,
+    parameter_list: list,
+    upper_deviation: float = 0,
+    lower_deviation: float = -1,
+):
+    """
+    Generate a ConsistencyCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+    """
+    parameter_configuration = ConsistencyCheck(
+        parameter_list=parameter_list,
+        upper_deviation=upper_deviation,
+        lower_deviation=lower_deviation,
+    )
+    return parameter_configuration
+
+
+def generate_h2s_configuration(parameter: str, skip_flag: str):
+    """
+    Generate a H2sCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+    """
+    parameter_configuration = H2sCheck(skip_flag)
+    return parameter_configuration
+
+
+def generate_increasedecrease_configuration(
+    parameter: str, allowed_decrease: float, allowed_increase: float
+):
+    """
+    Generate a IncreaseDecreaseCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
     return parameter_configuration
