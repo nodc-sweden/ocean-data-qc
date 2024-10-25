@@ -1,6 +1,6 @@
 [project]
 name = "ocean-data-qc"
-version = "2024.6.1"
+version = "2024.6.2"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
