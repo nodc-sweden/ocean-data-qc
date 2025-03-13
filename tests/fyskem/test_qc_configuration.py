@@ -79,3 +79,27 @@ def test_limit_detection_check_default_qc_configuration(
     )
 
     assert retrieved_configuration.limit == expected_limit
+
+
+@pytest.mark.parametrize(
+    "given_parameter_name, given_sea, given_depth, given_month",
+    (("TEMP_CTD", "Kattegat", 0, 1),),
+)
+def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
+    given_parameter_name, given_sea, given_depth, given_month
+):
+    # When creating a configuration
+    given_configuration = QcConfiguration()
+
+    # get configuretion for the parameter
+    retrieved_configuration = given_configuration.get(
+        "statistic_check", given_parameter_name
+    )
+
+    # get thresholds for sea_area, depth, month
+    (
+        min_range_value,
+        max_range_value,
+    ) = retrieved_configuration.get_thresholds(given_sea, given_depth, given_month)
+    assert isinstance(min_range_value, (int, float))
+    assert isinstance(max_range_value, (int, float))

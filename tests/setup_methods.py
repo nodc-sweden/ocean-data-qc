@@ -2,10 +2,13 @@ import pandas as pd
 
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
+    DepthRangeConfig,
     DetectionLimitCheck,
     H2sCheck,
     IncreaseDecreaseCheck,
+    MonthConfig,
     RangeCheck,
+    StatisticCheck,
 )
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flags import QcFlags
@@ -153,6 +156,30 @@ def generate_range_check_configuration(
         min_range_value=min_range, max_range_value=max_range
     )
     return parameter_configuration
+
+
+def generate_statistic_check_configuration(
+    sea_area: str, min_depth: float, max_depth: float, months: dict
+):
+    """
+    Generate a StatisticCheck configuration entry with proper month handling.
+
+    The 'months' argument is now a dictionary where each key is a month (1-12) and
+    each value is a dictionary containing
+    'min_range_value' and 'max_range_value' for that month.
+    """
+    # Create a DepthRangeConfig instance for the given depth range
+    depth_range_config = DepthRangeConfig(
+        min_depth=min_depth,
+        max_depth=max_depth,
+        months={month: MonthConfig(**month_data) for month, month_data in months.items()},
+    )
+
+    # Create the StatisticCheck configuration with the provided
+    # sea_area and depth_range_config
+    statistic_check_config = StatisticCheck(sea_areas={sea_area: [depth_range_config]})
+
+    return statistic_check_config
 
 
 def generate_detection_limit_configuration(parameter: str, limit: float):
