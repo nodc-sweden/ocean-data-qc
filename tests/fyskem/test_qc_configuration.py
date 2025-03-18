@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -52,10 +53,7 @@ def test_range_check_default_qc_configuration(
 @pytest.mark.parametrize(
     "given_parameter_name, expected_limit",
     (
-        (
-            "ALKY",
-            0.5,
-        ),
+        ("ALKY", 0.5),
         ("AMON", 0.2),
         ("CPHL", 0.2),
         ("DOXY_BTL", 0.1),
@@ -82,11 +80,14 @@ def test_limit_detection_check_default_qc_configuration(
 
 
 @pytest.mark.parametrize(
-    "given_parameter_name, given_sea, given_depth, given_month",
-    (("TEMP_CTD", "Kattegat", 0, 1),),
+    "given_parameter_name, given_sea, given_depth, given_month, expected_min, expected_max",  # noqa: E501
+    (
+        ("TEMP_CTD", "Kattegat", 0, "01", -1, 10),
+        ("TEMP_CTD", "Kattegat", 5, "02", -2, 10),
+    ),
 )
 def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
-    given_parameter_name, given_sea, given_depth, given_month
+    given_parameter_name, given_sea, given_depth, given_month, expected_min, expected_max
 ):
     # When creating a configuration
     given_configuration = QcConfiguration()
@@ -103,3 +104,47 @@ def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
     ) = retrieved_configuration.get_thresholds(given_sea, given_depth, given_month)
     assert isinstance(min_range_value, (int, float))
     assert isinstance(max_range_value, (int, float))
+
+    assert expected_min < min_range_value < expected_max
+    assert expected_min < max_range_value < expected_max
+
+
+@pytest.mark.parametrize(
+    "given_parameter_name, given_sea, given_depth, given_month",
+    (
+        ("TEMP_CTD", "unknown", 0, "01"),  # the sea_basin is not in config
+        ("TEMP_CTD", "Kattegat", 1000, "02"),  # the depth is not in config
+        ("TEMP_CTD", "Kattegat", 0, "13"),  # the month is not in config
+    ),
+)
+def test_statistic_check_no_qc_configuration_for_args_returns_nan(
+    given_parameter_name, given_sea, given_depth, given_month
+):
+    # When creating a configuration
+    given_configuration = QcConfiguration()
+
+    # get configuretion for the parameter
+    retrieved_configuration = given_configuration.get(
+        "statistic_check", given_parameter_name
+    )
+    min_range_value, max_range_value = retrieved_configuration.get_thresholds(
+        given_sea, given_depth, given_month
+    )
+
+    assert min_range_value, max_range_value is np.nan
+
+
+@pytest.mark.parametrize(
+    "given_parameter_name",
+    (("unknown"),),
+)
+def test_statistic_check_unkown_parameter_returns_none(given_parameter_name):
+    # When creating a configuration
+    given_configuration = QcConfiguration()
+
+    # get configuretion for the parameter
+    retrieved_configuration = given_configuration.get(
+        "statistic_check", given_parameter_name
+    )
+
+    assert retrieved_configuration is None
