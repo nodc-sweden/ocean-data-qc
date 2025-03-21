@@ -2,11 +2,9 @@ import pandas as pd
 
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
-    DepthRangeConfig,
     DetectionLimitCheck,
     H2sCheck,
     IncreaseDecreaseCheck,
-    MonthConfig,
     RangeCheck,
     StatisticCheck,
 )
@@ -100,6 +98,8 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         station = f"Station {visit_id}"
         qc_flag_long = str(QcFlags(QcFlag.GOOD_DATA))
         visit_key = ("20240111_0720_10_FLADEN",)
+        visit_month = "01"
+        sea_basin = "Kattegat"
         rows.append(
             {
                 "parameter": parameter,
@@ -110,6 +110,8 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
                 "DEPH": deph,
                 "quality_flag_long": qc_flag_long,
                 "visit_key": visit_key,
+                "visit_month": visit_month,
+                "sea_basin": sea_basin,
             }
         )
     return generate_data_frame(rows)
@@ -159,7 +161,7 @@ def generate_range_check_configuration(
 
 
 def generate_statistic_check_configuration(
-    sea_area: str, min_depth: float, max_depth: float, months: dict
+    sea_basin: str, min_depth: float, max_depth: float, months: dict
 ):
     """
     Generate a StatisticCheck configuration entry with proper month handling.
@@ -168,16 +170,15 @@ def generate_statistic_check_configuration(
     each value is a dictionary containing
     'min_range_value' and 'max_range_value' for that month.
     """
-    # Create a DepthRangeConfig instance for the given depth range
-    depth_range_config = DepthRangeConfig(
-        min_depth=min_depth,
-        max_depth=max_depth,
-        months={month: MonthConfig(**month_data) for month, month_data in months.items()},
-    )
+    if months is None:
+        return None
+    # Create a dict for the given depth range
+    setup = {
+        sea_basin: [{"min_depth": min_depth, "max_depth": max_depth, "months": months}]
+    }
 
-    # Create the StatisticCheck configuration with the provided
-    # sea_area and depth_range_config
-    statistic_check_config = StatisticCheck(sea_areas={sea_area: [depth_range_config]})
+    # Create the StatisticCheck configuration with the provided setup
+    statistic_check_config = StatisticCheck(sea_areas=setup)
 
     return statistic_check_config
 

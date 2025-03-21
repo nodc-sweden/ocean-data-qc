@@ -16,22 +16,6 @@ class QcConfiguration:
                     yaml_file.read_text(), Loader=yaml.Loader
                 )
 
-            # Special case for StatisticCheck
-            if "statistic_check" in self._configuration:
-                self._configuration["statistic_check"] = self._parse_statistic_check(
-                    self._configuration["statistic_check"]
-                )
-
-    def _parse_statistic_check(self, raw_config: dict) -> dict:
-        """Parses StatisticCheck YAML into structured dataclasses."""
-        config_dict = {}
-
-        for parameter, parameter_config in raw_config.items():
-            stat_check = parameter_config
-            config_dict[parameter] = stat_check
-
-        return config_dict
-
     def get(self, category: str, parameter: str):
         if category == "statistic_check":
             return self._configuration.get(category, {}).get(parameter)

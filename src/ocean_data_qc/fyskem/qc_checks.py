@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -34,54 +34,26 @@ class IncreaseDecreaseCheck:
 
 
 @dataclass
-class MonthConfig:
-    min_range_value: float
-    max_range_value: float
-
-
-@dataclass
-class DepthRangeConfig:
-    min_depth: float
-    max_depth: float
-    months: Dict[str, MonthConfig]
-
-
-@dataclass
 class StatisticCheck:
-    """Holds the statistical threshold configuration for each parameter."""
+    """ "Holds the statistical threshold configuration for each parameter."""
 
-    sea_areas: Dict[str, List[DepthRangeConfig]] = field(default_factory=dict)
+    sea_areas: Dict[str, List[Dict]]
 
-    def __getitem__(self, sea_area: str) -> List[DepthRangeConfig]:
+    def __getitem__(self, sea_area: str) -> List[Dict]:
         """Allows accessing sea areas like a dictionary (e.g., `config['Kattegat']`)."""
         return self.sea_areas.get(sea_area, [])
 
-    def get_thresholds(self, sea_basin: str, depth: float, month: int) -> Optional[tuple]:
-        """
-        Get the min/max threshold values based on sea_area, depth, and month.
+    def get_thresholds(
+        self, sea_area: str, depth: float, month: int
+    ) -> Optional[Dict[str, float]]:
+        """Retrieves min and max thresholds for the given sea_area, depth, and month."""
+        month_str = f"{int(month):02d}"  # Ensure two-digit month format
 
-        Returns:
-            (min_range_value, max_range_value) if found, otherwise (nan, nan).
-        """
-        # something in the input args is missing
-        if any(arg is None for arg in [sea_basin, depth, month]):
-            return np.nan, np.nan
-        if np.isnan(depth):
-            return np.nan, np.nan
-
-        # Step 1: Get the list of depth ranges for the given sea_area
-        depth_ranges = self.sea_areas.get(sea_basin, [])
-        if not depth_ranges:
-            return np.nan, np.nan  # Sea area not found
-        # Step 2: Find the matching depth range
-        for depth_range in depth_ranges:
-            if np.isnan(depth_range.min_depth) or np.isnan(depth_range.max_depth):
-                return np.nan, np.nan  # missing depth range for sea area
-            if depth_range.min_depth <= depth <= depth_range.max_depth:
-                # Step 3: Find the matching month
-                month_config = depth_range.months.get(month)
-                if month_config:
-                    return month_config.min_range_value, month_config.max_range_value
-
-        # No match found
+        # Find matching depth range
+        for depth_range in self.sea_areas.get(sea_area, []):
+            if depth_range["min_depth"] <= depth <= depth_range["max_depth"]:
+                if month_str in depth_range["months"]:
+                    min_range = depth_range["months"][month_str]["min_range_value"]
+                    max_range = depth_range["months"][month_str]["max_range_value"]
+                    return (min_range, max_range)
         return np.nan, np.nan

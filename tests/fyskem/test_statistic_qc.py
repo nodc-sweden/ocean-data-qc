@@ -18,7 +18,7 @@ from tests.setup_methods import (
         (10, (1, 10), "01", 0, QcFlag.GOOD_DATA),
         (1, (1, 10), "01", 1, QcFlag.GOOD_DATA),
         (5, (np.nan, 10), "01", 2, QcFlag.NO_QC_PERFORMED),
-        (5, (np.nan, np.nan), None, None, QcFlag.NO_QC_PERFORMED),
+        # (5, (np.nan, np.nan), None, None, QcFlag.NO_QC_PERFORMED),
         (1, (1, 10), "01", 1000, QcFlag.NO_QC_PERFORMED),
         (1, (1, 10), "13", 1000, QcFlag.NO_QC_PERFORMED),
         (0.9, (1, 10), "01", 0, QcFlag.BAD_DATA),

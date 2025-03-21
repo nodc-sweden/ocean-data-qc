@@ -4,7 +4,7 @@ import pandas as pd
 from jinja2 import Template
 
 # Set up Jinja2 template
-yaml_template = """
+yaml_template_config = """
 {%- for param_name, param_data in config_data.items() %}
 {{ param_name }}:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
@@ -12,12 +12,11 @@ yaml_template = """
     {%- for sea_area, depth_list in param_data["sea_areas"].items() %}
       {{ sea_area }}:
       {%- for depth_entry in depth_list %}
-      - !!python/object:ocean_data_qc.fyskem.qc_checks.DepthRangeConfig
-        min_depth: {{ depth_entry.min_depth }}
+      - min_depth: {{ depth_entry.min_depth }}
         max_depth: {{ depth_entry.max_depth }}
         months:
         {%- for month, month_config in depth_entry.months.items() %}
-          '{{ month }}':  !!python/object:ocean_data_qc.fyskem.qc_checks.MonthConfig
+          '{{ month }}':
               min_range_value: {{ month_config.min_range_value }}
               max_range_value: {{ month_config.max_range_value }}
         {%- endfor %}
@@ -58,14 +57,13 @@ def create_config_from_directory(data_directory):
                 config_data[param_name]["sea_areas"][sea_area] = []
 
             # Group data by depth first
-            for depth, depth_group in df.groupby("depth"):
+            for depth_interval, depth_group in df.groupby("depth_interval"):
+                min_depth, max_depth = depth_interval.split("_")
                 depth_entry = {
-                    "min_depth": int(depth),
-                    "max_depth": int(depth),
+                    "min_depth": min_depth,
+                    "max_depth": max_depth,
                     "months": {},
                 }
-                if depth == 0:
-                    depth_entry["max_depth"] = int(depth + 1)
                 # Now loop over months within each depth
                 for month, month_group in depth_group.groupby("month"):
                     month_str = str(int(month)).zfill(
@@ -110,7 +108,7 @@ def create_config_from_directory(data_directory):
 
 
 # To write the config to a YAML file
-def write_yaml(config, output_file, yaml_template=yaml_template):
+def write_yaml(config, output_file, yaml_template=yaml_template_config):
     # Render the YAML using Jinja2
     template = Template(yaml_template)
     yaml_output = template.render(config_data=config)
