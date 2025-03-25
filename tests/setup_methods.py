@@ -1,3 +1,5 @@
+from typing import Dict, List, Tuple
+
 import pandas as pd
 
 from ocean_data_qc.fyskem.qc_checks import (
@@ -161,24 +163,37 @@ def generate_range_check_configuration(
 
 
 def generate_statistic_check_configuration(
-    sea_basin: str, min_depth: float, max_depth: float, months: dict
-):
+    sea_basin: str,
+    depth_intervals: List[Tuple[float, float, Dict[str, Dict[str, float]]]],
+) -> StatisticCheck:
     """
-    Generate a StatisticCheck configuration entry with proper month handling.
+    Generate a StatisticCheck configuration entry
 
-    The 'months' argument is now a dictionary where each key is a month (1-12) and
-    each value is a dictionary containing
-    'min_range_value' and 'max_range_value' for that month.
+    Comparable to generating from a file in statistic_check_data dir
     """
-    if months is None:
-        return None
-    # Create a dict for the given depth range
-    setup = {
-        sea_basin: [{"min_depth": min_depth, "max_depth": max_depth, "months": months}]
-    }
 
-    # Create the StatisticCheck configuration with the provided setup
-    statistic_check_config = StatisticCheck(sea_areas=setup)
+    df_data = []
+    for min_depth, max_depth, months in depth_intervals:
+        for month, values in months.items():
+            df_data.append(
+                {
+                    "sea_basin": sea_basin,
+                    "month": int(month),  # Store month as an integer (1-12)
+                    "min_depth": min_depth,
+                    "max_depth": max_depth,
+                    "min_range_value": values["min_range_value"],
+                    "max_range_value": values["max_range_value"],
+                }
+            )
+
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+
+    # Initialize StatisticCheck
+    statistic_check_config = StatisticCheck(filepath="test_file.txt")
+
+    # Manually set DataFrame
+    statistic_check_config._df = df
 
     return statistic_check_config
 

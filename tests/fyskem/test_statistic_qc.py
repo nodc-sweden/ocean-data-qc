@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pytest
 
 from ocean_data_qc.fyskem.parameter import Parameter
@@ -54,8 +53,12 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
     # det känns inte helt rätt.
     # assert expected_flag not in parameter_before.qc.automatic
 
+    # Define test input values
     given_min_depth = 0
     given_max_depth = 2
+    given_month = "01"
+
+    # Create dictionary for months
     given_months = {
         given_month: {
             "min_range_value": given_range[0],
@@ -63,24 +66,23 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
         },
         "02": {"min_range_value": 0, "max_range_value": 5},
     }
+
+    # Generate test configuration
     given_configuration = generate_statistic_check_configuration(
-        given_sea_area, given_min_depth, given_max_depth, given_months
+        sea_basin=given_sea_area,
+        depth_intervals=[(given_min_depth, given_max_depth, given_months)],
     )
 
     statistic_qc = StatisticQc(given_data)
     statistic_qc.expand_qc_columns()
-
     # When performing QC
     statistic_qc.check(given_parameter_name, given_configuration)
-
     # And finalizing data
     statistic_qc.collapse_qc_columns()
 
     # Then the automatic QC flags has at least as many positions
     # to include the field for Range Check
     parameter_after = Parameter(given_data.loc[0])
-    pd.set_option("display.max_columns", None)
-    print(statistic_qc._data.head())
     assert len(parameter_after.qc.automatic) >= (QcField.StatisticCheck + 1)
 
     # And the parameter is given the expected flag at the expected position
