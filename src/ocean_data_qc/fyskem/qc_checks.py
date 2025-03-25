@@ -36,6 +36,12 @@ class IncreaseDecreaseCheck:
 
 
 @dataclass
+class SpikeCheck:
+    allowed_delta: float
+    allowed_depths: list
+
+
+@dataclass
 class StatisticCheck:
     """Holds the statistical threshold configuration for each parameter."""
 

@@ -8,14 +8,16 @@ from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flags import QcFlags
 from ocean_data_qc.fyskem.range_qc import RangeQc
+from ocean_data_qc.fyskem.spike_qc import SpikeQc
 from ocean_data_qc.fyskem.statistic_qc import StatisticQc
 
 QC_CATEGORIES = {
     "range_check": RangeQc,
     "detection_limit_check": DetectionLimitQc,
+    "spike_check": SpikeQc,
+    "statistic_check": StatisticQc,
     "consistency_check": ConsistencyQc,
     "h2s_check": H2sQc,
-    "statistic_check": StatisticQc,
     "increasedecrease_check": IncreaseDecreaseQc,
 }
 

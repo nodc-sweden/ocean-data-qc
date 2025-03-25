@@ -7,12 +7,13 @@ from ocean_data_qc.fyskem.qc_flag import QcFlag
 class QcField(enum.IntEnum):
     """Flag positions in the QcFlagTuple"""
 
-    DetectionLimitCheck = 0
-    RangeCheck = 1
-    ConsistencyCheck = 2
-    H2sCheck = 3
-    StatisticCheck = 4
-    IncreaseDecreaseCheck = 5
+    RangeCheck = 0
+    DetectionLimitCheck = 1
+    SpikeCheck = 2
+    StatisticCheck = 3
+    ConsistencyCheck = 4
+    H2sCheck = 5
+    IncreaseDecreaseCheck = 6
 
 
 class QcFlagTuple:

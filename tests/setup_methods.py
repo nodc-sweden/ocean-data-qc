@@ -8,6 +8,7 @@ from ocean_data_qc.fyskem.qc_checks import (
     H2sCheck,
     IncreaseDecreaseCheck,
     RangeCheck,
+    SpikeCheck,
     StatisticCheck,
 )
 from ocean_data_qc.fyskem.qc_flag import QcFlag
@@ -248,4 +249,18 @@ def generate_increasedecrease_configuration(
 
     """
     parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
+    return parameter_configuration
+
+
+def generate_spike_configuration(
+    parameter: str, allowed_delta: float, allowed_depths: list
+):
+    """
+    Generate a IncreaseDecreaseCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = SpikeCheck(allowed_delta, allowed_depths)
     return parameter_configuration
