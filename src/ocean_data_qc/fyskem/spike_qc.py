@@ -27,6 +27,9 @@ class SpikeQc(BaseQcCategory):
             ["value", "DEPH"]
         ].apply(self._spike_check)
         print(f"selection after spike check: \n{selection=}")
+        if selection.empty:
+            return
+
         self._data.loc[boolean_selection, self._column_name] = np.where(
             pd.isna(selection["value"]),
             str(QcFlag.MISSING_VALUE.value),
