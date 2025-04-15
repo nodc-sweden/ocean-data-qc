@@ -76,6 +76,8 @@ def test_automatic_qc_does_not_alter_incoming_or_manual_qc(
                 "quality_flag_long": str(given_qc),
                 "visit_key": "20240111_0720_10_FLADEN",
                 "DEPH": 5,
+                "sea_basin": "Kattegat",
+                "visit_month": "01",
             },
             {
                 "parameter": "AMON",
@@ -83,6 +85,8 @@ def test_automatic_qc_does_not_alter_incoming_or_manual_qc(
                 "quality_flag_long": str(given_qc),
                 "visit_key": "20240111_0720_10_FLADEN",
                 "DEPH": 150,
+                "sea_basin": "Kattegat",
+                "visit_month": "01",
             },
         ]
     )

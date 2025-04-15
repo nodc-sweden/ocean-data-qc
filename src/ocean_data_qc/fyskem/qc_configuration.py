@@ -17,6 +17,8 @@ class QcConfiguration:
                 )
 
     def get(self, category: str, parameter: str):
+        if category == "statistic_check":
+            return self._configuration.get(category, {}).get(parameter)
         if configuration := self._configuration.get(category, {}).get(parameter):
             return configuration.get("global")
         return None

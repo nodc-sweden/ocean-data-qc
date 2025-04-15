@@ -51,7 +51,7 @@ def test_increasedecrease_qc_using_override_configuration(
             ),
         ]
     )
-    print(given_data)
+
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
     given_configuration = generate_increasedecrease_configuration(

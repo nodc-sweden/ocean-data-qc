@@ -1,3 +1,5 @@
+from typing import Dict, List, Tuple
+
 import pandas as pd
 
 from ocean_data_qc.fyskem.qc_checks import (
@@ -6,6 +8,8 @@ from ocean_data_qc.fyskem.qc_checks import (
     H2sCheck,
     IncreaseDecreaseCheck,
     RangeCheck,
+    SpikeCheck,
+    StatisticCheck,
 )
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flags import QcFlags
@@ -97,6 +101,8 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         station = f"Station {visit_id}"
         qc_flag_long = str(QcFlags(QcFlag.GOOD_DATA))
         visit_key = ("20240111_0720_10_FLADEN",)
+        visit_month = "01"
+        sea_basin = "Kattegat"
         rows.append(
             {
                 "parameter": parameter,
@@ -107,6 +113,8 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
                 "DEPH": deph,
                 "quality_flag_long": qc_flag_long,
                 "visit_key": visit_key,
+                "visit_month": visit_month,
+                "sea_basin": sea_basin,
             }
         )
     return generate_data_frame(rows)
@@ -153,6 +161,42 @@ def generate_range_check_configuration(
         min_range_value=min_range, max_range_value=max_range
     )
     return parameter_configuration
+
+
+def generate_statistic_check_configuration(
+    sea_basin: str,
+    depth_intervals: List[Tuple[float, float, Dict[str, Dict[str, float]]]],
+) -> StatisticCheck:
+    """
+    Generate a StatisticCheck configuration entry
+
+    Comparable to generating from a file in statistic_check_data dir
+    """
+
+    df_data = []
+    for min_depth, max_depth, months in depth_intervals:
+        for month, values in months.items():
+            df_data.append(
+                {
+                    "sea_basin": sea_basin,
+                    "month": int(month),  # Store month as an integer (1-12)
+                    "min_depth": min_depth,
+                    "max_depth": max_depth,
+                    "min_range_value": values["min_range_value"],
+                    "max_range_value": values["max_range_value"],
+                }
+            )
+
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+
+    # Initialize StatisticCheck
+    statistic_check_config = StatisticCheck(filepath="test_file.txt")
+
+    # Manually set DataFrame
+    statistic_check_config._df = df
+
+    return statistic_check_config
 
 
 def generate_detection_limit_configuration(parameter: str, limit: float):
@@ -205,4 +249,18 @@ def generate_increasedecrease_configuration(
 
     """
     parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
+    return parameter_configuration
+
+
+def generate_spike_configuration(
+    parameter: str, allowed_delta: float, allowed_depths: list
+):
+    """
+    Generate a IncreaseDecreaseCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = SpikeCheck(allowed_delta, allowed_depths)
     return parameter_configuration
