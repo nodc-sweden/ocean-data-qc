@@ -12,7 +12,7 @@ from tests.setup_methods import (
 
 
 @pytest.mark.parametrize(
-    "given_parameter, given_values," "allowed_increase, allowed_decrease, expected_flags",
+    "given_parameter, given_values, allowed_increase, allowed_decrease, expected_flags",
     (
         (
             "A",

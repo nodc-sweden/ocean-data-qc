@@ -4,7 +4,7 @@ import yaml
 
 
 class QcConfiguration:
-    def __init__(self, configuration: dict = None):
+    def __init__(self, configuration: dict | None = None):
         if configuration:
             self._configuration = configuration
         else:

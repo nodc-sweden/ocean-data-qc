@@ -27,7 +27,7 @@ def test_qc_flag_tuple_behaves_like_a_tuple():
     # Equality checks works
     assert given_qc_flag_tuple == given_qc_flag_tuple
     assert given_qc_flag_tuple == original_tuple
-    assert given_qc_flag_tuple != original_tuple + (100,)
+    assert given_qc_flag_tuple != (*original_tuple, 100)
 
     # It can not be sorted in place
     with pytest.raises(AttributeError):

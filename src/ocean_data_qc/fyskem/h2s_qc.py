@@ -23,7 +23,7 @@ class H2sQc(BaseQcCategory):
         selection = self._data[parameter_boolean]
         other_selection = self._data[
             (self._data.parameter == "H2S")
-            & ~self._data["quality_flag_long"].str.contains("(6|4)")
+            & ~self._data["quality_flag_long"].str.contains("(?:6|4)")
         ].rename(columns={"value": "h2s"})
         selection = pd.merge(
             selection,

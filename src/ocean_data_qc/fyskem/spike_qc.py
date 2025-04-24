@@ -54,7 +54,7 @@ class SpikeQc(BaseQcCategory):
         significantly different from adjacent ones, is a spike in both size and gradient.
         This test does not consider differences in depth, but assumes a sampling
         that adequately reproduces changes in DOXY and TEMP_DOXY with depth.
-        Test value = | V2 − (V3 + V1)/2 | − | (V3 − V1) / 2 |
+        Test value = | V2 - (V3 + V1)/2 | - | (V3 - V1) / 2 |
         where V2 is the measurement being tested as a spike,
         and V1 and V3 are the values above andbelow.
         For DOXY: The V2 value is flagged when
