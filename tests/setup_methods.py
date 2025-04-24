@@ -36,7 +36,7 @@ PARAMETER_CHOICE = (
 )
 
 
-def generate_data_frame(rows: list[dict] = None):
+def generate_data_frame(rows: list[dict] | None = None):
     """
     Generate a dataframe
 
@@ -120,7 +120,9 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
     return generate_data_frame(rows)
 
 
-def generate_data_frame_from_data_list(data_list: list[dict], depths: list[int] = None):
+def generate_data_frame_from_data_list(
+    data_list: list[dict], depths: list[int] | None = None
+):
     """
     Generate a dataframe from a list of dictionaries but also generate a pseudo random
     parameter and value for each entry.

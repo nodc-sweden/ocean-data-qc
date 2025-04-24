@@ -60,7 +60,7 @@ class QcFlags:
         # Manual QC should always be used if it is performed.
         # If not, use the worst flag.
         self._total = self.manual or min(
-            [flag for flag in (self.incoming,) + tuple(self.automatic)],
+            [flag for flag in (self.incoming, *tuple(self.automatic))],
             key=QcFlag.key_function,
             default=QcFlag.NO_QC_PERFORMED,
         )

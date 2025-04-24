@@ -50,7 +50,7 @@ def test_empty_flags_string_becomes_non_empty_qc_flags_object():
 
 @pytest.mark.parametrize(
     "given_qc_flags", ("0_0_0_0", "1_23_4_4", "5_4321_0_4", "1_235678_9_9")
-)  # noqa: E501
+)
 def test_qc_flags_roundtrip(given_qc_flags: str):
     # Given a qc flags string
     # When creating a QcFlags object

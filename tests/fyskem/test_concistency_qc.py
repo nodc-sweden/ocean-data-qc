@@ -38,7 +38,7 @@ from tests.setup_methods import (
             0,
             -1,
             QcFlag.PROBABLY_GOOD_DATA,
-        ),  # 1-(1+0.5)=-0.5 vilket är > -1  # noqa: E501
+        ),  # 1-(1+0.5)=-0.5 vilket är > -1
         ("A", 1, {"B": 1, "C": 2}, 0, -1, QcFlag.BAD_DATA),  # 1-(1+2)=-2 vilket är < -1
         ("A", 1, {"B": 3}, 0, -1, QcFlag.BAD_DATA),  # 1-(3)=-2 vilket är < -1
         (
@@ -48,7 +48,7 @@ from tests.setup_methods import (
             0,
             -1,
             QcFlag.PROBABLY_GOOD_DATA,
-        ),  # 1-(1+0.1+0.1)=-0.2 vilket är > -1  # noqa: E501
+        ),  # 1-(1+0.1+0.1)=-0.2 vilket är > -1
         ("A", np.nan, {"B": 1, "C": 2}, 0, -1, QcFlag.MISSING_VALUE),
         (
             "A",
@@ -57,7 +57,7 @@ from tests.setup_methods import (
             0,
             -1,
             QcFlag.PROBABLY_GOOD_DATA,
-        ),  # 1-(2)=-1 vilket är >= -1  # noqa: E501
+        ),  # 1-(2)=-1 vilket är >= -1
         (
             "A",
             1,
@@ -65,7 +65,7 @@ from tests.setup_methods import (
             0,
             -1,
             QcFlag.NO_QC_PERFORMED,
-        ),  # 1-(np.nan)=1 vilket är >=0  # noqa: E501
+        ),  # 1-(np.nan)=1 vilket är >=0
         (
             "A",
             np.nan,
@@ -73,7 +73,7 @@ from tests.setup_methods import (
             0,
             -1,
             QcFlag.MISSING_VALUE,
-        ),  # 1-(np.nan)=1 vilket är >=0  # noqa: E501
+        ),  # 1-(np.nan)=1 vilket är >=0
         (
             "A",
             1,

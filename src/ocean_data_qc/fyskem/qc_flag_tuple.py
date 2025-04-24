@@ -69,4 +69,4 @@ class QcFlagTuple:
         return "".join(str(v.value) for v in self._inner_tuple)
 
     def __repr__(self):
-        return f"{__class__.__name__}{str(self._inner_tuple)}"
+        return f"{__class__.__name__}{self._inner_tuple!s}"
