@@ -21,12 +21,10 @@ class SpikeQc(BaseQcCategory):
         boolean_selection = self._data.parameter == parameter
 
         selection = self._data.loc[boolean_selection]
-        print(f"selection: {selection}")
         # First value (normally surface) will always be nan.
         selection = selection.groupby("visit_key", group_keys=False)[
             ["value", "DEPH"]
         ].apply(self._spike_check)
-        print(f"selection after spike check: \n{selection=}")
         if selection.empty:
             return
 
@@ -64,26 +62,16 @@ class SpikeQc(BaseQcCategory):
         """
         profile = profile.sort_values(by="DEPH").reset_index(drop=True)
         vals = profile["value"].values
-        dephs = profile["DEPH"].values
 
         deltas = np.full(len(profile), np.nan, dtype=float)
 
         if len(vals) > 2:
             v_minus = vals[:-2]
             v_plus = vals[2:]
-            alfa = vals[1:-1] - np.abs((vals[:-2] + vals[2:]) / 2)
-            gradient = np.abs((vals[2:] - vals[:-2]) / 2)
+            alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
+            gradient = np.abs((v_plus - v_minus) / 2)
             delta = np.abs(alfa) - np.abs(gradient)
             deltas[1:-1] = delta
-            print(delta)
-            print("|Depth | v-1   | values | v+1 | Alfa  | gradient  | Delta|")
-            print("|-" * 7)
-            for d, a, b, g, v, v1, v3 in zip(
-                dephs[1:-1], alfa, gradient, delta, vals[1:-1], v_minus, v_plus
-            ):
-                print(
-                    f"|{d:^5.0f} | {v1:^5.2f} | {v:^5.2f} | {v3:^5.2f} | {a:^5.2f} | {b:^5.2f} | {g:^5.2f}|"  # noqa: E501
-                )
 
         profile["delta"] = deltas
         return profile
