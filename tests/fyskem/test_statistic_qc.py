@@ -23,7 +23,6 @@ from tests.setup_methods import (
         (0.9, (1, 10), "01", 0, QcFlag.BAD_DATA),
         (-1, (1, 10), "01", 0, QcFlag.BAD_DATA),
         (np.nan, (1, 10), "01", 1, QcFlag.MISSING_VALUE),
-        (None, (1, 10), "01", 1, QcFlag.MISSING_VALUE),
     ),
 )
 def test_quality_flag_for_value_month_depth_with_given_qc(

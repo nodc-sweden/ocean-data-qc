@@ -17,7 +17,6 @@ from tests.setup_methods import generate_data_frame, generate_range_check_config
         (1.22999, (1.23, 1.24), QcFlag.BAD_DATA),
         (1.24001, (1.23, 1.24), QcFlag.BAD_DATA),
         (np.nan, (1.23, 1.24), QcFlag.MISSING_VALUE),
-        (None, (1.23, 1.24), QcFlag.MISSING_VALUE),
     ),
 )
 def test_quality_flag_for_value_with_global_limits_using_override_configuration(

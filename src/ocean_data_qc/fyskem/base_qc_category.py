@@ -9,6 +9,7 @@ class BaseQcCategory(abc.ABC):
         self._data = data
         self._field_position = field_position
         self._column_name = column_name
+        self._info_column_name = f"info_{column_name}"
 
     @abc.abstractmethod
     def check(self, parameter: str, configuration): ...
@@ -26,6 +27,7 @@ class BaseQcCategory(abc.ABC):
 
         # Add a column for the specific category
         self._data[self._column_name] = str(QcFlag.NO_QC_PERFORMED.value)
+        self._data[self._info_column_name] = str(QcFlag.NO_QC_PERFORMED)
 
     def collapse_qc_columns(self):
         # Insert the specific QC flag to its correct position in the full auto QC string

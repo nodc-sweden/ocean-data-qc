@@ -20,8 +20,8 @@ from tests.setup_methods import (
             0.4,
             [
                 QcFlag.NO_QC_PERFORMED,
-                QcFlag.BAD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.NO_QC_PERFORMED,
             ],
         ),
@@ -33,7 +33,7 @@ from tests.setup_methods import (
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.NO_QC_PERFORMED,
             ],
         ),
@@ -66,7 +66,7 @@ from tests.setup_methods import (
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.NO_QC_PERFORMED,

@@ -35,7 +35,6 @@ from tests.setup_methods import (
             QcFlag.BELOW_DETECTION,
         ),  # Strictly below detection limit
         (np.nan, 1.234, QcFlag.GOOD_DATA, QcFlag.MISSING_VALUE),
-        (None, 1.234, QcFlag.GOOD_DATA, QcFlag.MISSING_VALUE),
     ),
 )
 

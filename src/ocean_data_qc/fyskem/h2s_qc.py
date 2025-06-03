@@ -1,5 +1,5 @@
-import numpy as np
 import pandas as pd
+import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
 from ocean_data_qc.fyskem.qc_checks import H2sCheck
@@ -9,7 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class H2sQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.H2sCheck, f"AUTO_QC_{QcField.H2sCheck}")
+        super().__init__(data, QcField.H2sCheck, f"AUTO_QC_{QcField.H2sCheck.name}")
 
     def check(self, parameter: str, configuration: H2sCheck):
         """
@@ -18,6 +18,7 @@ class H2sQc(BaseQcCategory):
         BELOW_DETECTIONs: given parameter flag BELOW_DETECTION
         """
 
+        self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
 
         selection = self._data[parameter_boolean]
@@ -31,16 +32,73 @@ class H2sQc(BaseQcCategory):
             on=["visit_key", "DEPH"],
             how="left",
         )
-        self._data.loc[parameter_boolean, self._column_name] = np.where(
-            pd.isna(selection.value),  # no value means missing flag
-            str(QcFlag.MISSING_VALUE.value),
-            np.where(  # if not missing
-                selection.quality_flag_long.str.contains(configuration.skip_flag),
-                str(QcFlag.BELOW_DETECTION.value),  # keep Below detection
-                np.where(  # if not below detection
-                    pd.isna(selection.h2s),
-                    str(QcFlag.GOOD_DATA.value),  # good when no h2s
-                    str(QcFlag.BAD_DATA.value),  # bad when h2s
-                ),
-            ),
+
+        selection = self._apply_polars_flagging_logic(selection, configuration)
+        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
+            selection[[self._column_name, self._info_column_name]].values
         )
+
+    def _apply_polars_flagging_logic(
+        self, selection: pd.DataFrame, configuration: H2sCheck
+    ) -> pd.DataFrame:
+        """
+        Apply the tests logic to selection using polars return pandas dataframe
+        """
+        pl_selection = pl.from_pandas(selection)
+
+        result_expr = (
+            pl.when(pl.col("value").is_null())
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
+                        pl.lit(f"MISSING no value for {self._parameter}").alias("info"),
+                    ]
+                )
+            )
+            .when(pl.col("quality_flag_long").str.contains(configuration.skip_flag))
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.BELOW_DETECTION.value)).alias("flag"),
+                        pl.lit(
+                            f"BELOW_DETECTION {self._parameter} is below detection limit"
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(pl.col("h2s").is_null())
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit("GOOD no h2s present").alias("info"),
+                    ]
+                )
+            )
+            .otherwise(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(f"BAD {self._parameter} because h2s present").alias(
+                            "info"
+                        ),
+                    ]
+                )
+            )
+        )
+
+        pl_selection = (
+            pl_selection.with_columns([result_expr.alias("result_struct")])
+            .with_columns(
+                [
+                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
+                    pl.col("result_struct")
+                    .struct.field("info")
+                    .alias(self._info_column_name),
+                ]
+            )
+            .drop("result_struct")
+        )
+
+        return pl_selection.to_pandas()
