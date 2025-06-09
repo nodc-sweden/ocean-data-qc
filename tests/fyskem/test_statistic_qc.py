@@ -82,7 +82,7 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
     # Then the automatic QC flags has at least as many positions
     # to include the field for Range Check
     parameter_after = Parameter(given_data.loc[0])
-    assert len(parameter_after.qc.automatic) >= (QcField.StatisticCheck + 1)
+    assert len(parameter_after.qc.automatic) >= (QcField.Statistic + 1)
 
     # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.StatisticCheck] == expected_flag
+    assert parameter_after.qc.automatic[QcField.Statistic] == expected_flag

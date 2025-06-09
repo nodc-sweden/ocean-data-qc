@@ -9,7 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class H2sQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.H2sCheck, f"AUTO_QC_{QcField.H2sCheck.name}")
+        super().__init__(data, QcField.H2s, f"AUTO_QC_{QcField.H2s.name}")
 
     def check(self, parameter: str, configuration: H2sCheck):
         """

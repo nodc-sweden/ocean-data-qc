@@ -9,9 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class ConsistencyQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(
-            data, QcField.ConsistencyCheck, f"AUTO_QC_{QcField.ConsistencyCheck.name}"
-        )
+        super().__init__(data, QcField.Consistency, f"AUTO_QC_{QcField.Consistency.name}")
 
     def check(self, parameter: str, configuration: ConsistencyCheck):
         """

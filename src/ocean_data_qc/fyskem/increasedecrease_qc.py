@@ -11,8 +11,8 @@ class IncreaseDecreaseQc(BaseQcCategory):
     def __init__(self, data):
         super().__init__(
             data,
-            QcField.IncreaseDecreaseCheck,
-            f"AUTO_QC_{QcField.IncreaseDecreaseCheck}",
+            QcField.IncreaseDecrease,
+            f"AUTO_QC_{QcField.IncreaseDecrease.name}",
         )
 
     def check(self, parameter: str, configuration: IncreaseDecreaseCheck):

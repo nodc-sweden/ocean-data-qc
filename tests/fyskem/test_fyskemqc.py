@@ -44,12 +44,12 @@ def test_run_checks_for_parameters():
     parameter_4 = given_fyskemeqc[3]
     parameter_5 = given_fyskemeqc[4]
 
-    # Then RangeCheck QC flags are changed
-    assert parameter_1.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_2.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_3.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_4.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_5.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
+    # Then Range QC flags are changed
+    assert parameter_1.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_2.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_3.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_4.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_5.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
 
 
 @pytest.mark.parametrize(

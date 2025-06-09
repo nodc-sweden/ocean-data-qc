@@ -10,7 +10,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 class DetectionLimitQc(BaseQcCategory):
     def __init__(self, data):
         super().__init__(
-            data, QcField.DetectionLimitCheck, f"AUTO_QC_{QcField.DetectionLimitCheck}"
+            data, QcField.DetectionLimit, f"AUTO_QC_{QcField.DetectionLimit.name}"
         )
 
     def check(self, parameter, configuration: DetectionLimitCheck):

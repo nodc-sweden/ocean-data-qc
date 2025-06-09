@@ -10,7 +10,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class SpikeQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.SpikeCheck, f"AUTO_QC_{QcField.SpikeCheck.name}")
+        super().__init__(data, QcField.Spike, f"AUTO_QC_{QcField.Spike.name}")
 
     def check(self, parameter: str, configuration: SpikeCheck):
         """

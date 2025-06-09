@@ -9,9 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class StatisticQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(
-            data, QcField.StatisticCheck, f"AUTO_QC_{QcField.StatisticCheck.name}"
-        )
+        super().__init__(data, QcField.Statistic, f"AUTO_QC_{QcField.Statistic.name}")
 
     def check(self, parameter: str, configuration: StatisticCheck):
         """Vectorized check that flags data based on sea_area, depth, and month."""

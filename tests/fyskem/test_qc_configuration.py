@@ -65,7 +65,7 @@ def test_range_check_default_qc_configuration(
         ("NTRZ", 0.1),
     ),
 )
-def test_limit_detection_check_default_qc_configuration(
+def test_detectionlimit_check_default_qc_configuration(
     given_parameter_name, expected_limit
 ):
     # When creating a configuration
@@ -73,7 +73,7 @@ def test_limit_detection_check_default_qc_configuration(
 
     # Then the default value can be retrieved
     retrieved_configuration = given_configuration.get(
-        "detection_limit_check", given_parameter_name
+        "detectionlimit_check", given_parameter_name
     )
 
     assert retrieved_configuration.limit == expected_limit

@@ -9,7 +9,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class RangeQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.RangeCheck, f"AUTO_QC_{QcField.RangeCheck.name}")
+        super().__init__(data, QcField.Range, f"AUTO_QC_{QcField.Range.name}")
 
     def check(self, parameter: str, configuration: RangeCheck):
         self._parameter = parameter

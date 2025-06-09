@@ -123,7 +123,7 @@ def test_spike_qc_using_override_configuration(
     assert zip(parameter_after_list, expected_flags, strict=True)
 
     for parameter_after, expected_flag in zip(parameter_after_list, expected_flags):
-        assert len(parameter_after.qc.automatic) >= (QcField.SpikeCheck + 1)
+        assert len(parameter_after.qc.automatic) >= (QcField.Spike + 1)
 
         # And the parameter is given the expected flag at the expected position
-        assert parameter_after.qc.automatic[QcField.SpikeCheck] == expected_flag
+        assert parameter_after.qc.automatic[QcField.Spike] == expected_flag

@@ -112,7 +112,7 @@ def test_h2s_check_using_override_configuration(
     # Then the automatic QC flags has at least as many positions
     # to include the field for H2S Check
     parameter_after = Parameter(given_data.loc[0])
-    assert len(parameter_after.qc.automatic) >= (QcField.H2sCheck + 1)
+    assert len(parameter_after.qc.automatic) >= (QcField.H2s + 1)
 
     # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.H2sCheck] == expected_flag
+    assert parameter_after.qc.automatic[QcField.H2s] == expected_flag

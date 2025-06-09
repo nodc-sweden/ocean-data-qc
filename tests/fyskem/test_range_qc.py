@@ -50,7 +50,7 @@ def test_quality_flag_for_value_with_global_limits_using_override_configuration(
     # Then the automatic QC flags has at least as many positions
     # to include the field for Range Check
     parameter_after = Parameter(given_data.loc[0])
-    assert len(parameter_after.qc.automatic) >= (QcField.RangeCheck + 1)
+    assert len(parameter_after.qc.automatic) >= (QcField.Range + 1)
 
     # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.RangeCheck] == expected_flag
+    assert parameter_after.qc.automatic[QcField.Range] == expected_flag

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
+from ocean_data_qc.fyskem.detectionlimit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
@@ -80,7 +80,7 @@ def test_quality_flag_for_value_with_global_limit_using_override_configuration(
     # Then the automatic QC flags has at least as many positions
     # to include the field for Range Check
     parameter_after = Parameter(given_data.loc[0])
-    assert len(parameter_after.qc.automatic) >= (QcField.DetectionLimitCheck + 1)
+    assert len(parameter_after.qc.automatic) >= (QcField.DetectionLimit + 1)
 
     # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.DetectionLimitCheck] == expected_flag
+    assert parameter_after.qc.automatic[QcField.DetectionLimit] == expected_flag

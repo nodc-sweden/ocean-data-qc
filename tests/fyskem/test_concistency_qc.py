@@ -143,7 +143,7 @@ def test_consistency_qc_using_override_configuration(
     parameter_after = Parameter(
         given_data[given_data.parameter == given_parameter].loc[0]
     )
-    assert len(parameter_after.qc.automatic) >= (QcField.ConsistencyCheck + 1)
+    assert len(parameter_after.qc.automatic) >= (QcField.Consistency + 1)
 
     # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.ConsistencyCheck] == expected_flag
+    assert parameter_after.qc.automatic[QcField.Consistency] == expected_flag

@@ -1,25 +1,11 @@
+import importlib
+
 import pandas as pd
 
-from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
-from ocean_data_qc.fyskem.detection_limit_qc import DetectionLimitQc
-from ocean_data_qc.fyskem.h2s_qc import H2sQc
-from ocean_data_qc.fyskem.increasedecrease_qc import IncreaseDecreaseQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
+from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 from ocean_data_qc.fyskem.qc_flags import QcFlags
-from ocean_data_qc.fyskem.range_qc import RangeQc
-from ocean_data_qc.fyskem.spike_qc import SpikeQc
-from ocean_data_qc.fyskem.statistic_qc import StatisticQc
-
-QC_CATEGORIES = {
-    "range_check": RangeQc,
-    "detection_limit_check": DetectionLimitQc,
-    "spike_check": SpikeQc,
-    "statistic_check": StatisticQc,
-    "consistency_check": ConsistencyQc,
-    "h2s_check": H2sQc,
-    "increasedecrease_check": IncreaseDecreaseQc,
-}
 
 
 class FysKemQc:
@@ -40,13 +26,22 @@ class FysKemQc:
         return {Parameter(series) for _, series in self._data.iterrows()}
 
     def run_automatic_qc(self):
-        for category in QC_CATEGORIES.keys():
+        for qc_category in QcField:
+            print(f"run {qc_category} qc")
             # Get config for parameter
-            category_checker = QC_CATEGORIES[category](self._data)
+            class_name = f"{qc_category.name}Qc"
+            module_name = f"ocean_data_qc.fyskem.{qc_category.name.lower()}_qc"
+            module = importlib.import_module(module_name)
+            cls = getattr(module, class_name)
+            category_checker = cls(self._data)
             category_checker.expand_qc_columns()
 
-            for parameter in self._configuration.parameters(category):
-                if config := self._configuration.get(category, parameter):
+            for parameter in self._configuration.parameters(
+                f"{qc_category.name.lower()}_check"
+            ):
+                if config := self._configuration.get(
+                    f"{qc_category.name.lower()}_check", parameter
+                ):
                     category_checker.check(parameter, config)
 
             category_checker.collapse_qc_columns()
