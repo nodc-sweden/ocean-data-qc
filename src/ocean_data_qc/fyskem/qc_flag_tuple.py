@@ -14,10 +14,10 @@ class QcField(IntEnum):
 
     Range = 0
     DetectionLimit = 1
-    Spike = 2
-    Statistic = 3
-    Consistency = 4
-    H2s = 5
+    Statistic = 2
+    H2s = 3
+    Spike = 4
+    Consistency = 5
     IncreaseDecrease = 6
 
 

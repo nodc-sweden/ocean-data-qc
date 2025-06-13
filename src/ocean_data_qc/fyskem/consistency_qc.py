@@ -72,7 +72,7 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
-                            "NO_QC_PERFORMED sum not available for {}",
+                            "NO_QC_PERFORMED {} not available",
                             pl.lit(param_list_str),
                         ).alias("info"),
                     ]
@@ -84,7 +84,7 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD {} >= sum of {} → {} >= {}",
+                            "GOOD {} >= {} → {} >= {}",
                             pl.lit(self._parameter),
                             pl.lit(param_list_str),
                             pl.col("value"),
@@ -117,7 +117,7 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
                         pl.format(
-                            "BAD {} < sum of {} → {} < {} (deviation out of range)",
+                            "BAD {} < {} → {} < {} (deviation out of range)",
                             pl.lit(self._parameter),
                             pl.lit(param_list_str),
                             pl.col("value"),
