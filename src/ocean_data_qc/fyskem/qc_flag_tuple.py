@@ -1,11 +1,16 @@
-import enum
+from enum import IntEnum
 
 from ocean_data_qc import errors
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 
 
-class QcField(enum.IntEnum):
-    """Flag positions in the QcFlagTuple"""
+class QcField(IntEnum):
+    """
+    Handles:
+        - Flag positions in the QcFlagTuple
+        - The order tests are performed
+    The qc-classes have the suffix Qc and the config classes the suffix Check
+    """
 
     Range = 0
     DetectionLimit = 1
