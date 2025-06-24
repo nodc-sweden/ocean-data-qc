@@ -3,6 +3,7 @@ name = "ocean-data-qc"
 version = "2024.6.2"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
+    { name = "Lena Viktorsson", email = "lena.viktorsson@smhi.se" },
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
 ]
 dependencies = [
