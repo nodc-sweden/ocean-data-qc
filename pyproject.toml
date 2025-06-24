@@ -6,6 +6,7 @@ authors = [
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
 ]
 dependencies = [
+    "jinja2>=3.1.6",
     "pandas>=2.2.1",
     "polars>=1.30.0",
     "pyarrow>=20.0.0",

@@ -115,12 +115,3 @@ if __name__ == "__main__":
     )[0]
     print(f"QcField(total_flag_index).name: {QcField(total_flag_index).name:}")
     print(f"qcflags.total_automatic: {qcflags.total_automatic:}")
-    print(
-        f"names: {
-            [
-                qcflags.get_field_name(value.name)
-                for value in qcflags.total_automatic_source
-            ]
-        }"
-    )
-    print(qcflags.total_automatic_source)
