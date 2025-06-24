@@ -20,8 +20,10 @@ class RangeCheck:
 @dataclass
 class ConsistencyCheck:
     parameter_list: list
-    lower_deviation: float
-    upper_deviation: float
+    good_lower: float
+    good_upper: float
+    max_lower: float
+    max_upper: float
 
 
 @dataclass

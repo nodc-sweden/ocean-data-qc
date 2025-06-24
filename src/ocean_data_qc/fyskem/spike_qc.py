@@ -144,9 +144,45 @@ class SpikeQc(BaseQcCategory):
         return profile
 
 
-# def delta(v, d):
-#     f = np.abs((d[1]-d[0])/(d[2]-d[0]))
-#     a = v[1] - np.abs((v[0]+v[2])*f)
-#     b = np.abs((v[2]-v[0])*f)
-#     d = np.abs(a-b)
-#     return f, round(a, 2), round(b,2), round(d,2)
+def delta(v):
+    vals = np.array(v)
+    v_minus = vals[:-2]
+    v_plus = vals[2:]
+    print(v_plus)
+    print(v_minus)
+    (v_plus - v_minus)
+    np.abs((v_minus + v_plus) / 2)
+    alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
+    gradient = np.abs((v_plus - v_minus) / 2)
+    delta = np.round(np.abs(alfa) - np.abs(gradient), 2)
+
+    return delta
+
+
+if __name__ == "__main__":
+    d = [
+        1,
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        40,
+        50,
+        60,
+    ]
+    v = [
+        20.3,
+        19.3,
+        18,
+        17.6,
+        17.1,
+        15.9,
+        13.8,
+        15,
+        14.9,
+        15.1,
+    ]
+    deltas = delta(v)
+    print([d[1:-1], v[1:-1], deltas])

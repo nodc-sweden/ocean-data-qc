@@ -10,89 +10,166 @@ from tests.setup_methods import (
     generate_data_frame,
 )
 
+"given_good_lower", "given_good_upper", "given_max_lower", "given_max_upper"
+
 
 @pytest.mark.parametrize(
     "given_parameter, given_value, given_other_parameters_with_values, "
-    "given_upper_deviation, given_lower_deviation, expected_flag",
+    "given_good_lower, given_good_upper, given_max_lower, given_max_upper, expected_flag",
     (
         (
-            "A",
+            "TOT",
             1.23,
-            {"B": 0.123, "C": 0.123},
+            {"INORG_1": 0.123, "INORG_2": 0.123},
+            999,
+            -0.05,
             0,
             -1,
             QcFlag.GOOD_DATA,
         ),  # 1.23-(0.123+0.123)=0.984 vilket är >= 0
         (
-            "A",
+            "TOT",
             1,
-            {"B": 0.5, "C": 0.5},
+            {"INORG_1": 0.5, "INORG_2": 0.5},
+            0,
+            -0.05,
             0,
             -1,
             QcFlag.GOOD_DATA,
         ),  # 1-(0.5+0.5)=0 vilket är >= 0
         (
-            "A",
+            "TOT",
             1,
-            {"B": 1, "C": 0.5},
+            {"INORG_1": 1, "INORG_2": 0.5},
+            0,
+            -0.05,
             0,
             -1,
-            QcFlag.PROBABLY_GOOD_DATA,
+            QcFlag.BAD_DATA_CORRECTABLE,
         ),  # 1-(1+0.5)=-0.5 vilket är > -1
-        ("A", 1, {"B": 1, "C": 2}, 0, -1, QcFlag.BAD_DATA),  # 1-(1+2)=-2 vilket är < -1
-        ("A", 1, {"B": 3}, 0, -1, QcFlag.BAD_DATA),  # 1-(3)=-2 vilket är < -1
         (
-            "A",
+            "TOT",
             1,
-            {"B": 1, "C": 0.1, "D": 0.1},
+            {"INORG_1": 1, "INORG_2": 2},
+            0,
+            -0.05,
             0,
             -1,
-            QcFlag.PROBABLY_GOOD_DATA,
+            QcFlag.BAD_DATA,
+        ),  # 1-(1+2)=-2 vilket är < -1
+        (
+            "TOT",
+            1,
+            {"INORG_1": 3},
+            0,
+            -0.05,
+            0,
+            -1,
+            QcFlag.BAD_DATA,
+        ),  # 1-(3)=-2 vilket är < -1
+        (
+            "TOT",
+            1,
+            {"INORG_1": 1, "INORG_2": 0.1, "D": 0.1},
+            0,
+            -0.05,
+            0,
+            -1,
+            QcFlag.BAD_DATA_CORRECTABLE,
         ),  # 1-(1+0.1+0.1)=-0.2 vilket är > -1
-        ("A", np.nan, {"B": 1, "C": 2}, 0, -1, QcFlag.MISSING_VALUE),
         (
-            "A",
-            1,
-            {"B": np.nan, "C": 2},
+            "TOT",
+            np.nan,
+            {"INORG_1": 1, "INORG_2": 2},
+            0,
+            -0.05,
             0,
             -1,
-            QcFlag.PROBABLY_GOOD_DATA,
-        ),  # 1-(2)=-1 vilket är >= -1
+            QcFlag.MISSING_VALUE,
+        ),
         (
-            "A",
+            "TOT",
             1,
-            {"B": np.nan, "C": np.nan},
+            {"INORG_1": np.nan, "INORG_2": 2},
+            0,
+            -0.05,
+            0,
+            -1.0,
+            QcFlag.BAD_DATA_CORRECTABLE,
+        ),  # 1-(2)=-1 which is >= -1
+        (
+            "TOT",
+            1,
+            {"INORG_1": np.nan, "INORG_2": np.nan},
+            0,
+            -0.05,
             0,
             -1,
             QcFlag.NO_QC_PERFORMED,
         ),  # 1-(np.nan)=1 vilket är >=0
         (
-            "A",
+            "TOT",
             np.nan,
-            {"B": np.nan, "C": np.nan},
+            {"INORG_1": np.nan, "INORG_2": np.nan},
+            0,
+            -0.05,
             0,
             -1,
             QcFlag.MISSING_VALUE,
         ),  # 1-(np.nan)=1 vilket är >=0
         (
-            "A",
+            "TOT",
             1,
             {},
+            0,
+            -0.05,
             0,
             -1,
             QcFlag.NO_QC_PERFORMED,
         ),
+        (
+            "CTD",
+            1,
+            {"BTL": 3},
+            0.4,
+            -0.4,
+            1,
+            -1,
+            QcFlag.BAD_DATA,
+        ),  # 3-1=2 vilket är >=1
+        (
+            "CTD",
+            1,
+            {"BTL": 1.5},
+            0.4,
+            -0.4,
+            1,
+            -1,
+            QcFlag.BAD_DATA_CORRECTABLE,
+        ),  # 1.5-1=0.5 vilket är >=0.4 men mindre än 1
+        (
+            "CTD",
+            1,
+            {"BTL": 1.3},
+            0.4,
+            -0.4,
+            1,
+            -1,
+            QcFlag.GOOD_DATA,
+        ),  # 1.3-1=0.3 vilket är <=0.4 vilket är godkänt
         # TODO:
         #  - Lägg till hantering av att alla parametrar i parameter list saknas
-        # ("A", 1, {"B": None, "C": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
+        # ("TOT", 1, {"INORG_1": None, "INORG_2": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
     ),
 )
 def test_consistency_qc_using_override_configuration(
     given_parameter,
     given_value,
     given_other_parameters_with_values,
-    given_upper_deviation,
-    given_lower_deviation,
+    given_good_upper,
+    given_good_lower,
+    given_max_upper,
+    given_max_lower,
     expected_flag,
 ):
     # Given parameters with given values for a given depth and visit_key
@@ -120,14 +197,20 @@ def test_consistency_qc_using_override_configuration(
     print(given_data)
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
-    given_other_parameters = ["B", "C", "D"]
+    given_other_parameters = list(given_other_parameters_with_values.keys())
+    good_lower = min(given_good_lower, given_good_upper)
+    good_upper = max(given_good_lower, given_good_upper)
+    max_lower = min(given_max_lower, given_max_upper)
+    max_upper = max(given_max_lower, given_max_upper)
     given_configuration = generate_consistency_check_configuration(
         given_parameter,
         given_other_parameters,
-        given_upper_deviation,
-        given_lower_deviation,
+        max_upper,
+        max_lower,
+        good_upper,
+        good_lower,
     )
-
+    print(given_configuration)
     consistency_qc = ConsistencyQc(given_data)
     consistency_qc.expand_qc_columns()
 

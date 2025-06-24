@@ -3,13 +3,21 @@ NTOT:
     parameter_list: ['NTRA', 'NTRI','AMON']
     upper_deviation: 0
     lower_deviation: -1
+    good_lower: -0.05
+    good_upper: 999 # Good if difference >= 0
+    max_lower: -1
+    max_upper: 999 # bad correctable down to -1, BAD below
 PTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_list: ['PHOS']
-    upper_deviation: 0
-    lower_deviation: -0.2
+    good_lower: -0.05
+    good_upper: 999 # Good if difference >= 0
+    max_lower: -0.2
+    max_upper: 999 # bad correctable down to -0.2, BAD below
 DOXY_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_list: ['DOXY_BTL']
-    upper_deviation: 0.2
-    lower_deviation: -0.2
+    good_lower: -0.4
+    good_upper: 0.4 # Good if difference between -0.4-0.4 
+    max_lower: -1
+    max_upper: 1 # bad correctable if difference between -1-1, BAD if abs(diff) > 1    

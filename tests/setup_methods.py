@@ -214,8 +214,10 @@ def generate_detection_limit_configuration(parameter: str, limit: float):
 def generate_consistency_check_configuration(
     parameter: str,
     parameter_list: list,
-    upper_deviation: float = 0,
-    lower_deviation: float = -1,
+    max_upper: float = 0,
+    max_lower: float = -1,
+    good_upper: float = 99,
+    good_lower: float = -0.05,
 ):
     """
     Generate a ConsistencyCheck configration entry.
@@ -224,8 +226,10 @@ def generate_consistency_check_configuration(
     """
     parameter_configuration = ConsistencyCheck(
         parameter_list=parameter_list,
-        upper_deviation=upper_deviation,
-        lower_deviation=lower_deviation,
+        max_upper=max_upper,
+        max_lower=max_lower,
+        good_upper=good_upper,
+        good_lower=good_lower,
     )
     return parameter_configuration
 

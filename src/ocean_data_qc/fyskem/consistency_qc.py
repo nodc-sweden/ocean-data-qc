@@ -15,9 +15,11 @@ class ConsistencyQc(BaseQcCategory):
         """
         This check is applied on the difference between
         the parameter value and the sum of the values in parameter list
-        GOOD_DATA: difference >= 0
-        PROBABLY_GOOD_DATA: lower_deviation <= difference <= upper_deviation
-        BAD_DATA: everything outside the deviation bounds
+        GOOD_DATA: difference within lower bounds
+            good_lower <= difference <= good_upper_
+        BAD_DATA_CORRECTABLE: difference within max bounds
+            max_lower <= difference <= max_upper
+        BAD_DATA: everything outside the max bounds
         """
 
         self._parameter = parameter
@@ -44,14 +46,14 @@ class ConsistencyQc(BaseQcCategory):
         self, selection: pd.DataFrame, configuration: ConsistencyCheck
     ) -> pd.DataFrame:
         """
-        Apply flagging logic for value vs. summation deviation test using polars.
+        Apply flagging logic for value vs. summation difference test using polars.
         """
         pl_selection = pl.from_pandas(selection)
         param_list_str = ", ".join(configuration.parameter_list)
 
         # Calculate the difference once to avoid repeating the subtraction
         pl_selection = pl_selection.with_columns(
-            [(pl.col("value") - pl.col("summation")).alias("deviation")]
+            [(pl.col("value") - pl.col("summation")).alias("difference")]
         )
 
         result_expr = (
@@ -61,7 +63,7 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
                         pl.format(
-                            "MISSING no value for {}", pl.lit(self._parameter)
+                            "MISSING: no value for {}", pl.lit(self._parameter)
                         ).alias("info"),
                     ]
                 )
@@ -72,56 +74,72 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
-                            "NO_QC_PERFORMED {} not available",
+                            "NO_QC_PERFORMED: {} not available",
                             pl.lit(param_list_str),
                         ).alias("info"),
                     ]
                 )
             )
-            .when(pl.col("deviation") >= 0)
+            # GOOD: difference in tight range
+            .when(
+                (pl.col("difference") >= configuration.good_lower)
+                & (pl.col("difference") <= configuration.good_upper)
+            )
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD {} >= {} → {} >= {}",
-                            pl.lit(self._parameter),
+                            "GOOD: difference {}-{} {} - {} = {} is within {}-{}",
+                            pl.lit("parameter"),
                             pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
+                            pl.col("difference"),
+                            pl.lit(configuration.good_lower),
+                            pl.lit(configuration.good_upper),
                         ).alias("info"),
                     ]
                 )
             )
+            # PROBABLY BAD: in wider (but acceptable) range
             .when(
-                (pl.col("deviation") >= configuration.lower_deviation)
-                & (pl.col("deviation") <= configuration.upper_deviation)
+                (pl.col("difference") >= configuration.max_lower)
+                & (pl.col("difference") <= configuration.max_upper)
             )
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
                         pl.format(
-                            "PROBABLY_GOOD deviation {} - {} = {} within [{}, {}]",
+                            "BAD_DATA_CORRECTABLE: difference {}-{} {} - {} = {} \
+                                outside allowed range but within range {}-{}",
+                            pl.lit("parameter"),
+                            pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
-                            pl.col("deviation"),
-                            pl.lit(configuration.lower_deviation),
-                            pl.lit(configuration.upper_deviation),
+                            pl.col("difference").round(2),
+                            pl.lit(configuration.max_lower),
+                            pl.lit(configuration.max_upper),
                         ).alias("info"),
                     ]
                 )
             )
+            # BAD: anything else
             .otherwise(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
                         pl.format(
-                            "BAD {} < {} → {} < {} (deviation out of range)",
-                            pl.lit(self._parameter),
+                            "BAD: difference {}-{} {} - {} = {} \
+                                outside allowed range {}-{}",
+                            pl.lit("parameter"),
                             pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
+                            pl.col("difference"),
+                            pl.lit(configuration.max_lower),
+                            pl.lit(configuration.max_upper),
                         ).alias("info"),
                     ]
                 )
