@@ -3,7 +3,7 @@ import pytest
 from ocean_data_qc.fyskem.qc_flag import QcFlag
 from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
 from ocean_data_qc.fyskem.qc_flags import QcFlags
-from ocean_data_qc.fyskemqc import FysKemQc
+from ocean_data_qc.fyskemqc import QC_CATEGORIES, FysKemQc
 from tests.setup_methods import generate_data_frame, generate_data_frame_of_length
 
 
@@ -44,12 +44,12 @@ def test_run_checks_for_parameters():
     parameter_4 = given_fyskemeqc[3]
     parameter_5 = given_fyskemeqc[4]
 
-    # Then RangeCheck QC flags are changed
-    assert parameter_1.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_2.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_3.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_4.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
-    assert parameter_5.qc.automatic[QcField.RangeCheck] != QcFlag.NO_QC_PERFORMED
+    # Then Range QC flags are changed
+    assert parameter_1.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_2.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_3.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_4.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_5.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
 
 
 @pytest.mark.parametrize(
@@ -106,3 +106,28 @@ def test_automatic_qc_does_not_alter_incoming_or_manual_qc(
 
     assert parameter_2.qc.incoming == given_incoming_qc
     assert parameter_2.qc.manual == given_manual_qc
+
+
+def test_qc_categories_match_qcfield():
+    # Derive expected class names from QcField: add 'Qc' suffix
+    expected_classes = {f"{field.name}Qc" for field in QcField}
+
+    # Get actual class names from QC_CATEGORIES
+    actual_classes = {cls.__name__ for cls in QC_CATEGORIES}
+
+    missing_in_qc_categories = expected_classes - actual_classes
+    unexpected_in_qc_categories = actual_classes - expected_classes
+
+    error_messages = []
+    if missing_in_qc_categories:
+        error_messages.append(
+            f"Missing in QC_CATEGORIES: {sorted(missing_in_qc_categories)}"
+        )
+    if unexpected_in_qc_categories:
+        error_messages.append(
+            f"Unexpected in QC_CATEGORIES: {sorted(unexpected_in_qc_categories)}"
+        )
+
+    assert not error_messages, (
+        "Mismatch between QcField and QC_CATEGORIES:\n" + "\n".join(error_messages)
+    )

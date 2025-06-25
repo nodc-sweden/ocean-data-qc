@@ -1,79 +1,79 @@
 
-salt:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/salt.txt"
-CPHL:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/CPHL.txt"
-TEMP_BTL:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/TEMP_BTL.txt"
 temp:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/temp.txt"
-PHOS:
+AMON:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/PHOS.txt"
-PH:
+    filepath: "configs/statistic_check_data/AMON.txt"
+H2S:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/PH.txt"
-SIO3-SI:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/SIO3-SI.txt"
-SECCHI:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/SECCHI.txt"
-SALT_BTL:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/SALT_BTL.txt"
-oxygen_saturation:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/oxygen_saturation.txt"
+    filepath: "configs/statistic_check_data/H2S.txt"
 PTOT:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/PTOT.txt"
+SECCHI:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/SECCHI.txt"
+NTRZ:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/NTRZ.txt"
+TEMP_CTD:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/TEMP_CTD.txt"
+PH:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/PH.txt"
+oxygen_saturation:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/oxygen_saturation.txt"
+din:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/din.txt"
+SALT_BTL:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/SALT_BTL.txt"
 NTOT:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/NTOT.txt"
+CPHL:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/CPHL.txt"
+doxy:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/doxy.txt"
+DOXY_CTD:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/DOXY_CTD.txt"
+PHOS:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/PHOS.txt"
+ALKY:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/ALKY.txt"
+salt:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/salt.txt"
 SALT_CTD:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/SALT_CTD.txt"
 DOXY_BTL:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/DOXY_BTL.txt"
-H2S:
+TEMP_BTL:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/H2S.txt"
-DOXY_CTD:
+    filepath: "configs/statistic_check_data/TEMP_BTL.txt"
+SIO3-SI:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/DOXY_CTD.txt"
-AMON:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/AMON.txt"
-TEMP_CTD:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/TEMP_CTD.txt"
-din:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/din.txt"
-doxy:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/doxy.txt"
-ALKY:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/ALKY.txt"
-NTRZ:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/NTRZ.txt"
-NTRA:
-    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/NTRA.txt"
+    filepath: "configs/statistic_check_data/SIO3-SI.txt"
 NTRI:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/NTRI.txt"
-PH_LAB:
+NTRA:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
-    filepath: "configs/statistic_check_data/PH_LAB.txt"
+    filepath: "configs/statistic_check_data/NTRA.txt"
 HUMUS:
     !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
     filepath: "configs/statistic_check_data/HUMUS.txt"
+PH_LAB:
+    !!python/object:ocean_data_qc.fyskem.qc_checks.StatisticCheck
+    filepath: "configs/statistic_check_data/PH_LAB.txt"

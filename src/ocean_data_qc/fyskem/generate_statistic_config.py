@@ -94,10 +94,25 @@ def create_config_from_directory(data_directory):
                     if pd.isna(mean_value) or pd.isna(std_value) or count_value <= 10:
                         continue  # Skip invalid values
 
-                    min_range_value = mean_value - 2 * std_value
-                    max_range_value = mean_value + 2 * std_value
-                    min_range_value = float(min_value) * 0.8  # decrease by 20%
-                    max_range_value = float(max_value) * 1.2  # increase by 20%
+                    min_range_value = float(min_value) - 2 * std_value
+                    max_range_value = float(max_value) + 2 * std_value
+                    # min_range_value = float(min_value) * 0.8  # decrease by 20%
+                    # max_range_value = float(max_value) * 1.2  # increase by 20%
+
+                    # special case for H2S, AMON, din and SIO3-SI where
+                    # concentrations show a strong increasing trend
+                    if (
+                        sea_area
+                        in [
+                            "Eastern Gotland Basin",
+                            "Western Gotland Basin",
+                            "Northern Baltic Proper",
+                        ]
+                        and min_depth > 60
+                        and param_name in ["H2S", "AMON", "din", "SIO3-SI"]
+                    ):
+                        min_range_value = float(min_value) - 3 * std_value
+                        max_range_value = float(max_value) + 3 * std_value
 
                     # Add month config to the depth entry
                     depth_entry["months"][month_str] = {
@@ -129,6 +144,10 @@ def write_yaml(config, output_file, yaml_template=yaml_template_config):
 
 
 def generate_statistic_parameter_files(data_directory, output_directory):
+    """
+    read file with statistics and create one file with statistics for each parameter
+    Add columns to use for checks (min_range_value and max_range_value)
+    """
     # Define file directory
     data_dir = Path(data_directory)
     output_dir = Path(output_directory)
@@ -168,6 +187,7 @@ def generate_statistic_parameter_files(data_directory, output_directory):
                 parameter_data[param] = []
             parameter_data[param].append(param_df)
     config_data = {}
+
     # Save each parameter's collected data into a separate file
     for param, dataframes in parameter_data.items():
         param_df = pd.concat(dataframes, ignore_index=True)
@@ -179,8 +199,38 @@ def generate_statistic_parameter_files(data_directory, output_directory):
         # Convert min_depth and max_depth to numeric (since split gives strings)
         param_df["min_depth"] = pd.to_numeric(param_df["min_depth"])
         param_df["max_depth"] = pd.to_numeric(param_df["max_depth"])
-        param_df["min_range_value"] = round(param_df["min"] * 0.8, 2)  # decrease by 20%
-        param_df["max_range_value"] = round(param_df["max"] * 1.2, 2)  # increase by 20%
+
+        # default use std *2 to define allowed max and min range
+        # so far we only have good or bad in the test, not probably good
+        param_df["min_range_value"] = round(param_df["min"] - param_df["std"] * 2, 2)
+        param_df["max_range_value"] = round(param_df["max"] + param_df["std"] * 2, 2)
+
+        # Special case: override with std * 3 where all conditions are met.
+        # Applies to Baltic Proper below halocline (> 60 m)
+        special_params = ["H2S", "AMON", "din", "SIO3-SI"]
+
+        if param in special_params:
+            special_basins = [
+                "Eastern Gotland Basin",
+                "Western Gotland Basin",
+                "Northern Baltic Proper",
+            ]
+            mask = (param_df["sea_basin"].isin(special_basins)) & (
+                param_df["depth"] >= 60
+            )
+            param_df.loc[mask, "min_range_value"] = round(
+                param_df.loc[mask, "min"] - param_df.loc[mask, "std"] * 3, 2
+            )
+            param_df.loc[mask, "max_range_value"] = round(
+                param_df.loc[mask, "max"] + param_df.loc[mask, "std"] * 3, 2
+            )
+
+        # Handle low temperatures and conc < 0
+        if "TEMP" in param.upper():
+            param_df["min_range_value"] = param_df["min_range_value"].clip(lower=-2)
+        elif "neg" not in param:
+            param_df["min_range_value"] = param_df["min_range_value"].clip(lower=0)
+
         param_file = output_dir / f"{param}.txt"
         param_df.to_csv(param_file, sep="\t", index=False, encoding="utf8")
         config_data[param] = {"file_name": f"{param}.txt"}
@@ -197,7 +247,6 @@ if __name__ == "__main__":
     qc_config = generate_statistic_parameter_files(
         data_directory=directory_path, output_directory=output_directory
     )
-    # qc_config = create_config_from_directory(directory_path)
     write_yaml(
         qc_config,
         "src/ocean_data_qc/fyskem/configs/statistic_check.yaml",

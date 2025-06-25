@@ -79,9 +79,7 @@ def test_increasedecrease_qc_using_override_configuration(
     assert zip(parameter_after_list, expected_flags, strict=True)
 
     for parameter_after, expected_flag in zip(parameter_after_list, expected_flags):
-        assert len(parameter_after.qc.automatic) >= (QcField.IncreaseDecreaseCheck + 1)
+        assert len(parameter_after.qc.automatic) >= (QcField.IncreaseDecrease + 1)
 
         # And the parameter is given the expected flag at the expected position
-        assert (
-            parameter_after.qc.automatic[QcField.IncreaseDecreaseCheck] == expected_flag
-        )
+        assert parameter_after.qc.automatic[QcField.IncreaseDecrease] == expected_flag

@@ -25,6 +25,9 @@ class QcFlags:
     def get_field(self, field_name: QcField):
         return self.automatic[field_name]
 
+    def get_field_name(self, field: int):
+        return QcField(field).name
+
     @property
     def incoming(self) -> QcFlag:
         return self._incoming
@@ -42,6 +45,21 @@ class QcFlags:
     def automatic(self, value: Sequence):
         self._automatic = QcFlagTuple(value)
         self._update_total()
+
+    @property
+    def total_automatic(self) -> QcFlag:
+        return min(
+            self._automatic,
+            key=QcFlag.key_function,
+            default=QcFlag.NO_QC_PERFORMED,
+        )
+
+    @property
+    def total_automatic_source(self):
+        min_flag = self.total_automatic
+        return [
+            field for field, flag in zip(QcField, self._automatic) if flag == min_flag
+        ]
 
     @property
     def manual(self) -> QcFlag:
@@ -78,9 +96,22 @@ class QcFlags:
         if not value:
             return cls()
 
-        incoming, automatic, manual, total = value.split("_")
+        incoming, automatic, manual, _ = value.split("_")
         incoming = QcFlag(int(incoming))
         automatic = QcFlagTuple(QcFlag(flag) for flag in map(int, automatic))
         manual = QcFlag(int(manual))
 
         return cls(incoming, automatic, manual)
+
+
+if __name__ == "__main__":
+    qcflags = QcFlags().from_string("0_0400400_0_0")
+    print(f"qcflags {qcflags:}")
+    print(f"qcflags.automatic {qcflags.automatic:}")
+    total_flag_index = min(
+        enumerate([flag for flag in (qcflags.automatic)]),
+        key=lambda x: QcFlag.key_function(x[1]),
+        default=(None, QcFlag.NO_QC_PERFORMED),
+    )[0]
+    print(f"QcField(total_flag_index).name: {QcField(total_flag_index).name:}")
+    print(f"qcflags.total_automatic: {qcflags.total_automatic:}")

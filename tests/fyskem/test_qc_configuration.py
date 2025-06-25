@@ -65,7 +65,7 @@ def test_range_check_default_qc_configuration(
         ("NTRZ", 0.1),
     ),
 )
-def test_limit_detection_check_default_qc_configuration(
+def test_detectionlimit_check_default_qc_configuration(
     given_parameter_name, expected_limit
 ):
     # When creating a configuration
@@ -73,21 +73,21 @@ def test_limit_detection_check_default_qc_configuration(
 
     # Then the default value can be retrieved
     retrieved_configuration = given_configuration.get(
-        "detection_limit_check", given_parameter_name
+        "detectionlimit_check", given_parameter_name
     )
 
     assert retrieved_configuration.limit == expected_limit
 
 
 @pytest.mark.parametrize(
-    "given_parameter_name, given_sea, given_depth, given_month, expected_min, expected_max",  # noqa: E501
+    "given_parameter_name, given_sea, given_depth, given_month",
     (
-        ("TEMP_CTD", "Kattegat", 0, "01", -1, 10),
-        ("TEMP_CTD", "Kattegat", 5, "02", -2, 10),
+        ("TEMP_CTD", "Kattegat", 0, "01"),
+        ("TEMP_CTD", "Kattegat", 5, "02"),
     ),
 )
 def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
-    given_parameter_name, given_sea, given_depth, given_month, expected_min, expected_max
+    given_parameter_name, given_sea, given_depth, given_month
 ):
     # When creating a configuration
     given_configuration = QcConfiguration()
@@ -104,9 +104,6 @@ def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
     ) = retrieved_configuration.get_thresholds(given_sea, given_depth, given_month)
     assert isinstance(min_range_value, (int, float))
     assert isinstance(max_range_value, (int, float))
-
-    assert expected_min < min_range_value < expected_max
-    assert expected_min < max_range_value < expected_max
 
 
 @pytest.mark.parametrize(

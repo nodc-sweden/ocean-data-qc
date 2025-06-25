@@ -3,10 +3,14 @@ name = "ocean-data-qc"
 version = "2024.6.2"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
+    { name = "Lena Viktorsson", email = "lena.viktorsson@smhi.se" },
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
 ]
 dependencies = [
+    "jinja2>=3.1.6",
     "pandas>=2.2.1",
+    "polars>=1.30.0",
+    "pyarrow>=20.0.0",
     "pyproj>=3.6.1",
     "ruff>=0.6.9",
 ]

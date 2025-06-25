@@ -20,8 +20,8 @@ from tests.setup_methods import (
             0.4,
             [
                 QcFlag.NO_QC_PERFORMED,
-                QcFlag.BAD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.NO_QC_PERFORMED,
             ],
         ),
@@ -33,7 +33,7 @@ from tests.setup_methods import (
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.NO_QC_PERFORMED,
             ],
         ),
@@ -66,7 +66,7 @@ from tests.setup_methods import (
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.NO_QC_PERFORMED,
@@ -123,7 +123,7 @@ def test_spike_qc_using_override_configuration(
     assert zip(parameter_after_list, expected_flags, strict=True)
 
     for parameter_after, expected_flag in zip(parameter_after_list, expected_flags):
-        assert len(parameter_after.qc.automatic) >= (QcField.SpikeCheck + 1)
+        assert len(parameter_after.qc.automatic) >= (QcField.Spike + 1)
 
         # And the parameter is given the expected flag at the expected position
-        assert parameter_after.qc.automatic[QcField.SpikeCheck] == expected_flag
+        assert parameter_after.qc.automatic[QcField.Spike] == expected_flag

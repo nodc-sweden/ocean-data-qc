@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
 from ocean_data_qc.fyskem.qc_checks import SpikeCheck
@@ -9,7 +10,7 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 
 class SpikeQc(BaseQcCategory):
     def __init__(self, data):
-        super().__init__(data, QcField.SpikeCheck, f"AUTO_QC_{QcField.SpikeCheck}")
+        super().__init__(data, QcField.Spike, f"AUTO_QC_{QcField.Spike.name}")
 
     def check(self, parameter: str, configuration: SpikeCheck):
         """
@@ -17,32 +18,98 @@ class SpikeQc(BaseQcCategory):
         GOOD_DATA: om förändringen ligger mellan allowed_increase och allowed_decrease
         BAD_DATA: om värdet på parameter utanför intervallet
         """
-        self.threshold = configuration.allowed_delta
-        boolean_selection = self._data.parameter == parameter
+        self._threshold = configuration.allowed_delta
+        self._parameter = parameter
 
-        selection = self._data.loc[boolean_selection]
+        parameter_boolean = self._data.parameter == parameter
+        selection = self._data.loc[parameter_boolean]
         # First value (normally surface) will always be nan.
         selection = selection.groupby("visit_key", group_keys=False)[
             ["value", "DEPH"]
-        ].apply(self._spike_check)
+        ].apply(self._calculate_deltas)
         if selection.empty:
             return
 
-        self._data.loc[boolean_selection, self._column_name] = np.where(
-            pd.isna(selection["value"]),
-            str(QcFlag.MISSING_VALUE.value),
-            np.where(
-                pd.isna(selection["delta"]),
-                str(QcFlag.NO_QC_PERFORMED.value),
-                np.where(
-                    selection.delta >= configuration.allowed_delta,
-                    str(QcFlag.BAD_DATA.value),
-                    str(QcFlag.GOOD_DATA.value),
-                ),
-            ),
+        selection = self._apply_polars_flagging_logic(selection, configuration)
+        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
+            selection[[self._column_name, self._info_column_name]].values
         )
 
-    def _spike_check(self, profile):
+    def _apply_polars_flagging_logic(
+        self, selection: pd.DataFrame, configuration: SpikeCheck
+    ) -> pd.DataFrame:
+        """
+        Apply flagging logic for delta (spike) check.
+        """
+        pl_selection = pl.from_pandas(selection)
+
+        result_expr = (
+            pl.when(pl.col("value").is_null())
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
+                        pl.format(
+                            "MISSING no value for {}", pl.lit(self._parameter)
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(pl.col("delta").is_null())
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.format(
+                            "NO_QC_PERFORMED delta missing for {}",
+                            pl.lit(self._parameter),
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(pl.col("delta") >= self._threshold)
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.format(
+                            "CORRECTABLE spike detected, {} exceeds allowed delta {}",
+                            pl.col("delta"),
+                            pl.lit(self._threshold),
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .otherwise(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.format(
+                            "GOOD delta {} within allowed delta {}",
+                            pl.col("delta"),
+                            pl.lit(self._threshold),
+                        ).alias("info"),
+                    ]
+                )
+            )
+        )
+
+        pl_selection = (
+            pl_selection.with_columns([result_expr.alias("result_struct")])
+            .with_columns(
+                [
+                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
+                    pl.col("result_struct")
+                    .struct.field("info")
+                    .alias(self._info_column_name),
+                ]
+            )
+            .drop("result_struct")
+        )
+
+        return pl_selection.to_pandas()
+
+    def _calculate_deltas(self, profile):
         """
 
         Perform spike detection on a single profile sorted by depth.
@@ -70,16 +137,52 @@ class SpikeQc(BaseQcCategory):
             v_plus = vals[2:]
             alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
             gradient = np.abs((v_plus - v_minus) / 2)
-            delta = np.abs(alfa) - np.abs(gradient)
+            delta = np.round(np.abs(alfa) - np.abs(gradient), 2)
             deltas[1:-1] = delta
 
         profile["delta"] = deltas
         return profile
 
 
-# def delta(v, d):
-#     f = np.abs((d[1]-d[0])/(d[2]-d[0]))
-#     a = v[1] - np.abs((v[0]+v[2])*f)
-#     b = np.abs((v[2]-v[0])*f)
-#     d = np.abs(a-b)
-#     return f, round(a, 2), round(b,2), round(d,2)
+def delta(v):
+    vals = np.array(v)
+    v_minus = vals[:-2]
+    v_plus = vals[2:]
+    print(v_plus)
+    print(v_minus)
+    (v_plus - v_minus)
+    np.abs((v_minus + v_plus) / 2)
+    alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
+    gradient = np.abs((v_plus - v_minus) / 2)
+    delta = np.round(np.abs(alfa) - np.abs(gradient), 2)
+
+    return delta
+
+
+if __name__ == "__main__":
+    d = [
+        1,
+        5,
+        10,
+        15,
+        20,
+        25,
+        30,
+        40,
+        50,
+        60,
+    ]
+    v = [
+        20.3,
+        19.3,
+        18,
+        17.6,
+        17.1,
+        15.9,
+        13.8,
+        15,
+        14.9,
+        15.1,
+    ]
+    deltas = delta(v)
+    print([d[1:-1], v[1:-1], deltas])
