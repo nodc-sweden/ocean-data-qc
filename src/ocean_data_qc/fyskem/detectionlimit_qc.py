@@ -84,8 +84,8 @@ class DetectionLimitQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BELOW_DETECTION.value)).alias("flag"),
                         pl.format(
-                            "BELOW_DETECTION \
-                                value ≤ detection limit {} or flagged as '6'",
+                            "BELOW_DETECTION "
+                            "value ≤ detection limit {} or flagged as '6'",
                             pl.lit(configuration.limit),
                         ).alias("info"),
                     ]

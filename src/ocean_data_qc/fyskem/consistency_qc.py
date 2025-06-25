@@ -112,8 +112,8 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
                         pl.format(
-                            "BAD_DATA_CORRECTABLE: difference {}-{} {} - {} = {} \
-                                outside allowed range but within range {}-{}",
+                            "BAD_DATA_CORRECTABLE: difference {}-{} {} - {} = {} "
+                            "outside allowed range but within range {}-{}",
                             pl.lit("parameter"),
                             pl.lit(param_list_str),
                             pl.col("value"),
@@ -131,8 +131,8 @@ class ConsistencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
                         pl.format(
-                            "BAD: difference {}-{} {} - {} = {} \
-                                outside allowed range {}-{}",
+                            "BAD: difference {}-{} {} - {} = {} "
+                            "outside allowed range {}-{}",
                             pl.lit("parameter"),
                             pl.lit(param_list_str),
                             pl.col("value"),
