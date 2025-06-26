@@ -305,7 +305,7 @@ wheels = [
 
 [[package]]
 name = "ocean-data-qc"
-version = "2024.6.2"
+version = "2025.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
