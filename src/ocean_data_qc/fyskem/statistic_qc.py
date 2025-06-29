@@ -22,14 +22,44 @@ class StatisticQc(BaseQcCategory):
         ].drop_duplicates()
         thresholds = []
         for _, row in unique_combinations_config_input.iterrows():
-            min_value, max_value = configuration.get_thresholds(
+            (
+                min_value,
+                max_value,
+                flag1_lower,
+                flag1_upper,
+                flag2_lower,
+                flag2_upper,
+                flag3_lower,
+                flag3_upper,
+            ) = configuration.get_thresholds(
                 row["sea_basin"], row["DEPH"], row["visit_month"]
             )
-            thresholds.append((min_value, max_value))
+            thresholds.append(
+                (
+                    min_value,
+                    max_value,
+                    flag1_lower,
+                    flag1_upper,
+                    flag2_lower,
+                    flag2_upper,
+                    flag3_lower,
+                    flag3_upper,
+                )
+            )
 
         # Convert list to a DataFrame
         threshold_df = pd.DataFrame(
-            thresholds, columns=["min_range_value", "max_range_value"]
+            thresholds,
+            columns=[
+                "min_range_value",
+                "max_range_value",
+                "flag1_lower",
+                "flag1_upper",
+                "flag2_lower",
+                "flag2_upper",
+                "flag3_lower",
+                "flag3_upper",
+            ],
         )
         unique_combinations_config_input = pd.concat(
             [unique_combinations_config_input.reset_index(drop=True), threshold_df],
@@ -47,6 +77,15 @@ class StatisticQc(BaseQcCategory):
         selection["max_range_value"] = pd.to_numeric(
             selection["max_range_value"], errors="coerce"
         )
+        for col in [
+            "flag1_lower",
+            "flag1_upper",
+            "flag2_lower",
+            "flag2_upper",
+            "flag3_lower",
+            "flag3_upper",
+        ]:
+            selection[col] = pd.to_numeric(selection[col], errors="coerce")
 
         selection = self._apply_polars_flagging_logic(selection, configuration)
         self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
@@ -74,32 +113,85 @@ class StatisticQc(BaseQcCategory):
                 )
             )
             .when(
-                pl.col("min_range_value").is_null() | pl.col("max_range_value").is_null()
+                (
+                    pl.col("flag1_lower").is_null()
+                    | pl.col("flag1_upper").is_null()
+                    | pl.col("flag2_lower").is_null()
+                    | pl.col("flag2_upper").is_null()
+                    | pl.col("flag3_lower").is_null()
+                    | pl.col("flag3_upper").is_null()
+                )
             )
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
-                            "NO_QC_PERFORMED min/max range missing for {}",
+                            "NO_QC_PERFORMED thresholds missing for {}",
                             pl.lit(self._parameter),
                         ).alias("info"),
                     ]
                 )
             )
             .when(
-                (pl.col("value") >= pl.col("min_range_value"))
-                & (pl.col("value") <= pl.col("max_range_value"))
+                (pl.col("value") >= pl.col("flag1_lower"))
+                & (pl.col("value") <= pl.col("flag1_upper"))
             )
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD {} in range {} - {}",
+                            "GOOD {} in [{}, {}]",
                             pl.col("value"),
-                            pl.col("min_range_value"),
-                            pl.col("max_range_value"),
+                            pl.col("flag1_lower"),
+                            pl.col("flag1_upper"),
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(
+                (
+                    (pl.col("value") > pl.col("flag2_lower"))
+                    & (pl.col("value") < pl.col("flag1_lower"))
+                )
+                | (
+                    (pl.col("value") > pl.col("flag1_upper"))
+                    & (pl.col("value") < pl.col("flag2_upper"))
+                )
+            )
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
+                        pl.format(
+                            "PROBABLY_GOOD: {} in range {}-{}]",
+                            pl.col("value"),
+                            pl.col("flag2_lower"),
+                            pl.col("flag2_upper"),
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(
+                (
+                    (pl.col("value") >= pl.col("flag3_lower"))
+                    & (pl.col("value") < pl.col("flag2_lower"))
+                )
+                | (
+                    (pl.col("value") > pl.col("flag2_upper"))
+                    & (pl.col("value") <= pl.col("flag3_upper"))
+                )
+            )
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.format(
+                            "BAD_DATA_CORRECTABLE: {} in range {}-{}",
+                            pl.col("value"),
+                            pl.col("flag3_lower"),
+                            pl.col("flag3_upper"),
                         ).alias("info"),
                     ]
                 )
@@ -109,10 +201,10 @@ class StatisticQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
                         pl.format(
-                            "BAD {} outside range {} - {}",
+                            "BAD {} outside range [{}, {}]",
                             pl.col("value"),
-                            pl.col("min_range_value"),
-                            pl.col("max_range_value"),
+                            pl.col("flag3_lower"),
+                            pl.col("flag3_upper"),
                         ).alias("info"),
                     ]
                 )

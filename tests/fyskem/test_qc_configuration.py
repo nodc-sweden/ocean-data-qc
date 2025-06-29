@@ -18,24 +18,41 @@ def given_parameter_with_data(data: dict):
         ("TEMP_CTD", "Kattegat", 5, "02"),
     ),
 )
-def test_statistic_check_default_qc_configuration_returns_tuple_of_floats(
+def test_statistic_check_default_qc_configuration_returns_all_thresholds(
     given_parameter_name, given_sea, given_depth, given_month
 ):
     # When creating a configuration
     given_configuration = QcConfiguration()
 
-    # get configuretion for the parameter
+    # Get configuration for the parameter
     retrieved_configuration = given_configuration.get(
         "statistic_check", given_parameter_name
     )
 
-    # get thresholds for sea_area, depth, month
+    # Get all 8 thresholds
     (
         min_range_value,
         max_range_value,
+        flag1_lower,
+        flag1_upper,
+        flag2_lower,
+        flag2_upper,
+        flag3_lower,
+        flag3_upper,
     ) = retrieved_configuration.get_thresholds(given_sea, given_depth, given_month)
-    assert isinstance(min_range_value, (int, float))
-    assert isinstance(max_range_value, (int, float))
+
+    # Assert all are int or float (but allow None if configuration allows missing)
+    for threshold in (
+        min_range_value,
+        max_range_value,
+        flag1_lower,
+        flag1_upper,
+        flag2_lower,
+        flag2_upper,
+        flag3_lower,
+        flag3_upper,
+    ):
+        assert isinstance(threshold, (int, float)) or threshold is None
 
 
 @pytest.mark.parametrize(
@@ -56,11 +73,11 @@ def test_statistic_check_no_qc_configuration_for_args_returns_nan(
     retrieved_configuration = given_configuration.get(
         "statistic_check", given_parameter_name
     )
-    min_range_value, max_range_value = retrieved_configuration.get_thresholds(
+    config_tuple = retrieved_configuration.get_thresholds(
         given_sea, given_depth, given_month
     )
 
-    assert min_range_value, max_range_value is np.nan
+    assert all(np.isnan(value) for value in config_tuple)
 
 
 @pytest.mark.parametrize(

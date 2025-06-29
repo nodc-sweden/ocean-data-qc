@@ -186,6 +186,12 @@ def generate_statistic_check_configuration(
                     "max_depth": max_depth,
                     "min_range_value": values["min_range_value"],
                     "max_range_value": values["max_range_value"],
+                    "flag1_lower": values.get("flag1_lower", None),
+                    "flag1_upper": values.get("flag1_upper", None),
+                    "flag2_lower": values.get("flag2_lower", None),
+                    "flag2_upper": values.get("flag2_upper", None),
+                    "flag3_lower": values.get("flag3_lower", None),
+                    "flag3_upper": values.get("flag3_upper", None),
                 }
             )
 

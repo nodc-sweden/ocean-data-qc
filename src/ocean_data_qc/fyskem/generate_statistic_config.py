@@ -196,6 +196,14 @@ def generate_statistic_parameter_files(data_directory, output_directory):
             "_", expand=True
         )
 
+        iqr_low = param_df["median"] - param_df["25p"]
+        iqr_high = param_df["75p"] - param_df["median"]
+        param_df["flag1_lower"] = round(param_df["25p"] - 1.5 * iqr_low, 2)
+        param_df["flag1_upper"] = round(param_df["75p"] + 1.5 * iqr_high, 2)
+        param_df["flag2_lower"] = round(param_df["25p"] - 3 * iqr_low, 2)
+        param_df["flag2_upper"] = round(param_df["75p"] + 3 * iqr_high, 2)
+        param_df["flag3_lower"] = round(param_df["25p"] - 4.5 * iqr_low, 2)
+        param_df["flag3_upper"] = round(param_df["75p"] + 4.5 * iqr_high, 2)
         # Convert min_depth and max_depth to numeric (since split gives strings)
         param_df["min_depth"] = pd.to_numeric(param_df["min_depth"])
         param_df["max_depth"] = pd.to_numeric(param_df["max_depth"])
@@ -226,10 +234,13 @@ def generate_statistic_parameter_files(data_directory, output_directory):
             )
 
         # Handle low temperatures and conc < 0
+        flag_cols = param_df.filter(like="flag").columns
         if "TEMP" in param.upper():
             param_df["min_range_value"] = param_df["min_range_value"].clip(lower=-2)
+            param_df[flag_cols] = param_df[flag_cols].clip(lower=-2)
         elif "neg" not in param:
             param_df["min_range_value"] = param_df["min_range_value"].clip(lower=0)
+            param_df[flag_cols] = param_df[flag_cols].clip(lower=0)
 
         param_file = output_dir / f"{param}.txt"
         param_df.to_csv(param_file, sep="\t", index=False, encoding="utf8")
@@ -242,7 +253,7 @@ def generate_statistic_parameter_files(data_directory, output_directory):
 # Running the code
 if __name__ == "__main__":
     # Change this to the actual path
-    directory_path = "../nodc-statistics/src/nodc_statistics/data/statistics"
+    directory_path = "../nodc-statistics/src/nodc_statistics/data/statistics_1990-2023"
     output_directory = "src/ocean_data_qc/fyskem/configs/statistic_check_data"
     qc_config = generate_statistic_parameter_files(
         data_directory=directory_path, output_directory=output_directory

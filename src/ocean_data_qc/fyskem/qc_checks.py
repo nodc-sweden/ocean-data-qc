@@ -75,10 +75,34 @@ class StatisticCheck:
         ]
 
         if match.empty:
-            return np.nan, np.nan  # No matching data found
+            return (
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+            )  # No matching data found
 
         # Extract min/max values (assuming one row matches)
         min_range = float(match["min_range_value"].values[0])
         max_range = float(match["max_range_value"].values[0])
+        flag1_lower = float(match["flag1_lower"].values[0])
+        flag1_upper = float(match["flag1_upper"].values[0])
+        flag2_lower = float(match["flag2_lower"].values[0])
+        flag2_upper = float(match["flag2_upper"].values[0])
+        flag3_lower = float(match["flag3_lower"].values[0])
+        flag3_upper = float(match["flag3_upper"].values[0])
 
-        return min_range, max_range
+        return (
+            min_range,
+            max_range,
+            flag1_lower,
+            flag1_upper,
+            flag2_lower,
+            flag2_upper,
+            flag3_lower,
+            flag3_upper,
+        )
