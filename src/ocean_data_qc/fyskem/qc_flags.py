@@ -62,6 +62,15 @@ class QcFlags:
         ]
 
     @property
+    def total_automatic_name(self):
+        min_flag = self.total_automatic
+        return [
+            QcField(field).name
+            for field, flag in zip(QcField, self._automatic)
+            if flag == min_flag
+        ]
+
+    @property
     def manual(self) -> QcFlag:
         return self._manual
 
