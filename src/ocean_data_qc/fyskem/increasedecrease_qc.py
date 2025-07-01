@@ -24,7 +24,8 @@ class IncreaseDecreaseQc(BaseQcCategory):
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[parameter_boolean]
-
+        if selection.empty:
+            return
         # First value (normaly surface) will always be nan.
         selection["difference"] = selection.groupby("visit_key")["value"].diff()
         # Compute the difference grouped by visit_key (like pandas .groupby().diff())

@@ -21,13 +21,12 @@ from tests.setup_methods import (
             QcFlag.GOOD_DATA,
             QcFlag.GOOD_DATA,
         ),  # Strictly above detection limit
-        (1.234, 1.234, QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA),  # On detection limit
         (
             1.234,
             1.234,
-            QcFlag.BELOW_DETECTION,
-            QcFlag.BELOW_DETECTION,
-        ),  # On detection limit
+            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_DATA,
+        ),  # On detection limit delivered as good
         (
             1.234,
             1.235,

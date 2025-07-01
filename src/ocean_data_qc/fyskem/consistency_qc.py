@@ -25,7 +25,8 @@ class ConsistencyQc(BaseQcCategory):
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[self._data.parameter == parameter]
-
+        if selection.empty:
+            return
         other_selection = self._data.loc[
             self._data.parameter.isin(configuration.parameter_list)
         ]

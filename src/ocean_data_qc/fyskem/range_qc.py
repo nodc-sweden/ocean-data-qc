@@ -15,7 +15,8 @@ class RangeQc(BaseQcCategory):
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[parameter_boolean]
-
+        if selection.empty:
+            return
         selection = self._apply_polars_flagging_logic(selection, configuration)
         self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
             selection[[self._column_name, self._info_column_name]].values

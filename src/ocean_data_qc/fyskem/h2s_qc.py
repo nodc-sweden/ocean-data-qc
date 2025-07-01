@@ -17,11 +17,11 @@ class H2sQc(BaseQcCategory):
         BAD_DATA: all other H2S flags or value not isna
         BELOW_DETECTIONs: given parameter flag BELOW_DETECTION
         """
-
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
-
         selection = self._data[parameter_boolean]
+        if selection.empty:
+            return
         other_selection = self._data[
             (self._data.parameter == "H2S")
             & ~self._data["quality_flag_long"].str.contains("(?:6|4)")
