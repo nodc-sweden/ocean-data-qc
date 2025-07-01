@@ -13,10 +13,15 @@ class StatisticQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: StatisticCheck):
         """Vectorized check that flags data based on sea_area, depth, and month."""
+
+        print(parameter)
         self._parameter = parameter
         # Filtrera ut rader för den aktuella parametern
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[parameter_boolean].copy()
+        if selection.empty:
+            print("selection empty")
+            return
         unique_combinations_config_input = selection[
             ["sea_basin", "DEPH", "visit_month"]
         ].drop_duplicates()
