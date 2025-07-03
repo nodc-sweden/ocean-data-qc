@@ -10,7 +10,7 @@ class QcFlag(enum.IntEnum):
     BAD_DATA = 4
     VALUE_CHANGED = 5
     BELOW_DETECTION = 6
-    NOMINAL_VALUE = 7
+    VALUE_IN_EXCESS = 7
     INTERPOLATED_VALUE = 8
     MISSING_VALUE = 9
 
@@ -43,10 +43,11 @@ QC_FLAG_CSS_COLORS = defaultdict(
     lambda: "gray",
     {
         QcFlag.NO_QC_PERFORMED: "navy",
-        QcFlag.PROBABLY_GOOD_DATA: "palegreen",
+        QcFlag.PROBABLY_GOOD_DATA: "#9AC23D",
         QcFlag.BAD_DATA_CORRECTABLE: "orange",
         QcFlag.BAD_DATA: "red",
-        QcFlag.GOOD_DATA: "green",
+        QcFlag.GOOD_DATA: "#008000",
         QcFlag.BELOW_DETECTION: "pink",
+        QcFlag.VALUE_IN_EXCESS: "pink",
     },
 )

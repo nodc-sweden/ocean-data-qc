@@ -27,7 +27,7 @@ def get_profile_statistics_for_parameter_and_sea_basin(
 ) -> dict:
     statistic_path = STATISTIC_FILES.get(parameter)
     if not statistic_path:
-        print(f"No statistic for {sea_basin} {parameter}")
+        print(f"No statistic for {parameter} in sea basin {sea_basin}")
         return _empty_result(statistics)
 
     try:
@@ -39,7 +39,7 @@ def get_profile_statistics_for_parameter_and_sea_basin(
     try:
         filtered_df = df.filter(
             (pl.col("month").cast(pl.Int64) == point_in_time.month)
-            & (pl.col("sea_basin") == sea_basin)
+            & (pl.col("sea_basin").cast(pl.Utf8) == str(sea_basin))
         )
     except pl.ColumnNotFoundError:
         print(f"Missing expected columns in {parameter}")

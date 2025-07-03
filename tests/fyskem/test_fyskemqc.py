@@ -58,7 +58,7 @@ def test_run_checks_for_parameters():
         (QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA),
         (QcFlag.BAD_DATA, QcFlag.BAD_DATA_CORRECTABLE),
         (QcFlag.VALUE_CHANGED, QcFlag.BELOW_DETECTION),
-        (QcFlag.NOMINAL_VALUE, QcFlag.INTERPOLATED_VALUE),
+        (QcFlag.VALUE_IN_EXCESS, QcFlag.INTERPOLATED_VALUE),
         (QcFlag.MISSING_VALUE, QcFlag.MISSING_VALUE),
     ),
 )
