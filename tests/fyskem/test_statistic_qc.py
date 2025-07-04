@@ -12,21 +12,140 @@ from tests.setup_methods import (
 
 
 @pytest.mark.parametrize(
-    "given_value, given_range, given_month, given_depth, expected_flag",
+    "given_value, given_thresholds, given_month, given_depth, expected_flag",
     (
-        (10, (1, 10), "01", 0, QcFlag.GOOD_DATA),
-        (1, (1, 10), "01", 1, QcFlag.GOOD_DATA),
-        (5, (np.nan, 10), "01", 2, QcFlag.NO_QC_PERFORMED),
-        # (5, (np.nan, np.nan), None, None, QcFlag.NO_QC_PERFORMED),
-        (1, (1, 10), "01", 1000, QcFlag.NO_QC_PERFORMED),
-        (1, (1, 10), "13", 1000, QcFlag.NO_QC_PERFORMED),
-        (0.9, (1, 10), "01", 0, QcFlag.BAD_DATA),
-        (-1, (1, 10), "01", 0, QcFlag.BAD_DATA),
-        (np.nan, (1, 10), "01", 1, QcFlag.MISSING_VALUE),
+        (
+            3.5,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            0,
+            QcFlag.GOOD_DATA,
+        ),
+        (
+            3,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            1,
+            QcFlag.GOOD_DATA,
+        ),
+        (
+            5,
+            (
+                1,
+                10,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+                np.nan,
+            ),
+            "01",
+            2,
+            QcFlag.NO_QC_PERFORMED,
+        ),
+        (
+            1,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            1000,
+            QcFlag.NO_QC_PERFORMED,
+        ),
+        (
+            1,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "13",
+            1000,
+            QcFlag.NO_QC_PERFORMED,
+        ),
+        (
+            0.9,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            0,
+            QcFlag.BAD_DATA,
+        ),
+        (
+            -1,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            0,
+            QcFlag.BAD_DATA,
+        ),
+        (
+            np.nan,
+            (
+                1,
+                10,
+                3,
+                4,
+                2,
+                8,
+                1,
+                10,
+            ),
+            "01",
+            1,
+            QcFlag.MISSING_VALUE,
+        ),
     ),
 )
 def test_quality_flag_for_value_month_depth_with_given_qc(
-    given_value, given_range, given_month, given_depth, expected_flag
+    given_value, given_thresholds, given_month, given_depth, expected_flag
 ):
     # Given a parameter with given value
     given_parameter_name = "parameter_name"
@@ -56,14 +175,40 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
     given_min_depth = 0
     given_max_depth = 2
     given_month = "01"
+    # Unpack all thresholds
+    (
+        min_value,
+        max_value,
+        flag1_lower,
+        flag1_upper,
+        flag2_lower,
+        flag2_upper,
+        flag3_lower,
+        flag3_upper,
+    ) = given_thresholds
 
-    # Create dictionary for months
+    # Create dictionary for months with all thresholds for the test month
     given_months = {
         given_month: {
-            "min_range_value": given_range[0],
-            "max_range_value": given_range[1],
+            "min_range_value": min_value,
+            "max_range_value": max_value,
+            "flag1_lower": flag1_lower,
+            "flag1_upper": flag1_upper,
+            "flag2_lower": flag2_lower,
+            "flag2_upper": flag2_upper,
+            "flag3_lower": flag3_lower,
+            "flag3_upper": flag3_upper,
         },
-        "02": {"min_range_value": 0, "max_range_value": 5},
+        "02": {  # Month "02" can reuse same values or be dummy/random
+            "min_range_value": min_value,
+            "max_range_value": max_value,
+            "flag1_lower": flag1_lower,
+            "flag1_upper": flag1_upper,
+            "flag2_lower": flag2_lower,
+            "flag2_upper": flag2_upper,
+            "flag3_lower": flag3_lower,
+            "flag3_upper": flag3_upper,
+        },
     }
 
     # Generate test configuration
@@ -71,7 +216,7 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
         sea_basin=given_sea_area,
         depth_intervals=[(given_min_depth, given_max_depth, given_months)],
     )
-
+    print(given_months)
     statistic_qc = StatisticQc(given_data)
     statistic_qc.expand_qc_columns()
     # When performing QC

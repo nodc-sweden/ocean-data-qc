@@ -25,6 +25,8 @@ class DetectionLimitQc(BaseQcCategory):
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[parameter_boolean]
+        if selection.empty:
+            return
 
         selection = self._apply_polars_flagging_logic(selection, configuration)
         self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
@@ -66,14 +68,14 @@ class DetectionLimitQc(BaseQcCategory):
             )
             .when(
                 (pl.col("value") == configuration.limit)
-                & (~pl.col("quality_flag_long").str.contains("6"))
+                & (pl.col("quality_flag_long").str.contains("1"))
             )
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "PROBABLY_GOOD value == detection limit {} with no flag '6'",
+                            "GOOD value deliverer reported on detection limit {}",
                             pl.lit(configuration.limit),
                         ).alias("info"),
                     ]
@@ -84,8 +86,8 @@ class DetectionLimitQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BELOW_DETECTION.value)).alias("flag"),
                         pl.format(
-                            "BELOW_DETECTION "
-                            "value ≤ detection limit {} or flagged as '6'",
+                            "BELOW_DETECTION {} < {} or flagged as '6'",
+                            pl.col("value"),
                             pl.lit(configuration.limit),
                         ).alias("info"),
                     ]

@@ -64,7 +64,7 @@ def test_manual_qc_trumps_all_other_flags(given_flag_string):
         ("4_3_0_4", QcFlag.BAD_DATA),
         ("1_111511_0_5", QcFlag.VALUE_CHANGED),
         ("9_5678_0_9", QcFlag.MISSING_VALUE),
-        ("7_56_0_7", QcFlag.NOMINAL_VALUE),
+        ("7_56_0_7", QcFlag.VALUE_IN_EXCESS),
         ("3_561_0_6", QcFlag.BELOW_DETECTION),
     ),
 )

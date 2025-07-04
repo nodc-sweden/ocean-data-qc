@@ -25,7 +25,8 @@ class ConsistencyQc(BaseQcCategory):
         self._parameter = parameter
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[self._data.parameter == parameter]
-
+        if selection.empty:
+            return
         other_selection = self._data.loc[
             self._data.parameter.isin(configuration.parameter_list)
         ]
@@ -91,11 +92,11 @@ class ConsistencyQc(BaseQcCategory):
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
                             "GOOD: difference {}-{} {} - {} = {} is within {}-{}",
-                            pl.lit("parameter"),
+                            pl.lit(self._parameter),
                             pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
-                            pl.col("difference"),
+                            pl.col("difference").round(2),
                             pl.lit(configuration.good_lower),
                             pl.lit(configuration.good_upper),
                         ).alias("info"),
@@ -114,7 +115,7 @@ class ConsistencyQc(BaseQcCategory):
                         pl.format(
                             "BAD_DATA_CORRECTABLE: difference {}-{} {} - {} = {} "
                             "outside allowed range but within range {}-{}",
-                            pl.lit("parameter"),
+                            pl.lit(self._parameter),
                             pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
@@ -133,11 +134,11 @@ class ConsistencyQc(BaseQcCategory):
                         pl.format(
                             "BAD: difference {}-{} {} - {} = {} "
                             "outside allowed range {}-{}",
-                            pl.lit("parameter"),
+                            pl.lit(self._parameter),
                             pl.lit(param_list_str),
                             pl.col("value"),
                             pl.col("summation").round(2),
-                            pl.col("difference"),
+                            pl.col("difference").round(2),
                             pl.lit(configuration.max_lower),
                             pl.lit(configuration.max_upper),
                         ).alias("info"),

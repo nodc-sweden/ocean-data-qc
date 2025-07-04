@@ -20,7 +20,6 @@ class SpikeQc(BaseQcCategory):
         """
         self._threshold = configuration.allowed_delta
         self._parameter = parameter
-
         parameter_boolean = self._data.parameter == parameter
         selection = self._data.loc[parameter_boolean]
         # First value (normally surface) will always be nan.
@@ -131,7 +130,6 @@ class SpikeQc(BaseQcCategory):
         vals = profile["value"].values
 
         deltas = np.full(len(profile), np.nan, dtype=float)
-
         if len(vals) > 2:
             v_minus = vals[:-2]
             v_plus = vals[2:]
