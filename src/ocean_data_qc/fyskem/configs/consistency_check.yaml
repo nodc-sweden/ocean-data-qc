@@ -14,6 +14,13 @@ PTOT:
     good_upper: 999 # Good if difference >= 0
     max_lower: -0.2
     max_upper: 999 # bad correctable down to -0.2, BAD below
+TOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_list: ['DOC', 'POC']
+    good_lower: -14  # uncertainties of 0.15 mg/l in DOC, POC from SWECO, results in a propagated error of 13.5 umol/l
+    good_upper: 14  # Good if difference between -14-14
+    max_lower: -20
+    max_upper: 20  # bad correctable if difference between -20 to -14 and 14 to 20, BAD if abs(diff) > 20
 DOXY_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_list: ['DOXY_BTL']
@@ -27,4 +34,4 @@ SALT_BTL:
     good_lower: -0.5
     good_upper: 0.5 # Good if difference between -0.5 to 0.5 
     max_lower: -1
-    max_upper: 1 # bad correctable if difference between -0.5 to -1 or 0.5 to 1, BAD if abs(diff) > 1    
+    max_upper: 1 # bad correctable if difference between -0.5 to -1 or 0.5 to 1, BAD if abs(diff) > 1

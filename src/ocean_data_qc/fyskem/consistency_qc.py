@@ -27,6 +27,7 @@ class ConsistencyQc(BaseQcCategory):
         selection = self._data.loc[self._data.parameter == parameter]
         if selection.empty:
             return
+
         other_selection = self._data.loc[
             self._data.parameter.isin(configuration.parameter_list)
         ]
@@ -51,10 +52,14 @@ class ConsistencyQc(BaseQcCategory):
         """
         pl_selection = pl.from_pandas(selection)
         param_list_str = ", ".join(configuration.parameter_list)
+        toc_unit_conversion = 83.25701  # from mg/l to umol/l
 
         # Calculate the difference once to avoid repeating the subtraction
         pl_selection = pl_selection.with_columns(
-            [(pl.col("value") - pl.col("summation")).alias("difference")]
+            pl.when(pl.col("parameter") == "TOC")
+            .then((pl.col("value") * toc_unit_conversion) - pl.col("summation"))
+            .otherwise(pl.col("value") - pl.col("summation"))
+            .alias("difference")
         )
 
         result_expr = (
