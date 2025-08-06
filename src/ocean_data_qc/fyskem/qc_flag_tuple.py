@@ -19,6 +19,7 @@ class QcField(IntEnum):
     Spike = 4
     Consistency = 5
     IncreaseDecrease = 6
+    RepeatedValue = 7
 
 
 class QcFlagTuple:
