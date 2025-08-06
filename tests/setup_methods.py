@@ -8,6 +8,7 @@ from ocean_data_qc.fyskem.qc_checks import (
     H2sCheck,
     IncreaseDecreaseCheck,
     RangeCheck,
+    RepeatedValueCheck,
     SpikeCheck,
     StatisticCheck,
 )
@@ -261,6 +262,18 @@ def generate_increasedecrease_configuration(
 
     """
     parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
+    return parameter_configuration
+
+
+def generate_repeatedvalue_configuration(parameter: str, repeated_value: int):
+    """
+    Generate a RepeatedValueCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = RepeatedValueCheck(repeated_value)
     return parameter_configuration
 
 

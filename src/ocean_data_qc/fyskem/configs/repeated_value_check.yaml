@@ -1,0 +1,99 @@
+PRES_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+TEMP_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+TEMP_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+SALT_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+SALT_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CNDC_25:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CNDC_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+DOXY_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+H2S:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PH:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PH_LAB:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PH_LAB_TEMP:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+ALKY:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PHOS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+NTRI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+NTRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+AMON:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+SIO3-SI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+HUMUS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CPHL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+DOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+POC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+TOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+PON:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CURDIR:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CURVEL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+AL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+CDOM:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0
+TURB:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.RepeatedValueCheck
+    repeated_value: 0

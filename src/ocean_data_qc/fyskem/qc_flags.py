@@ -114,7 +114,7 @@ class QcFlags:
 
 
 if __name__ == "__main__":
-    qcflags = QcFlags().from_string("0_0400400_0_0")
+    qcflags = QcFlags().from_string("0_04004000_0_0")
     print(f"qcflags {qcflags:}")
     print(f"qcflags.automatic {qcflags.automatic:}")
     total_flag_index = min(

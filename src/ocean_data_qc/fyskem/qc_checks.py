@@ -38,6 +38,11 @@ class IncreaseDecreaseCheck:
 
 
 @dataclass
+class RepeatedValueCheck:
+    repeated_value: int
+
+
+@dataclass
 class SpikeCheck:
     allowed_delta: float
     allowed_depths: list
