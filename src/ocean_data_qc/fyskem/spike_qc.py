@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
@@ -18,32 +17,48 @@ class SpikeQc(BaseQcCategory):
         GOOD_DATA: om förändringen ligger mellan allowed_increase och allowed_decrease
         BAD_DATA: om värdet på parameter utanför intervallet
         """
-        self._threshold = configuration.allowed_delta
         self._parameter = parameter
-        parameter_boolean = self._data.parameter == parameter
-        selection = self._data.loc[parameter_boolean]
-        # First value (normally surface) will always be nan.
-        selection = selection.groupby("visit_key", group_keys=False)[
-            ["value", "DEPH"]
-        ].apply(self._calculate_deltas)
-        if selection.empty:
-            return
+        parameter_boolean = pl.col("parameter") == parameter
 
-        selection = self._apply_polars_flagging_logic(selection, configuration)
-        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
-            selection[[self._column_name, self._info_column_name]].values
+        # Early exit if nothing matches
+        if self._data.filter(parameter_boolean).is_empty():
+            return
+        self._threshold = configuration.allowed_delta
+
+        selection = (
+            self._data.filter(parameter_boolean)
+            .sort(["visit_key", "DEPH"])
+            .with_columns(
+                [
+                    pl.col("value").shift(1).over("visit_key").alias("v_minus"),
+                    pl.col("value").shift(-1).over("visit_key").alias("v_plus"),
+                ]
+            )
+            .with_columns(
+                [
+                    (pl.col("value") - ((pl.col("v_minus") + pl.col("v_plus")) / 2).abs())
+                    .abs()
+                    .alias("alfa"),
+                    ((pl.col("v_plus") - pl.col("v_minus")) / 2).abs().alias("gradient"),
+                ]
+            )
+            .with_columns(
+                [(pl.col("alfa") - pl.col("gradient")).abs().round(2).alias("delta")]
+            )
+            .drop(["v_minus", "v_plus", "alfa", "gradient"])  # optional cleanup
         )
 
-    def _apply_polars_flagging_logic(
-        self, selection: pd.DataFrame, configuration: SpikeCheck
-    ) -> pd.DataFrame:
+        self._apply_flagging_logic(selection, configuration)
+
+    def _apply_flagging_logic(
+        self, selection: pl.DataFrame, configuration: SpikeCheck
+    ) -> pl.DataFrame:
         """
         Apply flagging logic for delta (spike) check.
         """
-        pl_selection = pl.from_pandas(selection)
 
         result_expr = (
-            pl.when(pl.col("value").is_null())
+            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
             .then(
                 pl.struct(
                     [
@@ -93,20 +108,8 @@ class SpikeQc(BaseQcCategory):
             )
         )
 
-        pl_selection = (
-            pl_selection.with_columns([result_expr.alias("result_struct")])
-            .with_columns(
-                [
-                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
-                    pl.col("result_struct")
-                    .struct.field("info")
-                    .alias(self._info_column_name),
-                ]
-            )
-            .drop("result_struct")
-        )
-
-        return pl_selection.to_pandas()
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
     def _calculate_deltas(self, profile):
         """

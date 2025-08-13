@@ -37,7 +37,6 @@ def test_run_checks_for_parameters():
 
     # When running automatic QC
     given_fyskemeqc.run_automatic_qc()
-
     parameter_1 = given_fyskemeqc[0]
     parameter_2 = given_fyskemeqc[1]
     parameter_3 = given_fyskemeqc[2]

@@ -1,4 +1,3 @@
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
@@ -27,24 +26,32 @@ QC_CATEGORIES = (
 
 
 class FysKemQc:
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self, data: pl.DataFrame):
         self._data = data
         self._configuration = QcConfiguration()
-        self._original_flags = self._data["quality_flag_long"].copy()
-        self._data[["INCOMING_QC", "AUTO_QC", "MANUAL_QC", "TOTAL_QC"]] = self._data[
-            "quality_flag_long"
-        ].str.split("_", expand=True)
+        self._original_flags = self._data["quality_flag_long"].clone()
+        flags = pl.col("quality_flag_long").str.split("_")
+        self._data = self._data.with_columns(
+            [
+                flags.list.get(0).alias("INCOMING_QC"),
+                flags.list.get(1).alias("AUTO_QC"),
+                flags.list.get(2).alias("MANUAL_QC"),
+                flags.list.get(3).alias("TOTAL_QC"),
+            ]
+        )
 
     def __len__(self):
         return len(self._data)
 
     def __getitem__(self, index):
-        series = self._data.iloc[index]
-        return Parameter(series)
+        row_dict = self._data.row(index, named=True)  # Get named dict of the row
+        return Parameter(row_dict)
 
     @property
     def parameters(self):
-        return {Parameter(series) for _, series in self._data.iterrows()}
+        return {
+            Parameter(self._data.row(i, named=True)) for i in range(self._data.height)
+        }
 
     def run_automatic_qc(self):
         ordered_qc_tests = sorted(
@@ -66,51 +73,33 @@ class FysKemQc:
                     category_checker.check(parameter, config)
 
             category_checker.collapse_qc_columns()
+            self._data = category_checker._data
 
         self._update_total()
 
     def _update_total(self):
         """
-        Updates the totalflag in the quality_flag_long string. By supplying the
-        quality_flag_long string where the total value in the string is then
-        updated through QcFlags
+        Updates the total flag in the quality_flag_long string.
+        Only applies QcFlags.from_string() to changed rows.
+        Skips entirely if no changes are detected.
         """
-        changed_mask = self._data["quality_flag_long"] != self._original_flags
+        changed_mask_expr = pl.col("quality_flag_long") != pl.lit(self._original_flags)
 
-        if changed_mask.any():
-            self._data.loc[changed_mask, "quality_flag_long"] = self._data.loc[
-                changed_mask, "quality_flag_long"
-            ].apply(lambda x: str(QcFlags.from_string(x)))
+        # Check if there are any changes at all
+        if self._data.filter(changed_mask_expr).is_empty():
+            return
 
-    def total_flag_info(self):
-        pl_data = pl.from_pandas(self._data)
-
-        # Compute new columns in Polars
-        result = pl_data.select(
-            [
-                pl.col("quality_flag_long")
-                .map_elements(lambda x: str(QcFlags.from_string(x).total_automatic))
-                .alias("total_automatic"),
-                pl.col("quality_flag_long")
-                .map_elements(
-                    lambda x: "; ".join(
-                        [
-                            QcFlags.from_string(x).get_field_name(f)
-                            for f in QcFlags.from_string(x).total_automatic_source
-                        ]
-                    )
+        # Apply update only where needed
+        self._data = self._data.with_columns(
+            pl.when(changed_mask_expr)
+            .then(
+                pl.col("quality_flag_long").map_elements(
+                    lambda x: str(QcFlags.from_string(x)), return_dtype=pl.Utf8
                 )
-                .alias("total_automatic_fields"),
-                pl.struct(pl_data.columns)
-                .map_elements(FysKemQc.extract_info)
-                .alias("total_automatic_info"),
-            ]
+            )
+            .otherwise(pl.col("quality_flag_long"))
+            .alias("quality_flag_long")
         )
-
-        # Convert result to pandas and add to existing DataFrame
-        result_df = result.to_pandas()
-        for col in result_df.columns:
-            self._data[col] = result_df[col]
 
     @staticmethod
     def extract_info(row: dict) -> str:
@@ -188,18 +177,7 @@ if __name__ == "__main__":
     ]
 
     # Create the DataFrame
-    data = pd.DataFrame(data)
-    fyskem_qc = FysKemQc(data)
+    # Skapa Polars DataFrame
+    df = pl.DataFrame(data)
+    fyskem_qc = FysKemQc(df)
     fyskem_qc.run_automatic_qc()
-    fyskem_qc.total_flag_info()
-    print(fyskem_qc._data)
-    # qcflags = QcFlags().from_string("0_0400400_0_0")
-    # print(qcflags)
-    # print(qcflags.automatic)
-    # total_flag_index = min(
-    #         enumerate([flag for flag in (qcflags.automatic)]),
-    # key=lambda x: QcFlag.key_function(x[1]),
-    # default=(None, QcFlag.NO_QC_PERFORMED))[0]
-    # print(QcField(total_flag_index).name)
-    # print(qcflags.total_automatic)
-    # print([qcflags.get_field_name(value) for value in qcflags.total_automatic_fields])

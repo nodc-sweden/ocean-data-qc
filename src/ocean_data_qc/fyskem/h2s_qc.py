@@ -1,4 +1,3 @@
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
@@ -17,37 +16,39 @@ class H2sQc(BaseQcCategory):
         BAD_DATA: all other H2S flags or value not isna
         BELOW_DETECTIONs: given parameter flag BELOW_DETECTION
         """
+
         self._parameter = parameter
-        parameter_boolean = self._data.parameter == parameter
-        selection = self._data[parameter_boolean]
-        if selection.empty:
+        parameter_boolean = pl.col("parameter") == parameter
+
+        # Early exit if nothing matches
+        if self._data.filter(parameter_boolean).is_empty():
             return
-        other_selection = self._data[
-            (self._data.parameter == "H2S")
-            & ~self._data["quality_flag_long"].str.contains("(?:6|4)")
-        ].rename(columns={"value": "h2s"})
-        selection = pd.merge(
-            selection,
-            other_selection[["h2s", "visit_key", "DEPH"]],
+
+        selection = self._data.filter(pl.col("parameter") == parameter).join(
+            self._data.filter(
+                (pl.col("parameter") == "H2S")
+                & (~pl.col("quality_flag_long").str.contains(r"(?:6|4)"))
+            ).select(
+                [
+                    pl.col("value").alias("h2s"),
+                    pl.col("visit_key"),
+                    pl.col("DEPH"),
+                ]
+            ),
             on=["visit_key", "DEPH"],
             how="left",
         )
 
-        selection = self._apply_polars_flagging_logic(selection, configuration)
-        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
-            selection[[self._column_name, self._info_column_name]].values
-        )
+        self._apply_flagging_logic(selection, configuration)
 
-    def _apply_polars_flagging_logic(
-        self, selection: pd.DataFrame, configuration: H2sCheck
-    ) -> pd.DataFrame:
+    def _apply_flagging_logic(
+        self, selection: pl.DataFrame, configuration: H2sCheck
+    ) -> pl.DataFrame:
         """
-        Apply the tests logic to selection using polars return pandas dataframe
+        Apply the tests logic to selection
         """
-        pl_selection = pl.from_pandas(selection)
-
         result_expr = (
-            pl.when(pl.col("value").is_null())
+            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
             .then(
                 pl.struct(
                     [
@@ -88,17 +89,5 @@ class H2sQc(BaseQcCategory):
             )
         )
 
-        pl_selection = (
-            pl_selection.with_columns([result_expr.alias("result_struct")])
-            .with_columns(
-                [
-                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
-                    pl.col("result_struct")
-                    .struct.field("info")
-                    .alias(self._info_column_name),
-                ]
-            )
-            .drop("result_struct")
-        )
-
-        return pl_selection.to_pandas()
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)

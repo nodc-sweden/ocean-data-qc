@@ -1,4 +1,3 @@
-import pandas as pd
 import pytest
 
 from ocean_data_qc.fyskem.parameter import Parameter
@@ -13,14 +12,12 @@ from ocean_data_qc.fyskem.qc_flag import QcFlag
         ("CPHL", 1.23),
     ),
 )
-def test_parameter_wraps_pandas_series(given_parameter_name, given_parameter_value):
+def test_parameter_wraps_polars_series(given_parameter_name, given_parameter_value):
     # Given a Series with a specific parameter value
-    given_series = pd.Series(
-        {"parameter": given_parameter_name, "value": given_parameter_value}
-    )
+    given_row = {"parameter": given_parameter_name, "value": given_parameter_value}
 
     # When creating a Parameter object
-    parameter = Parameter(given_series)
+    parameter = Parameter(given_row)
 
     # Then the given name and value can be retrieved
     assert parameter.name == given_parameter_name
@@ -29,7 +26,7 @@ def test_parameter_wraps_pandas_series(given_parameter_name, given_parameter_val
 
 def test_parameter_sets_initial_qc_value_if_missing():
     # Given parameter data
-    given_parameter_data = pd.Series({"parameter": "parameter_name", "value": 42})
+    given_parameter_data = {"parameter": "parameter_name", "value": 42}
 
     # When creating a parameter
     parameter = Parameter(given_parameter_data)
@@ -44,9 +41,11 @@ def test_parameter_sets_initial_qc_value_if_missing():
 
 def test_parameter_exposes_existing_qc_flags():
     # Given parameter data with QC_FLAG data
-    given_parameter_data = pd.Series(
-        {"parameter": "parameter_name", "value": 42, "quality_flag_long": "1_234_5_4"}
-    )
+    given_parameter_data = {
+        "parameter": "parameter_name",
+        "value": 42,
+        "quality_flag_long": "1_234_5_4",
+    }
 
     # When creating a parameter
     parameter = Parameter(given_parameter_data)

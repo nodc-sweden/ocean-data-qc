@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 import pytest
 
 from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
@@ -194,7 +195,6 @@ def test_consistency_qc_using_override_configuration(
             ),
         ]
     )
-    print(given_data)
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
     given_other_parameters = list(given_other_parameters_with_values.keys())
@@ -210,7 +210,6 @@ def test_consistency_qc_using_override_configuration(
         good_upper,
         good_lower,
     )
-    print(given_configuration)
     consistency_qc = ConsistencyQc(given_data)
     consistency_qc.expand_qc_columns()
 
@@ -219,12 +218,12 @@ def test_consistency_qc_using_override_configuration(
 
     # And finalizing data
     consistency_qc.collapse_qc_columns()
+    given_data = consistency_qc._data
 
     # Then the automatic QC flags has at least as many positions
     # to include the field for Consistency Check
-    print(given_data[given_data.parameter == given_parameter].loc[0])
     parameter_after = Parameter(
-        given_data[given_data.parameter == given_parameter].loc[0]
+        given_data.filter(pl.col("parameter") == given_parameter).row(0, named=True)
     )
     assert len(parameter_after.qc.automatic) >= (QcField.Consistency + 1)
 

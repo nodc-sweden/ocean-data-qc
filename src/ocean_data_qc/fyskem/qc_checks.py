@@ -1,9 +1,10 @@
+import math
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
-import numpy as np
-import pandas as pd
+import polars as pl
 
 
 @dataclass
@@ -53,61 +54,50 @@ class StatisticCheck:
     """Holds the statistical threshold configuration for each parameter."""
 
     filepath: str  # Single file containing statistics for all sea areas
-    _df: Optional[pd.DataFrame] = field(init=False, repr=False, default=None)
+    _df: Optional[pl.DataFrame] = field(init=False, repr=False, default=None)
 
     @property
-    def data(self):
-        """Lazy load the DataFrame only when accessed."""
-        relative_filepath = Path(__file__).parent / self.filepath
+    def data(self) -> pl.DataFrame:
+        """Lazy load the Polars DataFrame only when accessed."""
         if self._df is None:
-            self._df = pd.read_csv(relative_filepath, sep="\t", encoding="utf8")
+            relative_filepath = Path(__file__).parent / self.filepath
+            self._df = pl.read_csv(relative_filepath, separator="\t", encoding="utf8")
         return self._df
 
-    def get_thresholds(
-        self, sea_basin: str, depth: float, month: int
-    ) -> Tuple[float, float]:
-        """Retrieves min and max thresholds using optimized filtering."""
-        month_str = f"{int(month):02d}"  # Ensure two-digit month format
-
-        # Filter data by sea_basin and month
-        filtered = self.data.loc[
-            (self.data["sea_basin"] == sea_basin) & (self.data["month"] == int(month_str))
+    def get_thresholds(self, sea_basin: str, depth: float, month: int) -> dict:
+        """
+        Retrieves thresholds as a dictionary.
+        Returns NaNs if no matching configuration is found.
+        """
+        # Select columns relevant for thresholds
+        threshold_cols = [
+            "min_range_value",
+            "max_range_value",
+            "flag1_lower",
+            "flag1_upper",
+            "flag2_lower",
+            "flag2_upper",
+            "flag3_lower",
+            "flag3_upper",
         ]
+        month_str = f"{int(month):02d}"  # keep format consistent
 
-        # Further filter by depth interval
-        match = filtered.loc[
-            (filtered["min_depth"] <= depth) & (filtered["max_depth"] >= depth)
-        ]
-
-        if match.empty:
-            return (
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
-                np.nan,
-            )  # No matching data found
-
-        # Extract min/max values (assuming one row matches)
-        min_range = float(match["min_range_value"].values[0])
-        max_range = float(match["max_range_value"].values[0])
-        flag1_lower = float(match["flag1_lower"].values[0])
-        flag1_upper = float(match["flag1_upper"].values[0])
-        flag2_lower = float(match["flag2_lower"].values[0])
-        flag2_upper = float(match["flag2_upper"].values[0])
-        flag3_lower = float(match["flag3_lower"].values[0])
-        flag3_upper = float(match["flag3_upper"].values[0])
-
-        return (
-            min_range,
-            max_range,
-            flag1_lower,
-            flag1_upper,
-            flag2_lower,
-            flag2_upper,
-            flag3_lower,
-            flag3_upper,
+        match = self.data.filter(
+            (pl.col("sea_basin") == sea_basin)
+            & (pl.col("month") == int(month_str))
+            & (pl.col("min_depth") <= depth)
+            & (pl.col("max_depth") > depth)
         )
+
+        if match.height == 0:
+            # Return NaN for all expected fields
+            return {col: math.nan for col in threshold_cols}
+
+        if match.height > 1:
+            warnings.warn(
+                f"Multiple rows ({match.height}) matched for sea_basin={sea_basin}, "
+                "depth={depth}, month={month}. Using the first match in {match}"
+            )
+        row = match.row(0, named=True)
+
+        return {col: float(row[col]) for col in threshold_cols}

@@ -14,7 +14,7 @@ from tests.setup_methods import generate_data_frame_from_data_list
         ("042", "Sunnanö"),
     ),
 )
-def test_visit_wraps_pandas_series(given_series_id, given_station_name):
+def test_visit_wraps_polars_series(given_series_id, given_station_name):
     # Given a dataframe with data for a specific visit
     given_data = generate_data_frame_from_data_list(
         [
@@ -28,8 +28,8 @@ def test_visit_wraps_pandas_series(given_series_id, given_station_name):
     visit = Visit(given_data)
 
     # Then the given series id and station name can be retrieved
-    assert visit.series == given_series_id
-    assert visit.station == given_station_name
+    assert given_series_id in visit.series
+    assert given_station_name in visit.station
 
 
 def test_visit_handles_conflicting_values_for_series_id():

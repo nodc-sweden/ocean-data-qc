@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 
-import pandas as pd
+import polars as pl
 
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
@@ -44,7 +44,7 @@ def generate_data_frame(rows: list[dict] | None = None):
     If rows is provided they will be added to the dataframe otherwise the dataframe will
     be empty.
     """
-    return pd.DataFrame(rows or [])
+    return pl.DataFrame(rows or [])
 
 
 def random_number_generator(number_range: tuple = (0, 10), decimal_places: int = 0):
@@ -197,7 +197,7 @@ def generate_statistic_check_configuration(
             )
 
     # Create DataFrame
-    df = pd.DataFrame(df_data)
+    df = pl.DataFrame(df_data)
 
     # Initialize StatisticCheck
     statistic_check_config = StatisticCheck(filepath="test_file.txt")

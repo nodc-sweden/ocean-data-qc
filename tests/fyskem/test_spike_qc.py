@@ -1,3 +1,4 @@
+import polars as pl
 import pytest
 
 from ocean_data_qc.fyskem.parameter import Parameter
@@ -97,13 +98,12 @@ def test_spike_qc_using_override_configuration(
             ),
         ]
     )
-    print(given_data)
+
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
     given_configuration = generate_spike_configuration(
         given_parameter, allowed_delta=allowed_delta, allowed_depths=[]
     )
-    print(given_configuration)
     spike_qc = SpikeQc(given_data)
     spike_qc.expand_qc_columns()
 
@@ -112,12 +112,12 @@ def test_spike_qc_using_override_configuration(
 
     # And finalizing data
     spike_qc.collapse_qc_columns()
-    print(given_data)
+    given_data = spike_qc._data
     # Then the automatic QC flags has at least as many positions
     # to include the field for Spike Check
+    filtered_data = given_data.filter(pl.col("parameter") == given_parameter)
     parameter_after_list = [
-        Parameter(row)
-        for _, row in given_data[given_data.parameter == given_parameter].iterrows()
+        Parameter(filtered_data.row(i, named=True)) for i in range(filtered_data.height)
     ]
 
     assert zip(parameter_after_list, expected_flags, strict=True)

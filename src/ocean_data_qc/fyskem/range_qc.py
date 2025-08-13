@@ -1,4 +1,3 @@
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
@@ -13,27 +12,24 @@ class RangeQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: RangeCheck):
         self._parameter = parameter
-        parameter_boolean = self._data.parameter == parameter
-        selection = self._data.loc[parameter_boolean]
-        if selection.empty:
+        parameter_boolean = pl.col("parameter") == parameter
+        # Early exit if nothing matches
+        if self._data.filter(parameter_boolean).is_empty():
             return
-        selection = self._apply_polars_flagging_logic(selection, configuration)
-        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
-            selection[[self._column_name, self._info_column_name]].values
-        )
 
-    def _apply_polars_flagging_logic(
-        self, selection: pd.DataFrame, configuration: RangeCheck
-    ) -> pd.DataFrame:
+        self._apply_flagging_logic(self._data.filter(parameter_boolean), configuration)
+
+    def _apply_flagging_logic(
+        self, selection: pl.DataFrame, configuration: RangeCheck
+    ) -> pl.DataFrame:
         """
         Apply flagging logic for value vs. summation deviation test using polars.
         """
-        pl_selection = pl.from_pandas(selection)
         min_val = float(configuration.min_range_value)
         max_val = float(configuration.max_range_value)
 
         result_expr = (
-            pl.when(pl.col("value").is_null())
+            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
             .then(
                 pl.struct(
                     [
@@ -73,17 +69,5 @@ class RangeQc(BaseQcCategory):
             )
         )
 
-        pl_selection = (
-            pl_selection.with_columns([result_expr.alias("result_struct")])
-            .with_columns(
-                [
-                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
-                    pl.col("result_struct")
-                    .struct.field("info")
-                    .alias(self._info_column_name),
-                ]
-            )
-            .drop("result_struct")
-        )
-
-        return pl_selection.to_pandas()
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)

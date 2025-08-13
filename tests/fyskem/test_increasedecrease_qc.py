@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 import pytest
 
 from ocean_data_qc.fyskem.increasedecrease_qc import IncreaseDecreaseQc
@@ -12,10 +13,12 @@ from tests.setup_methods import (
 
 
 @pytest.mark.parametrize(
-    "given_parameter, given_values, allowed_increase, allowed_decrease, expected_flags",
+    "given_parameter, given_depths, given_values, "
+    "allowed_increase, allowed_decrease, expected_flags",
     (
         (
             "A",
+            [5, 10, 15],
             [1, 0.5, np.nan, 2],
             5,
             0.1,
@@ -30,13 +33,13 @@ from tests.setup_methods import (
 )
 def test_increasedecrease_qc_using_override_configuration(
     given_parameter,
+    given_depths,
     given_values,
     allowed_increase,
     allowed_decrease,
     expected_flags,
 ):
     # Given parameters with given values for a given depth and visit_key
-    given_depth = 20
     given_visit_key = "ABC123"
     given_data = generate_data_frame(
         [
@@ -47,7 +50,7 @@ def test_increasedecrease_qc_using_override_configuration(
                     "DEPH": given_depth,
                     "visit_key": given_visit_key,
                 }
-                for given_value in given_values
+                for given_depth, given_value in zip(given_depths, given_values)
             ),
         ]
     )
@@ -68,12 +71,14 @@ def test_increasedecrease_qc_using_override_configuration(
 
     # And finalizing data
     increaseadecrease_qc.collapse_qc_columns()
-
+    given_data = increaseadecrease_qc._data
+    # with pl.Config(tbl_cols=-1):
+    #     print(given_data)
     # Then the automatic QC flags has at least as many positions
     # to include the field for IncreaseDecrease Check
+    filtered_data = given_data.filter(pl.col("parameter") == given_parameter)
     parameter_after_list = [
-        Parameter(row)
-        for _, row in given_data[given_data.parameter == given_parameter].iterrows()
+        Parameter(filtered_data.row(i, named=True)) for i in range(filtered_data.height)
     ]
 
     assert zip(parameter_after_list, expected_flags, strict=True)
