@@ -101,6 +101,33 @@ class FysKemQc:
             .alias("quality_flag_long")
         )
 
+    def total_flag_info(self):
+        self._data = self._data.with_columns(
+            [
+                # Compute total_automatic
+                pl.col("quality_flag_long")
+                .map_elements(
+                    lambda x: str(QcFlags.from_string(x).total_automatic),
+                    return_dtype=pl.Utf8,
+                )
+                .alias("total_automatic"),
+                # Compute total_automatic_fields
+                pl.col("quality_flag_long")
+                .map_elements(
+                    lambda x: "; ".join(
+                        QcFlags.from_string(x).get_field_name(f)
+                        for f in QcFlags.from_string(x).total_automatic_source
+                    ),
+                    return_dtype=pl.Utf8,
+                )
+                .alias("total_automatic_fields"),
+                # Compute total_automatic_info from all columns
+                pl.struct(self._data.columns)
+                .map_elements(FysKemQc.extract_info, return_dtype=pl.Utf8)
+                .alias("total_automatic_info"),
+            ]
+        )
+
     @staticmethod
     def extract_info(row: dict) -> str:
         qcflags = QcFlags.from_string(row["quality_flag_long"])
