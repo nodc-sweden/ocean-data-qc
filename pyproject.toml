@@ -12,7 +12,6 @@ dependencies = [
     "polars>=1.30.0",
     "pyarrow>=20.0.0",
     "pyproj>=3.6.1",
-    "ruff>=0.6.9",
 ]
 requires-python = ">=3.9"
 readme = "README.md"
@@ -28,7 +27,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest>=8.1.1",
-    "ruff>=0.3.4",
+    "ruff>=0.13.0",
     "pre-commit>=3.5.0",
     "freezegun>=1.5.1",
 ]
