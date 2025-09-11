@@ -20,43 +20,21 @@ class StatisticQc(BaseQcCategory):
         if self._data.filter(parameter_boolean).is_empty():
             return
 
-        # Unique combinations of key columns
-        unique_combinations = (
-            self._data.filter(pl.col("parameter") == parameter)
-            .select(["sea_basin", "DEPH", "visit_month"])
-            .unique()
-        )
-        thresholds = [
-            configuration.get_thresholds(
-                row["sea_basin"], row["DEPH"], row["visit_month"]
+        selection = (
+            self._data.lazy()
+            .filter(pl.col("parameter") == parameter)
+            .with_columns(pl.col("visit_month").cast(pl.Int32))
+            .join(
+                configuration.data.lazy(),
+                left_on=["sea_basin", "visit_month"],
+                right_on=["sea_basin", "month"],
+                how="left",
             )
-            for row in unique_combinations.iter_rows(named=True)
-        ]
-
-        threshold_df = pl.DataFrame(thresholds)
-        # with pl.Config(tbl_cols=-1):
-        #     print(threshold_df)
-        # Merge thresholds with unique combinations
-        unique_with_thresholds = unique_combinations.hstack(threshold_df.fill_nan(None))
-
-        # Join back into selection
-        selection = self._data.filter(pl.col("parameter") == parameter).join(
-            unique_with_thresholds, on=["sea_basin", "DEPH", "visit_month"], how="left"
-        )
-
-        # Cast to numeric (Polars can enforce float)
-        numeric_cols = [
-            "min_range_value",
-            "max_range_value",
-            "flag1_lower",
-            "flag1_upper",
-            "flag2_lower",
-            "flag2_upper",
-            "flag3_lower",
-            "flag3_upper",
-        ]
-        selection = selection.with_columns(
-            [pl.col(c).cast(pl.Float64) for c in numeric_cols]
+            .filter(
+                (pl.col("DEPH") >= pl.col("min_depth"))
+                & (pl.col("DEPH") < pl.col("max_depth"))
+            )
+            .collect()
         )
 
         self._apply_flagging_logic(selection, configuration)
