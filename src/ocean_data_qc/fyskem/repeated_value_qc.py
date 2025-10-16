@@ -1,4 +1,3 @@
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
@@ -17,37 +16,62 @@ class RepeatedValueQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: RepeatedValueCheck):
         """
+        This aims only to check for manual errors, therefore we look
+        at the profile without blanks/none/nan.
         GOOD_DATA: first occurrence of a value
         PROBABLY_GOOD_DATA: repeated occurrence of a value
         """
         self._parameter = parameter
-        parameter_boolean = (self._data.parameter == parameter) & (
-            ~self._data.value.isnull()
-        )
-        selection = self._data.loc[parameter_boolean]
-        if selection.empty:
+        parameter_boolean = pl.col("parameter") == parameter
+
+        # Early exit if nothing matches
+        if self._data.filter(parameter_boolean).is_empty():
             return
 
-        selection["difference"] = selection.groupby("visit_key")["value"].diff()
-
-        selection = self._apply_polars_flagging_logic(selection, configuration)
-        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
-            selection[[self._column_name, self._info_column_name]].values
+        # Difference per group (other parameters only)
+        difference_expr = (
+            pl.when(pl.col("value").is_not_null())
+            .then(
+                pl.col("value")
+                - pl.col("value").fill_null(strategy="forward").shift(1).over("visit_key")
+            )
+            .otherwise(None)
+            .alias("difference")
         )
 
-    def _apply_polars_flagging_logic(
-        self, selection: pd.DataFrame, configuration: RepeatedValueCheck
-    ) -> pd.DataFrame:
+        selection = (
+            self._data.filter(parameter_boolean)
+            .sort(["visit_key", "DEPH"])
+            .with_columns(difference_expr)
+        )
+
+        self._apply_flagging_logic(selection, configuration)
+
+    def _apply_flagging_logic(
+        self, selection: pl.DataFrame, configuration: RepeatedValueCheck
+    ) -> pl.DataFrame:
         """
         Apply flagging logic for repeated value test using polars.
         """
-        pl_selection = pl.from_pandas(selection)
 
         # Create the flag + info struct logic
         result_expr = (
-            pl.when(
-                (pl.col("difference").is_null())
-                | (pl.col("difference") != configuration.repeated_value)
+            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
+                        pl.format(
+                            "MISSING value not found for {}", pl.lit(self._parameter)
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(
+                (
+                    (pl.col("difference") != configuration.repeated_value)
+                    | pl.col("difference").is_null()
+                )
             )
             .then(
                 pl.struct(
@@ -72,17 +96,5 @@ class RepeatedValueQc(BaseQcCategory):
             )
         )
 
-        pl_selection = (
-            pl_selection.with_columns([result_expr.alias("result_struct")])
-            .with_columns(
-                [
-                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
-                    pl.col("result_struct")
-                    .struct.field("info")
-                    .alias(self._info_column_name),
-                ]
-            )
-            .drop("result_struct")
-        )
-
-        return pl_selection.to_pandas()
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)

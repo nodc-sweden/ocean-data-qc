@@ -1,3 +1,4 @@
+import polars as pl
 import pytest
 
 from ocean_data_qc.metadata.common_values_qc import CommonValuesQc
@@ -99,9 +100,13 @@ def test_common_metadata_with_different_values_are_flagged_as_bad(
     given_data = generate_data_frame_from_data_list(
         [common_values] * 10, list(range(10, 100, 10))
     )
-
     # Given one row contains a divergent value
-    given_data._set_value(len(given_data) // 2, given_field, second_value)
+    given_data = given_data.with_columns(
+        pl.when(pl.arange(0, given_data.height) == 5)
+        .then(pl.lit(second_value))
+        .otherwise(pl.col(given_field))
+        .alias(given_field)
+    )
 
     # Given no qc has been made for common values
     visit = Visit(given_data)

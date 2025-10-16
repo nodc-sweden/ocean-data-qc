@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pytest
 
 from ocean_data_qc.fyskem.parameter import Parameter
@@ -7,8 +6,7 @@ from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 
 
 def given_parameter_with_data(data: dict):
-    parameter_series = pd.Series(data)
-    return Parameter(parameter_series)
+    return Parameter(data)
 
 
 @pytest.mark.parametrize(
@@ -30,29 +28,26 @@ def test_statistic_check_default_qc_configuration_returns_all_thresholds(
     )
 
     # Get all 8 thresholds
-    (
-        min_range_value,
-        max_range_value,
-        flag1_lower,
-        flag1_upper,
-        flag2_lower,
-        flag2_upper,
-        flag3_lower,
-        flag3_upper,
-    ) = retrieved_configuration.get_thresholds(given_sea, given_depth, given_month)
+    thresholds = retrieved_configuration.get_thresholds(
+        given_sea, given_depth, given_month
+    )
 
     # Assert all are int or float (but allow None if configuration allows missing)
+
     for threshold in (
-        min_range_value,
-        max_range_value,
-        flag1_lower,
-        flag1_upper,
-        flag2_lower,
-        flag2_upper,
-        flag3_lower,
-        flag3_upper,
+        "min_range_value",
+        "max_range_value",
+        "flag1_lower",
+        "flag1_upper",
+        "flag2_lower",
+        "flag2_upper",
+        "flag3_lower",
+        "flag3_upper",
     ):
-        assert isinstance(threshold, (int, float)) or threshold is None
+        assert (
+            isinstance(thresholds[threshold], (int, float))
+            or thresholds[threshold] is None
+        )
 
 
 @pytest.mark.parametrize(
@@ -73,11 +68,11 @@ def test_statistic_check_no_qc_configuration_for_args_returns_nan(
     retrieved_configuration = given_configuration.get(
         "statistic_check", given_parameter_name
     )
-    config_tuple = retrieved_configuration.get_thresholds(
+    config_dict = retrieved_configuration.get_thresholds(
         given_sea, given_depth, given_month
     )
 
-    assert all(np.isnan(value) for value in config_tuple)
+    assert all(np.isnan(value) for _, value in config_dict.items())
 
 
 @pytest.mark.parametrize(

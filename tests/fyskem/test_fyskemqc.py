@@ -1,3 +1,4 @@
+import polars as pl
 import pytest
 
 from ocean_data_qc.fyskem.qc_flag import QcFlag
@@ -37,7 +38,6 @@ def test_run_checks_for_parameters():
 
     # When running automatic QC
     given_fyskemeqc.run_automatic_qc()
-
     parameter_1 = given_fyskemeqc[0]
     parameter_2 = given_fyskemeqc[1]
     parameter_3 = given_fyskemeqc[2]
@@ -131,3 +131,87 @@ def test_qc_categories_match_qcfield():
     assert not error_messages, (
         "Mismatch between QcField and QC_CATEGORIES:\n" + "\n".join(error_messages)
     )
+
+
+@pytest.mark.parametrize(
+    "given_incoming_qc, expected_total, expected_auto",
+    (
+        (QcFlag.GOOD_DATA, QcFlag.BELOW_DETECTION, QcFlag.BELOW_DETECTION),
+        (QcFlag.BAD_DATA, QcFlag.BAD_DATA, QcFlag.BELOW_DETECTION),
+    ),
+)
+def test_qc_returns_new_flags_in_df(given_incoming_qc, expected_total, expected_auto):
+    # Given data with incoming and manual CQ flags
+    given_qc = QcFlags(given_incoming_qc, QcFlagTuple())
+    given_data = generate_data_frame(
+        [
+            {
+                "parameter": "AMON",
+                "value": 0.01,
+                "quality_flag_long": str(given_qc),
+                "visit_key": "20240111_0720_10_FLADEN",
+                "DEPH": 5,
+                "sea_basin": "Kattegat",
+                "visit_month": "01",
+            },
+        ]
+    )
+
+    # Given FysKemQc object
+    given_fyskemeqc = FysKemQc(given_data)
+
+    # When performing auto CQ
+    given_fyskemeqc.run_automatic_qc()
+
+    # Then the original incoming flags are preserved
+    parameter_1 = given_fyskemeqc[0]
+
+    assert parameter_1.qc.incoming == given_incoming_qc
+    assert parameter_1.qc.total_automatic == expected_auto
+    assert parameter_1.qc.total == expected_total
+
+
+# -------------------------
+# Fixture: large test dataset
+# -------------------------
+@pytest.fixture
+def large_dataset():
+    df = generate_data_frame_of_length(number_of_rows=500, number_of_visits=10)
+    # n_rows = 1000  # large enough to mimic your production case
+
+    # # Create example columns; include `parameter` and the QC columns
+    # df = pl.DataFrame({
+    #     "row_number": list(range(n_rows)),
+    #     "parameter": ["TEMP"]*500 + ["SAL"]*500,  # two different parameters
+    #     "value": [10.0]*250 + [100.0]*250 + [35.0]*250 + [1000.0]*250,
+    #     "AIRPRES": [1013]*n_rows,
+    #     "quality_flag": [""]*n_rows,
+    #     "info_AUTO_QC_Range": [""]*n_rows,
+    #     # ... add any other columns your QC expects ...
+    # })
+
+    return df
+
+
+# -------------------------
+# Test: run full QC
+# -------------------------
+def test_fyskem_qc_large_dataset(large_dataset):
+    fyskemeqc = FysKemQc(large_dataset)
+
+    # This should run without shape errors
+    try:
+        fyskemeqc.run_automatic_qc()
+    except Exception as e:
+        pytest.fail(f"QC pipeline failed: {e}")
+
+    # Optionally, check that the QC columns were updated
+    df_out = fyskemeqc._data  # or however you access the resulting dataframe
+    assert "quality_flag_long" in df_out.columns
+    assert "info_AUTO_QC_Range" in df_out.columns
+
+    # Ensure that for all TEMP rows, QC flags were applied
+    temp_rows = df_out.filter(pl.col("parameter") == "TEMP")
+    assert (
+        temp_rows.filter(pl.col("quality_flag_long") == "").height == 0
+    )  # all TEMP rows flagged

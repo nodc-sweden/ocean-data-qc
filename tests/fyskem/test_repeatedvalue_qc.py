@@ -1,3 +1,4 @@
+import polars as pl
 import pytest
 
 from ocean_data_qc.fyskem.parameter import Parameter
@@ -25,6 +26,33 @@ from tests.setup_methods import (
                 QcFlag.GOOD_DATA,
             ],
         ),
+        (
+            "A",
+            [5, 10, 15, 20, 25, 30, 40, 50],
+            [1, 1, 2, None, 3, 4, None, 4],
+            0,
+            [
+                QcFlag.GOOD_DATA,
+                QcFlag.PROBABLY_GOOD_DATA,
+                QcFlag.GOOD_DATA,
+                QcFlag.MISSING_VALUE,
+                QcFlag.GOOD_DATA,
+                QcFlag.GOOD_DATA,
+                QcFlag.MISSING_VALUE,
+                QcFlag.PROBABLY_GOOD_DATA,
+            ],
+        ),
+        (
+            "A",
+            [5, 10, 15],
+            [None, 1, 2],
+            0,
+            [
+                QcFlag.MISSING_VALUE,
+                QcFlag.GOOD_DATA,
+                QcFlag.GOOD_DATA,
+            ],
+        ),
     ),
 )
 def test_repeated_value_qc_using_override_configuration(
@@ -42,6 +70,7 @@ def test_repeated_value_qc_using_override_configuration(
                 {
                     "parameter": given_parameter,
                     "value": given_value,
+                    "DEPH": given_depth,
                     "visit_key": given_visit_key,
                 }
                 for given_depth, given_value in zip(given_depths, given_values)
@@ -64,12 +93,13 @@ def test_repeated_value_qc_using_override_configuration(
 
     # And finalizing data
     repeatedvalue_qc.collapse_qc_columns()
+    given_data = repeatedvalue_qc._data
 
     # Then the automatic QC flags has at least as many positions
     # to include the field for the repeated value check
+    filtered_data = given_data.filter(pl.col("parameter") == given_parameter)
     parameter_after_list = [
-        Parameter(row)
-        for _, row in given_data[given_data.parameter == given_parameter].iterrows()
+        Parameter(filtered_data.row(i, named=True)) for i in range(filtered_data.height)
     ]
 
     assert zip(parameter_after_list, expected_flags, strict=True)

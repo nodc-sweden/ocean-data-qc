@@ -1,4 +1,3 @@
-import pandas as pd
 import polars as pl
 
 from ocean_data_qc.fyskem.base_qc_category import BaseQcCategory
@@ -23,47 +22,58 @@ class ConsistencyQc(BaseQcCategory):
         """
 
         self._parameter = parameter
-        parameter_boolean = self._data.parameter == parameter
-        selection = self._data.loc[self._data.parameter == parameter]
-        if selection.empty:
+        parameter_boolean = pl.col("parameter") == parameter
+        parameters_list_expr = pl.col("parameter").is_in(configuration.parameter_list)
+
+        # Early exit if nothing matches
+        if self._data.filter(parameter_boolean).is_empty():
             return
 
-        other_selection = self._data.loc[
-            self._data.parameter.isin(configuration.parameter_list)
-        ]
+        # Value column as reusable expression
+        val = pl.col("value").fill_nan(None)
+
+        # Summation per group (other parameters only)
+        summation_expr = (
+            pl.when(val.is_not_null().any())  # At least one non-null in group
+            .then(val.fill_null(0).sum())  # Sum with null treated as 0
+            .otherwise(None)  # Keep None if all null
+            .alias("summation")
+        )
 
         summation = (
-            other_selection.groupby(["visit_key", "DEPH"])["value"]
-            .sum(min_count=1)
-            .reset_index(name="summation")
-        )
-        selection = pd.merge(selection, summation, on=["visit_key", "DEPH"], how="left")
-
-        selection = self._apply_polars_flagging_logic(selection, configuration)
-        self._data.loc[parameter_boolean, [self._column_name, self._info_column_name]] = (
-            selection[[self._column_name, self._info_column_name]].values
+            self._data.filter(parameters_list_expr)
+            .group_by(["visit_key", "DEPH"])
+            .agg(summation_expr)
         )
 
-    def _apply_polars_flagging_logic(
-        self, selection: pd.DataFrame, configuration: ConsistencyCheck
-    ) -> pd.DataFrame:
-        """
-        Apply flagging logic for value vs. summation difference test using polars.
-        """
-        pl_selection = pl.from_pandas(selection)
-        param_list_str = ", ".join(configuration.parameter_list)
-        toc_unit_conversion = 83.25701  # from mg/l to umol/l
-
-        # Calculate the difference once to avoid repeating the subtraction
-        pl_selection = pl_selection.with_columns(
+        # Apply TOC conversion logic inline
+        toc_unit_conversion = 83.25701  # mg/l → umol/l
+        difference_expr = (
             pl.when(pl.col("parameter") == "TOC")
             .then((pl.col("value") * toc_unit_conversion) - pl.col("summation"))
             .otherwise(pl.col("value") - pl.col("summation"))
             .alias("difference")
         )
 
+        # Filter to selection, join summation, compute difference
+        selection = (
+            self._data.filter(parameter_boolean)
+            .join(summation, on=["visit_key", "DEPH"], how="left")
+            .with_columns(difference_expr)
+        )
+
+        self._apply_flagging_logic(selection, configuration)
+
+    def _apply_flagging_logic(
+        self, selection: pl.DataFrame, configuration: ConsistencyCheck
+    ) -> pl.DataFrame:
+        """
+        Apply flagging logic for value vs. summation difference test using polars.
+        """
+        param_list_str = ", ".join(configuration.parameter_list)
+
         result_expr = (
-            pl.when(pl.col("value").is_null())
+            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
             .then(
                 pl.struct(
                     [
@@ -74,7 +84,7 @@ class ConsistencyQc(BaseQcCategory):
                     ]
                 )
             )
-            .when(pl.col("summation").is_null())
+            .when(pl.col("summation").is_null() | pl.col("summation").is_nan())
             .then(
                 pl.struct(
                     [
@@ -152,17 +162,5 @@ class ConsistencyQc(BaseQcCategory):
             )
         )
 
-        pl_selection = (
-            pl_selection.with_columns([result_expr.alias("result_struct")])
-            .with_columns(
-                [
-                    pl.col("result_struct").struct.field("flag").alias(self._column_name),
-                    pl.col("result_struct")
-                    .struct.field("info")
-                    .alias(self._info_column_name),
-                ]
-            )
-            .drop("result_struct")
-        )
-
-        return pl_selection.to_pandas()
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)

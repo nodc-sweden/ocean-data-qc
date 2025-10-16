@@ -90,7 +90,7 @@ from tests.setup_methods import (
                 1,
                 10,
             ),
-            "13",
+            "13",  # monht is 13 so no thresholds therefore no qc
             1000,
             QcFlag.NO_QC_PERFORMED,
         ),
@@ -216,17 +216,16 @@ def test_quality_flag_for_value_month_depth_with_given_qc(
         sea_basin=given_sea_area,
         depth_intervals=[(given_min_depth, given_max_depth, given_months)],
     )
-    print(given_months)
     statistic_qc = StatisticQc(given_data)
     statistic_qc.expand_qc_columns()
     # When performing QC
     statistic_qc.check(given_parameter_name, given_configuration)
     # And finalizing data
     statistic_qc.collapse_qc_columns()
-
+    given_data = statistic_qc._data
     # Then the automatic QC flags has at least as many positions
     # to include the field for Range Check
-    parameter_after = Parameter(given_data.loc[0])
+    parameter_after = Parameter(given_data.row(0, named=True))
     assert len(parameter_after.qc.automatic) >= (QcField.Statistic + 1)
 
     # And the parameter is given the expected flag at the expected position

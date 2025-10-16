@@ -1,10 +1,8 @@
-import pandas as pd
-
 from ocean_data_qc.fyskem.qc_flags import QcFlags
 
 
 class Parameter:
-    def __init__(self, data: pd.Series):
+    def __init__(self, data: dict):
         self._data = data
         if "quality_flag_long" in data:
             self._qc = QcFlags.from_string(data["quality_flag_long"])
@@ -13,11 +11,11 @@ class Parameter:
 
     @property
     def name(self):
-        return self._data.parameter
+        return self._data.get("parameter")
 
     @property
     def value(self):
-        return self._data.value
+        return self._data.get("value")
 
     @property
     def qc(self) -> QcFlags:
@@ -25,5 +23,6 @@ class Parameter:
 
     @property
     def data(self):
+        # Update 'quality_flag_long' before returning data
         self._data["quality_flag_long"] = str(self._qc)
         return self._data

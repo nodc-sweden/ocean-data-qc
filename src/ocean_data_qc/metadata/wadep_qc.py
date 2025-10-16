@@ -5,7 +5,7 @@ from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
 
 class WadepQc(BaseMetadataQcCategory):
     def check(self):
-        if max(self._visit.water_depths()) >= self._visit.metadata["WADEP"]:
+        if max(self._visit.water_depths()) >= max(self._visit.metadata["WADEP"]):
             self._visit.qc[MetadataQcField.Wadep] = MetadataFlag.BAD_DATA
             self._visit.log(
                 MetadataQcField.Wadep,

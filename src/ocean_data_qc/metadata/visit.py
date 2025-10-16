@@ -1,6 +1,6 @@
 from typing import Union
 
-import pandas as pd
+import polars as pl
 
 from ocean_data_qc.metadata.metadata_flag import MetadataFlag
 from ocean_data_qc.metadata.metadata_qc_field import MetadataQcField
@@ -25,10 +25,18 @@ class Visit:
         "WINSP",
     )
 
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self, data: pl.DataFrame):
         self._data = data
-        self._series = self._data.SERNO.unique() if "SERNO" in self._data.columns else []
-        self._station = self._data.STATN.unique() if "STATN" in self._data.columns else []
+        self._series = (
+            self._data.get_column("SERNO", default=pl.Series("SERNO", []))
+            .unique()
+            .to_list()
+        )
+        self._station = (
+            self._data.get_column("STATN", default=pl.Series("STATN", []))
+            .unique()
+            .to_list()
+        )
         self._times = set()
         self._positions = set()
 
@@ -43,31 +51,25 @@ class Visit:
         self._metadata = {}
 
         if "SDATE" not in self._data.columns:
-            self._data["SDATE"] = ""
+            self._data.insert_column(-1, pl.Series("SDATE", [""] * self._data.height))
         if "STIME" not in self._data.columns:
-            self._data["STIME"] = ""
+            self._data.insert_column(-1, pl.Series("STIME", [""] * self._data.height))
 
-        self._times = set(
-            tuple(self._data[["SDATE", "STIME"]].itertuples(index=False, name=None))
-        )
+        self._times = set(self._data.select(["SDATE", "STIME"]).unique().iter_rows())
 
         if "LATIT" in self._data.columns and "LONGI" in self._data.columns:
             self._positions = set(
-                tuple(self._data[["LATIT", "LONGI"]].itertuples(index=False, name=None))
+                self._data.select(["LATIT", "LONGI"]).unique().iter_rows()
             )
         elif "LATIT_NOM" in self._data.columns and "LONGI_NOM" in self._data.columns:
             self._positions = set(
-                tuple(
-                    self._data[["LATIT_NOM", "LONGI_NOM"]].itertuples(
-                        index=False, name=None
-                    )
-                )
+                self._data.select(["LATIT_NOM", "LONGI_NOM"]).unique().iter_rows()
             )
 
         for field in self.METADATA_FIELDS:
             if field not in self._data.columns:
                 continue
-            self._metadata[field] = self._data[field].unique()
+            self._metadata[field] = self._data.get_column(field).unique().to_list()
 
     @property
     def series(self):
@@ -97,7 +99,7 @@ class Visit:
             self._qc_log[qc_field][parameter].append(message)
 
     def water_depths(self):
-        return self._data.DEPH.unique()
+        return self._data.get_column("DEPH").unique().to_list()
 
     def times(self):
         return self._times
