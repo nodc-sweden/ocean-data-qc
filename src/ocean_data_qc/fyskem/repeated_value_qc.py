@@ -78,7 +78,9 @@ class RepeatedValueQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD value",
+                            "GOOD change from previous depth {} is > {}",
+                            pl.col("difference").round(2),
+                            pl.lit(configuration.repeated_value),
                         ).alias("info"),
                     ]
                 )
@@ -88,8 +90,9 @@ class RepeatedValueQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "PROBABLY GOOD value. The value is identical to the value "
-                            "at the sampled depth above.",
+                            "PROBABLY GOOD value. The value {} is identical to the "
+                            "value at the sampled depth above.",
+                            pl.col("value"),
                         ).alias("info"),
                     ]
                 )
