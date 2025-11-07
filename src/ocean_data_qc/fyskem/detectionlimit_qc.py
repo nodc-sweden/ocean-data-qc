@@ -27,11 +27,12 @@ class DetectionLimitQc(BaseQcCategory):
         if self._data.filter(parameter_boolean).is_empty():
             return
 
-        self._apply_flagging_logic(self._data.filter(parameter_boolean), configuration)
+        selection = self._data.filter(parameter_boolean)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: DetectionLimitCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: DetectionLimitCheck) -> pl.DataFrame:
         """
         Apply flagging logic for value vs. summation deviation test using polars.
         """
@@ -90,5 +91,4 @@ class DetectionLimitQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr

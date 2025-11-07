@@ -48,11 +48,11 @@ class SpikeQc(BaseQcCategory):
             .drop(["v_minus", "v_plus", "alfa", "gradient"])  # optional cleanup
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: SpikeCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: SpikeCheck) -> pl.DataFrame:
         """
         Apply flagging logic for delta (spike) check.
         """
@@ -108,8 +108,7 @@ class SpikeQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr
 
     def _calculate_deltas(self, profile):
         """

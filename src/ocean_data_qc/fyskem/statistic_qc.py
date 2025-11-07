@@ -37,11 +37,11 @@ class StatisticQc(BaseQcCategory):
             .collect()
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection.clone(), result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: StatisticCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: StatisticCheck) -> pl.DataFrame:
         """
         Apply flagging logic for delta (spike) check.
         """
@@ -155,5 +155,5 @@ class StatisticQc(BaseQcCategory):
                 )
             )
         )
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+
+        return result_expr

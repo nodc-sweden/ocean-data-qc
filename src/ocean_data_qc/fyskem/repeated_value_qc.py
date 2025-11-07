@@ -45,11 +45,11 @@ class RepeatedValueQc(BaseQcCategory):
             .with_columns(difference_expr)
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: RepeatedValueCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: RepeatedValueCheck) -> pl.DataFrame:
         """
         Apply flagging logic for repeated value test using polars.
         """
@@ -78,7 +78,9 @@ class RepeatedValueQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD value",
+                            "GOOD change from previous depth {} is > {}",
+                            pl.col("difference").round(2),
+                            pl.lit(configuration.repeated_value),
                         ).alias("info"),
                     ]
                 )
@@ -88,13 +90,13 @@ class RepeatedValueQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "PROBABLY GOOD value. The value is identical to the value "
-                            "at the sampled depth above.",
+                            "PROBABLY GOOD value. The value {} is identical to the "
+                            "value at the sampled depth above.",
+                            pl.col("value"),
                         ).alias("info"),
                     ]
                 )
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr

@@ -16,12 +16,12 @@ class RangeQc(BaseQcCategory):
         # Early exit if nothing matches
         if self._data.filter(parameter_boolean).is_empty():
             return
+        selection = self._data.filter(parameter_boolean)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
-        self._apply_flagging_logic(self._data.filter(parameter_boolean), configuration)
-
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: RangeCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: RangeCheck) -> pl.DataFrame:
         """
         Apply flagging logic for value vs. summation deviation test using polars.
         """
@@ -69,5 +69,4 @@ class RangeQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr

@@ -62,11 +62,11 @@ class ConsistencyQc(BaseQcCategory):
             .with_columns(difference_expr)
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration=configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: ConsistencyCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: ConsistencyCheck) -> pl.DataFrame:
         """
         Apply flagging logic for value vs. summation difference test using polars.
         """
@@ -162,5 +162,4 @@ class ConsistencyQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr
