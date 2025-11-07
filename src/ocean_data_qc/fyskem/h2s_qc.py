@@ -39,10 +39,12 @@ class H2sQc(BaseQcCategory):
             how="left",
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection.clone(), result_expr=result_expr)
 
     def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: H2sCheck
+        self, configuration: H2sCheck
     ) -> pl.DataFrame:
         """
         Apply the tests logic to selection
@@ -89,5 +91,4 @@ class H2sQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr

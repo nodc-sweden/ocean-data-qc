@@ -45,10 +45,12 @@ class RepeatedValueQc(BaseQcCategory):
             .with_columns(difference_expr)
         )
 
-        self._apply_flagging_logic(selection, configuration)
+        result_expr = self._apply_flagging_logic(configuration)
+        # Update original dataframe with qc results
+        self.update_dataframe(selection=selection.clone(), result_expr=result_expr)
 
     def _apply_flagging_logic(
-        self, selection: pl.DataFrame, configuration: RepeatedValueCheck
+        self, configuration: RepeatedValueCheck
     ) -> pl.DataFrame:
         """
         Apply flagging logic for repeated value test using polars.
@@ -99,5 +101,4 @@ class RepeatedValueQc(BaseQcCategory):
             )
         )
 
-        # Update original dataframe with qc results
-        self.update_dataframe(selection=selection, result_expr=result_expr)
+        return result_expr
