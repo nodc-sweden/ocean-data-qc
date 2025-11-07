@@ -21,9 +21,7 @@ class RangeQc(BaseQcCategory):
         # Update original dataframe with qc results
         self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, configuration: RangeCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: RangeCheck) -> pl.DataFrame:
         """
         Apply flagging logic for value vs. summation deviation test using polars.
         """

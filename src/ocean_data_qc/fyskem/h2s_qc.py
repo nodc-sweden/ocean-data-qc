@@ -43,9 +43,7 @@ class H2sQc(BaseQcCategory):
         # Update original dataframe with qc results
         self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, configuration: H2sCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: H2sCheck) -> pl.DataFrame:
         """
         Apply the tests logic to selection
         """

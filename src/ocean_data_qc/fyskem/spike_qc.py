@@ -52,9 +52,7 @@ class SpikeQc(BaseQcCategory):
         # Update original dataframe with qc results
         self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(
-        self, configuration: SpikeCheck
-    ) -> pl.DataFrame:
+    def _apply_flagging_logic(self, configuration: SpikeCheck) -> pl.DataFrame:
         """
         Apply flagging logic for delta (spike) check.
         """
