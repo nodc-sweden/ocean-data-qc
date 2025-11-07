@@ -64,7 +64,7 @@ class ConsistencyQc(BaseQcCategory):
 
         result_expr = self._apply_flagging_logic(configuration=configuration)
         # Update original dataframe with qc results
-        self.update_dataframe(selection=selection.clone(), result_expr=result_expr)
+        self.update_dataframe(selection=selection, result_expr=result_expr)
 
     def _apply_flagging_logic(self, configuration: ConsistencyCheck) -> pl.DataFrame:
         """
