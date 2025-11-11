@@ -24,28 +24,43 @@ class SpikeQc(BaseQcCategory):
         if self._data.filter(parameter_boolean).is_empty():
             return
         self._threshold = configuration.allowed_delta
-
         selection = (
-            self._data.filter(parameter_boolean)
+            self._data.filter(
+                parameter_boolean
+                & pl.col("value").is_not_null()
+                & (pl.col("TOTAL_QC") != "4")
+            )
             .sort(["visit_key", "DEPH"])
             .with_columns(
                 [
-                    pl.col("value").shift(1).over("visit_key").alias("v_minus"),
-                    pl.col("value").shift(-1).over("visit_key").alias("v_plus"),
+                    pl.col("value").shift(1).over("visit_key").alias("prev_value"),
+                    pl.col("value").shift(-1).over("visit_key").alias("next_value"),
+                    pl.col("DEPH").shift(1).over("visit_key").alias("prev_deph"),
+                    pl.col("DEPH").shift(-1).over("visit_key").alias("next_deph"),
                 ]
             )
             .with_columns(
                 [
-                    (pl.col("value") - ((pl.col("v_minus") + pl.col("v_plus")) / 2).abs())
-                    .abs()
-                    .alias("alfa"),
-                    ((pl.col("v_plus") - pl.col("v_minus")) / 2).abs().alias("gradient"),
+                    (
+                        (
+                            (
+                                (pl.col("next_value") - pl.col("prev_value"))
+                                / (pl.col("next_deph") - pl.col("prev_deph"))
+                            )  # rate of change pre m
+                            * (
+                                pl.col("DEPH") - pl.col("prev_deph")
+                            )  # expected change from prev
+                        )
+                        + pl.col("prev_value")
+                    ).alias("expected")  # slope * deph to get value if no spike
                 ]
             )
             .with_columns(
-                [(pl.col("alfa") - pl.col("gradient")).abs().round(2).alias("delta")]
+                (pl.col("value") - pl.col("expected"))
+                .abs()
+                .alias("alfa")  # current value - expected from the slope at DEPH
             )
-            .drop(["v_minus", "v_plus", "alfa", "gradient"])  # optional cleanup
+            # .drop(["prev_value", "next_value", "alfa", "gradient"])  # optional cleanup
         )
 
         result_expr = self._apply_flagging_logic(configuration)
@@ -56,40 +71,31 @@ class SpikeQc(BaseQcCategory):
         """
         Apply flagging logic for delta (spike) check.
         """
-
         result_expr = (
-            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
-                        pl.format(
-                            "MISSING no value for {}", pl.lit(self._parameter)
-                        ).alias("info"),
-                    ]
-                )
-            )
-            .when(pl.col("delta").is_null())
+            pl.when(pl.col("alfa").is_null())
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
-                            "NO_QC_PERFORMED delta missing for {}",
-                            pl.lit(self._parameter),
+                            "MISSING no value for expected {} or value {}",
+                            pl.col("expected"),
+                            pl.col("value"),
                         ).alias("info"),
                     ]
                 )
             )
-            .when(pl.col("delta") >= self._threshold)
+            .when(pl.col("alfa") >= self._threshold)
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
                         pl.format(
-                            "CORRECTABLE spike detected, {} exceeds allowed delta {}",
-                            pl.col("delta"),
-                            pl.lit(self._threshold),
+                            "BAD DATA CORRECTABLE: value-expected >= {} ml/l. {}-{} = {}",
+                            self._threshold,
+                            pl.col("value"),
+                            pl.col("expected").round(2),
+                            pl.col("alfa").round(2),
                         ).alias("info"),
                     ]
                 )
@@ -99,9 +105,11 @@ class SpikeQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD delta {} within allowed delta {}",
-                            pl.col("delta"),
-                            pl.lit(self._threshold),
+                            "GOOD delta: value - expected < {} ml/l. {} - {} = {}",
+                            self._threshold,
+                            pl.col("value"),
+                            pl.col("expected").round(2),
+                            pl.col("alfa").round(2),
                         ).alias("info"),
                     ]
                 )
@@ -133,10 +141,10 @@ class SpikeQc(BaseQcCategory):
 
         deltas = np.full(len(profile), np.nan, dtype=float)
         if len(vals) > 2:
-            v_minus = vals[:-2]
-            v_plus = vals[2:]
-            alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
-            gradient = np.abs((v_plus - v_minus) / 2)
+            prev_value = vals[:-2]
+            next_value = vals[2:]
+            alfa = vals[1:-1] - np.abs((prev_value + next_value) / 2)
+            gradient = np.abs((next_value - prev_value) / 2)
             delta = np.round(np.abs(alfa) - np.abs(gradient), 2)
             deltas[1:-1] = delta
 
@@ -146,14 +154,14 @@ class SpikeQc(BaseQcCategory):
 
 def delta(v):
     vals = np.array(v)
-    v_minus = vals[:-2]
-    v_plus = vals[2:]
-    print(v_plus)
-    print(v_minus)
-    (v_plus - v_minus)
-    np.abs((v_minus + v_plus) / 2)
-    alfa = vals[1:-1] - np.abs((v_minus + v_plus) / 2)
-    gradient = np.abs((v_plus - v_minus) / 2)
+    prev_value = vals[:-2]
+    next_value = vals[2:]
+    print(next_value)
+    print(prev_value)
+    (next_value - prev_value)
+    np.abs((prev_value + next_value) / 2)
+    alfa = vals[1:-1] - np.abs((prev_value + next_value) / 2)
+    gradient = np.abs((next_value - prev_value) / 2)
     delta = np.round(np.abs(alfa) - np.abs(gradient), 2)
 
     return delta

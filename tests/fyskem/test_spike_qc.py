@@ -15,10 +15,10 @@ from tests.setup_methods import (
     "given_parameter, given_values, given_depths, allowed_delta, expected_flags",
     (
         (
-            "A",
+            "DOXY",
             [1, 0.5, 7, 2],
             [0, 5, 10, 15],
-            0.4,
+            0.5,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.BAD_DATA_CORRECTABLE,
@@ -27,10 +27,10 @@ from tests.setup_methods import (
             ],
         ),
         (
-            "A",
+            "DOXY",
             [8.85, 8.84, 9.60, 8.68],
             [0, 5, 10, 15],
-            0.4,
+            0.5,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
@@ -39,7 +39,7 @@ from tests.setup_methods import (
             ],
         ),
         (
-            "FLADEN_MAR_25",
+            "DOXY_FLADEN_MAR_25",
             [
                 8.67,
                 8.57,
@@ -56,7 +56,7 @@ from tests.setup_methods import (
                 6.33,
             ],
             [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 80, 81],
-            0.4,
+            0.5,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
@@ -119,10 +119,14 @@ def test_spike_qc_using_override_configuration(
     parameter_after_list = [
         Parameter(filtered_data.row(i, named=True)) for i in range(filtered_data.height)
     ]
-
+    pl.Config.set_tbl_rows(-1)  # show all rows
+    pl.Config.set_tbl_cols(-1)  # show all columns
+    for row in filtered_data.select(["value", "DEPH", "info_AUTO_QC_Spike"]).rows():
+        print(row)
     assert zip(parameter_after_list, expected_flags, strict=True)
 
     for parameter_after, expected_flag in zip(parameter_after_list, expected_flags):
+        print(parameter_after.value, parameter_after.depth, expected_flag)
         assert len(parameter_after.qc.automatic) >= (QcField.Spike + 1)
 
         # And the parameter is given the expected flag at the expected position

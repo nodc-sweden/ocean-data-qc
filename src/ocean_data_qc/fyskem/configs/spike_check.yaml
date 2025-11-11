@@ -1,6 +1,6 @@
 DOXY_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.SpikeCheck
-    allowed_delta: 0.4
+    allowed_delta: 0.5
     allowed_depths: [[0, 50],[80,500]]
 NTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.SpikeCheck

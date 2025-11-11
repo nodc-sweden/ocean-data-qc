@@ -14,6 +14,10 @@ class Parameter:
         return self._data.get("parameter")
 
     @property
+    def depth(self):
+        return self._data.get("DEPH")
+
+    @property
     def value(self):
         return self._data.get("value")
 
