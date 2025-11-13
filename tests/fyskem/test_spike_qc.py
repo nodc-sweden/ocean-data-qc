@@ -12,13 +12,14 @@ from tests.setup_methods import (
 
 
 @pytest.mark.parametrize(
-    "given_parameter, given_values, given_depths, allowed_delta, expected_flags",
+    "given_parameter, given_values, given_depths, threshold_high, threshold_low, expected_flags",
     (
         (
             "DOXY",
             [1, 0.5, 7, 2],
             [0, 5, 10, 15],
-            0.5,
+            1.0,
+            0.4,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.BAD_DATA_CORRECTABLE,
@@ -30,7 +31,8 @@ from tests.setup_methods import (
             "DOXY",
             [8.85, 8.84, 9.60, 8.68],
             [0, 5, 10, 15],
-            0.5,
+            1.0,
+            0.4,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
@@ -56,7 +58,8 @@ from tests.setup_methods import (
                 6.33,
             ],
             [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 80, 81],
-            0.5,
+            1.0,
+            0.4,
             [
                 QcFlag.NO_QC_PERFORMED,
                 QcFlag.GOOD_DATA,
@@ -67,7 +70,7 @@ from tests.setup_methods import (
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA_CORRECTABLE,
+                QcFlag.BAD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.GOOD_DATA,
                 QcFlag.NO_QC_PERFORMED,
@@ -79,7 +82,8 @@ def test_spike_qc_using_override_configuration(
     given_parameter,
     given_values,
     given_depths,
-    allowed_delta,
+    threshold_high,
+    threshold_low,
     expected_flags,
 ):
     # Given parameters with given values for a given depth and visit_key
@@ -98,12 +102,13 @@ def test_spike_qc_using_override_configuration(
             ),
         ]
     )
-
-    # Given a consistency_qc object has been initiated with an override configuration that
+    # Given a spike_qc object has been initiated with an override configuration that
     # includes given parameter
     given_configuration = generate_spike_configuration(
-        given_parameter, allowed_delta=allowed_delta, allowed_depths=[]
+        given_parameter, threshold_high = threshold_high, threshold_low=threshold_low
     )
+    print(f"{given_configuration.threshold_high=}")
+    print(f"{given_configuration.threshold_low=}")
     spike_qc = SpikeQc(given_data)
     spike_qc.expand_qc_columns()
 

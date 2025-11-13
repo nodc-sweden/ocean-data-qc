@@ -13,9 +13,13 @@ class SpikeQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: SpikeCheck):
         """
-        check som kollar förändring mellan föregående djup och nästa djup
-        GOOD_DATA: om förändringen ligger mellan allowed_increase och allowed_decrease
-        BAD_DATA: om värdet på parameter utanför intervallet
+        check som kollar förändring relativt föregående djup och nästa djup.
+        Förändringen här definieras som delta enlig QARTOD spike test.
+        Ingen korrigering görs för hur långt ifrån varandra mätningarna ligger.
+        Flaggning:
+            GOOD_DATA: om förändringen ligger är < threshold low.
+            BAD DATA CORRECTABLE: om threshold high > förändringen > threshold low.
+            BAD_DATA: om förändringen är > threshold high-
         """
         self._parameter = parameter
         parameter_boolean = pl.col("parameter") == parameter
@@ -23,7 +27,7 @@ class SpikeQc(BaseQcCategory):
         # Early exit if nothing matches
         if self._data.filter(parameter_boolean).is_empty():
             return
-        self._threshold = configuration.allowed_delta
+        self._threshold_high = configuration.threshold_high
         selection = (
             self._data.filter(
                 parameter_boolean
@@ -41,26 +45,21 @@ class SpikeQc(BaseQcCategory):
             )
             .with_columns(
                 [
-                    (
-                        (
-                            (
-                                (pl.col("next_value") - pl.col("prev_value"))
-                                / (pl.col("next_deph") - pl.col("prev_deph"))
-                            )  # rate of change pre m
-                            * (
-                                pl.col("DEPH") - pl.col("prev_deph")
-                            )  # expected change from prev
-                        )
-                        + pl.col("prev_value")
-                    ).alias("expected")  # slope * deph to get value if no spike
+                    (abs(pl.col("next_value") + pl.col("prev_value")) * 0.5).alias(
+                        "spike_ref"
+                    ),
                 ]
             )
             .with_columns(
-                (pl.col("value") - pl.col("expected"))
-                .abs()
-                .alias("alfa")  # current value - expected from the slope at DEPH
+                [
+                    (
+                        abs(pl.col("value") - pl.col("spike_ref"))
+                        - (abs(pl.col("next_value") - pl.col("prev_value")) * 0.5)
+                    )
+                    .abs()
+                    .alias("delta"),
+                ]
             )
-            # .drop(["prev_value", "next_value", "alfa", "gradient"])  # optional cleanup
         )
 
         result_expr = self._apply_flagging_logic(configuration)
@@ -72,30 +71,48 @@ class SpikeQc(BaseQcCategory):
         Apply flagging logic for delta (spike) check.
         """
         result_expr = (
-            pl.when(pl.col("alfa").is_null())
+            pl.when(pl.col("delta").is_null())
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
-                            "MISSING no value for expected {} or value {}",
-                            pl.col("expected"),
-                            pl.col("value"),
+                            "MISSING no value for delta {}",
+                            pl.col("delta"),
                         ).alias("info"),
                     ]
                 )
             )
-            .when(pl.col("alfa") >= self._threshold)
+            .when((pl.col("delta") >= configuration.threshold_high))
+            .then(
+                pl.struct(
+                    [
+                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.format(
+                            "BAD DATA: value - (spike_ref - halva diff) >= threshold_high. {} >= {}. Previous {}, Next {}",  # noqa: E501
+                            pl.col("delta").round(2),
+                            configuration.threshold_high,
+                            pl.col("prev_value").round(2),
+                            pl.col("next_value").round(2),
+                        ).alias("info"),
+                    ]
+                )
+            )
+            .when(
+                (pl.col("delta") < configuration.threshold_high)
+                & (pl.col("delta") >= configuration.threshold_low)
+            )
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
                         pl.format(
-                            "BAD DATA CORRECTABLE: value-expected >= {} ml/l. {}-{} = {}",
-                            self._threshold,
-                            pl.col("value"),
-                            pl.col("expected").round(2),
-                            pl.col("alfa").round(2),
+                            "BAD DATA CORRECTABLE: value - (spike_ref - halva diff) >= threshold_low. {} > {} >= {}. Previous {}, Next {}",  # noqa: E501
+                            configuration.threshold_high,
+                            pl.col("delta").round(2),
+                            configuration.threshold_low,
+                            pl.col("prev_value").round(2),
+                            pl.col("next_value").round(2),
                         ).alias("info"),
                     ]
                 )
@@ -105,11 +122,12 @@ class SpikeQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
-                            "GOOD delta: value - expected < {} ml/l. {} - {} = {}",
-                            self._threshold,
+                            "GOOD: value - (spike_ref - halva diff) < threshold_low. {}-{} < {}. Previous {}, Next {}",  # noqa: E501
                             pl.col("value"),
-                            pl.col("expected").round(2),
-                            pl.col("alfa").round(2),
+                            pl.col("delta").round(2),
+                            configuration.threshold_low,
+                            pl.col("prev_value").round(2),
+                            pl.col("next_value").round(2),
                         ).alias("info"),
                     ]
                 )
