@@ -76,3 +76,20 @@ def test_get_automatic_qc_flag_by_position(given_qc_flags, given_field, expected
 
     # Then the expected value is retrieved
     assert value == expected_value
+
+
+@pytest.mark.parametrize(
+    "given_qc_flags, expected_value",
+    (
+        ((1, 0, 0), QcFlag.GOOD_DATA),
+        ((1, 0, 3), QcFlag.BAD_DATA_CORRECTABLE),
+        ((1, 4, 0), QcFlag.BAD_DATA),
+        ((1, 4, 6), QcFlag.BELOW_DETECTION),
+    ),
+)
+def test_return_total_from_auto_inc_manual(given_qc_flags, expected_value):
+    qf = QcFlags()
+    qf.incoming = given_qc_flags[0]
+    qf.automatic = (given_qc_flags[1], given_qc_flags[1])
+    qf.manual = given_qc_flags[2]
+    assert qf.total == expected_value

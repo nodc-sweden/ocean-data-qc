@@ -45,8 +45,9 @@ class RepeatedValueCheck:
 
 @dataclass
 class SpikeCheck:
-    allowed_delta: float
-    allowed_depths: list
+    threshold_high: float
+    threshold_low: float
+    rate_of_change: float
 
 
 @dataclass

@@ -278,14 +278,14 @@ def generate_repeatedvalue_configuration(parameter: str, repeated_value: int):
 
 
 def generate_spike_configuration(
-    parameter: str, allowed_delta: float, allowed_depths: list
+    parameter: str, threshold_high: float, threshold_low: float, rate_of_change: float
 ):
     """
-    Generate a IncreaseDecreaseCheck configration entry.
+    Generate a SpikeCheck configuration entry.
 
     Comparable to reading a parameter from a configuration yaml file.
 
 
     """
-    parameter_configuration = SpikeCheck(allowed_delta, allowed_depths)
+    parameter_configuration = SpikeCheck(threshold_high, threshold_low, rate_of_change)
     return parameter_configuration
