@@ -38,8 +38,12 @@ class SpikeQc(BaseQcCategory):
                 [
                     pl.col("value").shift(1).over("visit_key").alias("prev_value"),
                     pl.col("value").shift(-1).over("visit_key").alias("next_value"),
+                    pl.col("value").shift(2).over("visit_key").alias("prev2_value"),
+                    pl.col("value").shift(-2).over("visit_key").alias("next2_value"),
                     pl.col("DEPH").shift(1).over("visit_key").alias("prev_deph"),
                     pl.col("DEPH").shift(-1).over("visit_key").alias("next_deph"),
+                    pl.col("DEPH").shift(2).over("visit_key").alias("prev2_deph"),
+                    pl.col("DEPH").shift(-2).over("visit_key").alias("next2_deph"),
                 ]
             )
             .with_columns(
@@ -76,6 +80,10 @@ class SpikeQc(BaseQcCategory):
                         abs(pl.col("next_value") - pl.col("prev_value"))
                         / abs(pl.col("next_deph") - pl.col("prev_deph"))
                     ).alias("rate_of_change"),
+                    (
+                        abs(pl.col("next2_value") - pl.col("prev2_value"))
+                        / abs(pl.col("next2_deph") - pl.col("prev2_deph"))
+                    ).alias("long_rate_of_change"),
                 ]
             )
         )
@@ -94,35 +102,12 @@ class SpikeQc(BaseQcCategory):
         adequately reproduces changes in the tested parameter"""
 
         result_expr = (
-            pl.when(pl.col("delta").is_null())
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
-                        pl.format(
-                            "MISSING no value for delta {}",
-                            pl.col("delta"),
-                        ).alias("info"),
-                    ]
+            pl.when(
+                (
+                    (pl.col("delta") < configuration.threshold_high)
+                    & (pl.col("delta") >= configuration.threshold_low)
+                    & (pl.col("rate_of_change") <= configuration.rate_of_change)
                 )
-            )
-            .when((pl.col("rate_of_change") >= configuration.rate_of_change))
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
-                        pl.format(
-                            "GOOD DATA: rate of change {} > threshold {}. Spike {}",
-                            pl.col("rate_of_change").round(2),
-                            configuration.rate_of_change,
-                            pl.col("delta"),
-                        ).alias("info"),
-                    ]
-                )
-            )
-            .when(
-                (pl.col("delta") < configuration.threshold_high)
-                & (pl.col("delta") >= configuration.threshold_low)
             )
             .then(
                 pl.struct(
@@ -140,7 +125,10 @@ class SpikeQc(BaseQcCategory):
                     ]
                 )
             )
-            .when((pl.col("delta") >= configuration.threshold_high))
+            .when(
+                (pl.col("delta") >= configuration.threshold_high)
+                & (pl.col("rate_of_change") <= configuration.rate_of_change)
+            )
             .then(
                 pl.struct(
                     [

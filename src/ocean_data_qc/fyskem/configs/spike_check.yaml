@@ -1,8 +1,8 @@
 DOXY_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.SpikeCheck
-    threshold_high: 1.0 # spikes over this are flag 4
-    threshold_low: 0.4 # spikes over this are flag 3
-    rate_of_change: 0.5 # max allowed conc change per m to perform test
+    threshold_high: 3 # spikes over this are flag 4
+    threshold_low: 1 # spikes over this are flag 3
+    rate_of_change: 0.1 # max allowed conc change per m to perform test
 NTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.SpikeCheck
     threshold_high: 15 # spikes over this are flag 4

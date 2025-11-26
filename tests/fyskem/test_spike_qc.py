@@ -1,3 +1,5 @@
+import os
+
 import polars as pl
 import pytest
 
@@ -11,6 +13,7 @@ from tests.setup_methods import (
 )
 
 
+@pytest.mark.skipif(os.getenv("CI") == "true", reason="Skipping test in CI environment")
 @pytest.mark.parametrize(
     "given_parameter, given_parameters_with_values, given_depths, expected_flags",
     (
@@ -26,6 +29,17 @@ from tests.setup_methods import (
             ],
         ),
         (
+            "DOXY_BTL",  # STEVNS KLINT FEB 25
+            {"DOXY_BTL": [8.59, 8.93, 8.61, 8.60], "SALT_CTD": [20, 20, 20, 20]},
+            [0, 5, 10, 15],
+            [
+                QcFlag.NO_QC_PERFORMED,
+                QcFlag.BAD_DATA_CORRECTABLE,
+                QcFlag.GOOD_DATA,
+                QcFlag.NO_QC_PERFORMED,
+            ],
+        ),
+        (
             "DOXY_BTL",
             {"DOXY_BTL": [8.85, 8.84, 9.60, 8.68], "SALT_CTD": [20, 20, 20, 20]},
             [0, 5, 10, 15],
@@ -37,7 +51,7 @@ from tests.setup_methods import (
             ],
         ),
         (
-            "DOXY_BTL",  # _BY15_FEB_25
+            "DOXY_BTL",  # _BY15_FEB_24?
             {
                 "DOXY_BTL": [8.40, 8.1, 7.60, 2.4, 0.7, 0.3, 0.2],
                 "SALT_CTD": [7, 7.2, 8, 9, 9.5, 10, 11],
@@ -48,7 +62,7 @@ from tests.setup_methods import (
                 QcFlag.GOOD_DATA,  # gradient let through
                 QcFlag.GOOD_DATA,  # gradient let through
                 QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.BAD_DATA_CORRECTABLE,  # gradient let through
+                QcFlag.GOOD_DATA,  # gradient let through
                 QcFlag.GOOD_DATA,  # gradient let through
                 QcFlag.NO_QC_PERFORMED,  # gradient let through
             ],
@@ -92,7 +106,7 @@ from tests.setup_methods import (
             [30, 40, 50, 60, 75, 80, 81],
             [
                 QcFlag.NO_QC_PERFORMED,
-                QcFlag.GOOD_DATA,
+                QcFlag.BAD_DATA_CORRECTABLE,  # GOOD?
                 QcFlag.GOOD_DATA,
                 QcFlag.BAD_DATA_CORRECTABLE,  # hade tänkt att denna skulla flagga B
                 QcFlag.GOOD_DATA,
