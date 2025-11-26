@@ -278,7 +278,7 @@ def generate_repeatedvalue_configuration(parameter: str, repeated_value: int):
 
 
 def generate_spike_configuration(
-    parameter: str, threshold_high: float, threshold_low: float
+    parameter: str, threshold_high: float, threshold_low: float, rate_of_change: float
 ):
     """
     Generate a SpikeCheck configuration entry.
@@ -287,5 +287,5 @@ def generate_spike_configuration(
 
 
     """
-    parameter_configuration = SpikeCheck(threshold_high, threshold_low)
+    parameter_configuration = SpikeCheck(threshold_high, threshold_low, rate_of_change)
     return parameter_configuration

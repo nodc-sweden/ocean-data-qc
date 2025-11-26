@@ -47,6 +47,7 @@ class RepeatedValueCheck:
 class SpikeCheck:
     threshold_high: float
     threshold_low: float
+    rate_of_change: float
 
 
 @dataclass
