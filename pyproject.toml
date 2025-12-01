@@ -1,6 +1,6 @@
 [project]
 name = "ocean-data-qc"
-version = "2025.1.3"
+version = "2025.1.4"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
     { name = "Lena Viktorsson", email = "lena.viktorsson@smhi.se" },
