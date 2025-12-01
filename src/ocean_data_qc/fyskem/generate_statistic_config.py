@@ -196,6 +196,11 @@ def generate_statistic_parameter_files(data_directory, output_directory):
             "_", expand=True
         )
 
+        # description of the limits
+        # upper limit for bad data: max + (75th percentile-median)
+        # lower limit for bad data: min - (median - 25th percentile)
+        # upper limit for correctable data: 99th percentile to upper limit for bad data
+        # lower limit for bad data: 1st percentile to lower limit for bad data
         iqr_low = param_df["median"] - param_df["25p"]
         iqr_high = param_df["75p"] - param_df["median"]
         param_df["flag1_lower"] = round(param_df["1p"], 2)  # good down 1 percentile
