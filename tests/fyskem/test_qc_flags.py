@@ -64,7 +64,7 @@ def test_qc_flags_roundtrip(given_qc_flags: str):
     "given_qc_flags, given_field, expected_value",
     (
         ("3_2257111317_4_4", QcField.DetectionLimit, QcFlag.PROBABLY_GOOD_DATA),
-        ("5_8976543210_6_4", QcField.Range, QcFlag.INTERPOLATED_VALUE),
+        ("5_8876543210_6_4", QcField.Range, QcFlag.INTERPOLATED_VALUE),
     ),
 )
 def test_get_automatic_qc_flag_by_position(given_qc_flags, given_field, expected_value):
