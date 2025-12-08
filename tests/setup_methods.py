@@ -5,11 +5,12 @@ import polars as pl
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
     DetectionLimitCheck,
+    GradientCheck,
     H2sCheck,
-    IncreaseDecreaseCheck,
     RangeCheck,
     RepeatedValueCheck,
     SpikeCheck,
+    StabilityCheck,
     StatisticCheck,
 )
 from ocean_data_qc.fyskem.qc_flag import QcFlag
@@ -251,17 +252,43 @@ def generate_h2s_configuration(parameter: str, skip_flag: str):
     return parameter_configuration
 
 
-def generate_increasedecrease_configuration(
-    parameter: str, allowed_decrease: float, allowed_increase: float
+def generate_gradient_configuration(
+    parameter: str,
+    allowed_decrease: float,
+    allowed_increase: float,
 ):
     """
-    Generate a IncreaseDecreaseCheck configration entry.
+    Generate a GradientCheck configuration entry.
 
     Comparable to reading a parameter from a configuration yaml file.
 
 
     """
-    parameter_configuration = IncreaseDecreaseCheck(allowed_decrease, allowed_increase)
+    parameter_configuration = GradientCheck(
+        allowed_decrease=allowed_decrease,
+        allowed_increase=allowed_increase,
+    )
+    return parameter_configuration
+
+
+def generate_stability_configuration(
+    parameter: str,
+    bad_decrease: float,
+    probably_bad_decrease: float,
+    probably_good_decrease: float,
+):
+    """
+    Generate a StabilityCheck configuration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+
+
+    """
+    parameter_configuration = StabilityCheck(
+        bad_decrease=bad_decrease,
+        probably_bad_decrease=probably_bad_decrease,
+        probably_good_decrease=probably_good_decrease,
+    )
     return parameter_configuration
 
 
