@@ -15,48 +15,48 @@ from tests.setup_methods import generate_data_frame, generate_h2s_configuration
         (
             "NTRA",
             1.23,
-            "0_0000000_0_0",
-            "0_0000000_0_0",
+            "0_00000000_0_0",
+            "0_00000000_0_0",
             QcFlag.BELOW_DETECTION,
             QcFlag.BAD_DATA,
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "6_0000000_0_6",  # given_parameter_quality_flag_long
-            "6_0000000_0_6",  # given_h2s_quality_flag_long
+            "6_00000000_0_6",  # given_parameter_quality_flag_long
+            "6_00000000_0_6",  # given_h2s_quality_flag_long
             QcFlag.BELOW_DETECTION,  # given_skip_flag
             QcFlag.BELOW_DETECTION,  # expected_flag
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "1_0000000_0_1",  # given_parameter_quality_flag_long
-            "6_0000000_0_6",  # given_h2s_quality_flag_long
+            "1_00000000_0_1",  # given_parameter_quality_flag_long
+            "6_00000000_0_6",  # given_h2s_quality_flag_long
             QcFlag.BELOW_DETECTION,  # given_skip_flag
             QcFlag.GOOD_DATA,  # return good because h2s qflag == 6
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "3_0000000_0_3",  # given_parameter_quality_flag_long
-            "4_0000000_0_4",  # given_h2s_quality_flag_long
+            "3_00000000_0_3",  # given_parameter_quality_flag_long
+            "4_00000000_0_4",  # given_h2s_quality_flag_long
             QcFlag.BELOW_DETECTION,  # given_skip_flag
             QcFlag.GOOD_DATA,  # return good because h2s qflag == 4
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "3_0000000_0_3",  # given_parameter_quality_flag_long
-            "1_0000000_0_1",  # given_h2s_quality_flag_long
+            "3_00000000_0_3",  # given_parameter_quality_flag_long
+            "1_00000000_0_1",  # given_h2s_quality_flag_long
             QcFlag.BELOW_DETECTION,  # given_skip_flag
             QcFlag.BAD_DATA,  # return bad because h2s qflag == 1
         ),
         (
             "NTRA",  # given_parameter_name
             np.nan,  # given_parameter_value
-            "0_0000000_0_0",  # given_parameter_quality_flag_long
-            "1_0000000_0_1",  # given_h2s_quality_flag_long
+            "0_00000000_0_0",  # given_parameter_quality_flag_long
+            "1_00000000_0_1",  # given_h2s_quality_flag_long
             QcFlag.BELOW_DETECTION,  # given_skip_flag
             QcFlag.MISSING_VALUE,  # return bad because h2s qflag == 1
         ),
