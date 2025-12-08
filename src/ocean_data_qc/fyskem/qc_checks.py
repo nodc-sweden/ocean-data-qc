@@ -19,6 +19,31 @@ class RangeCheck:
 
 
 @dataclass
+class RepeatedValueCheck:
+    repeated_value: int
+
+
+@dataclass
+class StabilityCheck:
+    bad_decrease: float
+    probably_bad_decrease: float
+    probably_good_decrease: float
+
+
+@dataclass
+class GradientCheck:
+    allowed_decrease: float
+    allowed_increase: float
+
+
+@dataclass
+class SpikeCheck:
+    threshold_high: float
+    threshold_low: float
+    rate_of_change: float
+
+
+@dataclass
 class ConsistencyCheck:
     parameter_list: list
     good_lower: float
@@ -30,24 +55,6 @@ class ConsistencyCheck:
 @dataclass
 class H2sCheck:
     skip_flag: str
-
-
-@dataclass
-class IncreaseDecreaseCheck:
-    allowed_decrease: float
-    allowed_increase: float
-
-
-@dataclass
-class RepeatedValueCheck:
-    repeated_value: int
-
-
-@dataclass
-class SpikeCheck:
-    threshold_high: float
-    threshold_low: float
-    rate_of_change: float
 
 
 @dataclass

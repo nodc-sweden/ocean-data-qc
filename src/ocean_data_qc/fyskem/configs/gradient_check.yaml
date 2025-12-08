@@ -1,0 +1,92 @@
+ALKY:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.02
+    allowed_increase: 0.5
+AMON:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -10
+    allowed_increase: 10  # 2?
+CNDC_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.2
+    allowed_increase: 100
+CPHL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -3
+    allowed_increase: 3
+DOXY_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.5
+    allowed_increase: 0.5
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.5
+    allowed_increase: 0.5
+H2S:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -5  # 3.3 umol/l U2 DEEP
+    allowed_increase: 10  # 5?
+HUMUS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -5
+    allowed_increase: 5
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -10
+    allowed_increase: 10
+NTRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -10
+    allowed_increase: 10
+NTRI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.2
+    allowed_increase: 0.2
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -10
+    allowed_increase: 10
+PHOS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -2
+    allowed_increase: 2
+PH_TOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.05
+    allowed_increase: 0.05
+PH:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.05
+    allowed_increase: 0.05
+PH_LAB:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.05
+    allowed_increase: 0.05
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -2
+    allowed_increase: 2
+SIO3-SI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -10
+    allowed_increase: 10
+SALT_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.01
+    allowed_increase: 5
+SALT_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.01
+    allowed_increase: 5
+TEMP_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -5
+    allowed_increase: 5
+TEMP_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -5
+    allowed_increase: 5
+TOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
+    allowed_decrease: -0.1
+    allowed_increase: 0.1

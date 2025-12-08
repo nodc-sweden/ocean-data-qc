@@ -12,14 +12,15 @@ class QcField(IntEnum):
     The qc-classes have the suffix Qc and the config classes the suffix Check
     """
 
-    Range = 0
-    DetectionLimit = 1
+    DetectionLimit = 0
+    Range = 1
     Statistic = 2
-    H2s = 3
-    Spike = 4
-    Consistency = 5
-    IncreaseDecrease = 6
-    RepeatedValue = 7
+    RepeatedValue = 3
+    Stability = 4
+    Gradient = 5
+    Spike = 6
+    Consistency = 7
+    H2s = 8
 
 
 class QcFlagTuple:
