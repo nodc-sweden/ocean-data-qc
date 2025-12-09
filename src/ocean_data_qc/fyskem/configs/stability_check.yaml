@@ -1,4 +1,9 @@
-Derived in situ density:
+Derived in situ density CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.StabilityCheck
+    bad_decrease: -0.01
+    probably_bad_decrease: -0.007
+    probably_good_decrease: -0.003
+Derived in situ density BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.StabilityCheck
     bad_decrease: -0.01
     probably_bad_decrease: -0.007
