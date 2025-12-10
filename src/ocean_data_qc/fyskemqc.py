@@ -1,6 +1,7 @@
 import polars as pl
 
 from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
+from ocean_data_qc.fyskem.dependency_qc import DependencyQc
 from ocean_data_qc.fyskem.detectionlimit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.gradient_qc import GradientQc
 from ocean_data_qc.fyskem.h2s_qc import H2sQc
@@ -24,6 +25,7 @@ QC_CATEGORIES = (
     SpikeQc,
     ConsistencyQc,
     H2sQc,
+    DependencyQc,
 )
 
 
