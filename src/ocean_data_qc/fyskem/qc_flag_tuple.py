@@ -21,6 +21,7 @@ class QcField(IntEnum):
     Spike = 6
     Consistency = 7
     H2s = 8
+    Dependency = 9
 
 
 class QcFlagTuple:

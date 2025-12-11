@@ -1,0 +1,9 @@
+SALT_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.DependencyCheck
+    parameter_list: ["TEMP_CTD", "Derived in situ density CTD"]
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.DependencyCheck
+    parameter_list: [ "TEMP_CTD", "SALT_CTD", "Derived in situ density CTD", "Derived oxygen saturation CTD" ]
+NITRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.DependencyCheck
+    parameter_list: ["NTRZ", "NTRI"]

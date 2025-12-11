@@ -58,6 +58,11 @@ class H2sCheck:
 
 
 @dataclass
+class DependencyCheck:
+    parameter_list: list
+
+
+@dataclass
 class StatisticCheck:
     """Holds the statistical threshold configuration for each parameter."""
 

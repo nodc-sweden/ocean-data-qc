@@ -55,7 +55,7 @@ class StabilityQc(BaseQcCategory):
                         pl.format(
                             "BAD, instable profile, decrease of {} is larger than the "
                             "allowed limit {} kg/m3",
-                            pl.col("difference").round(2),
+                            pl.col("difference").round(4),
                             pl.lit(configuration.bad_decrease),
                         ).alias("info"),
                     ]
@@ -72,7 +72,7 @@ class StabilityQc(BaseQcCategory):
                         pl.format(
                             "PROBABLY BAD, instable profile, decrease of {} is between:"
                             "{} and {} kg/m3",
-                            pl.col("difference").round(2),
+                            pl.col("difference").round(4),
                             pl.lit(configuration.probably_bad_decrease),
                             pl.lit(configuration.bad_decrease),
                         ).alias("info"),
@@ -90,7 +90,7 @@ class StabilityQc(BaseQcCategory):
                         pl.format(
                             "PROBABLY GOOD, instable profile, decrease of {} is between:"
                             "{} and {} kg/m3",
-                            pl.col("difference").round(2),
+                            pl.col("difference").round(4),
                             pl.lit(configuration.probably_good_decrease),
                             pl.lit(configuration.probably_bad_decrease),
                         ).alias("info"),
@@ -104,7 +104,7 @@ class StabilityQc(BaseQcCategory):
                         pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
                         pl.format(
                             "GOOD, stable profile, change of {} kg/m3 is acceptable",
-                            pl.col("difference").round(2),
+                            pl.col("difference").round(4),
                         ).alias("info"),
                     ]
                 )
@@ -115,7 +115,7 @@ class StabilityQc(BaseQcCategory):
                         pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
                         pl.format(
                             "Difference is {} e.g. first depth with value at visit",
-                            pl.col("difference").round(2),
+                            pl.col("difference").round(4),
                         ).alias("info"),
                     ]
                 )

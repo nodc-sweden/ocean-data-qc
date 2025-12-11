@@ -4,6 +4,7 @@ import polars as pl
 
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
+    DependencyCheck,
     DetectionLimitCheck,
     GradientCheck,
     H2sCheck,
@@ -249,6 +250,16 @@ def generate_h2s_configuration(parameter: str, skip_flag: str):
     Comparable to reading a parameter from a configuration yaml file.
     """
     parameter_configuration = H2sCheck(skip_flag)
+    return parameter_configuration
+
+
+def generate_dependency_configuration(parameter: str, parameter_list: list):
+    """
+    Generate a DependencyCheck configration entry.
+
+    Comparable to reading a parameter from a configuration yaml file.
+    """
+    parameter_configuration = DependencyCheck(parameter_list=parameter_list)
     return parameter_configuration
 
 
