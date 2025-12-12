@@ -61,7 +61,7 @@ class H2sQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BELOW_DETECTION.value)).alias("flag"),
+                        pl.lit(str(QcFlag.VALUE_BELOW_DETECTION.value)).alias("flag"),
                         pl.lit(
                             f"BELOW_DETECTION {self._parameter} is below detection limit"
                         ).alias("info"),
@@ -72,7 +72,7 @@ class H2sQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.lit("GOOD no h2s present").alias("info"),
                     ]
                 )
@@ -80,7 +80,7 @@ class H2sQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.lit(f"BAD {self._parameter} because h2s present").alias(
                             "info"
                         ),

@@ -5,9 +5,9 @@ import polars as pl
 from ocean_data_qc.fyskem.qc_checks import (
     ConsistencyCheck,
     DependencyCheck,
-    DetectionLimitCheck,
     GradientCheck,
     H2sCheck,
+    QuantificationLimitCheck,
     RangeCheck,
     RepeatedValueCheck,
     SpikeCheck,
@@ -102,7 +102,7 @@ def generate_data_frame_of_length(number_of_rows: int, number_of_visits=1):
         wadep = 75 + visit_id * 10
         deph = int(wadep * next(random_depth_factors))
         station = f"Station {visit_id}"
-        qc_flag_long = str(QcFlags(QcFlag.GOOD_DATA))
+        qc_flag_long = str(QcFlags(QcFlag.GOOD_VALUE))
         visit_key = ("20240111_0720_10_FLADEN",)
         visit_month = "01"
         sea_basin = "Kattegat"
@@ -210,13 +210,13 @@ def generate_statistic_check_configuration(
     return statistic_check_config
 
 
-def generate_detection_limit_configuration(parameter: str, limit: float):
+def generate_quantification_limit_configuration(parameter: str, limit: float):
     """
-    Generate a DetectionLimit configration entry.
+    Generate a QuantificationLimit configration entry.
 
     Comparable to reading a parameter from a configuration yaml file.
     """
-    parameter_configuration = DetectionLimitCheck(limit=limit)
+    parameter_configuration = QuantificationLimitCheck(limit=limit)
     return parameter_configuration
 
 

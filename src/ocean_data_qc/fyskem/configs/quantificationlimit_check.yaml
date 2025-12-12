@@ -1,0 +1,51 @@
+ALKY:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.5  # SMHI, UMSC 0.02 mmol/kg
+AMON:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.2    # SMHI, UMSC 0.06 umol/l
+CPHL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.2    # SMHI,  UMSC 0.1 ug/l
+DOC:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 10    # UMSC 0.13 mg/l
+DOXY_BTL:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.15    # UMSC 0.15 ml/l, SMHI 0.1
+DOXY_CTD:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.01  # mellan 0.01 och 0.05 beroende på sensor från seabird
+H2S:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 4  # SMHI
+HUMUS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.4  # UMSC
+NTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 5  # SMHI, UMSC 0.1 umol/l
+NTRA:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.1  # SMHI, UMSC 0.04
+NTRI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.02  # SMHI, UMSC
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.1  # SMHI, UMSC 0.04 för NTRA
+PH:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 7  # UMSC
+PHOS:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.02  # SMHI, UMSC 0.01
+PTOT:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.3  # SMHI, UMSC 0.02
+SIO3-SI:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.1  # SMHI, UMSC 0.36 umol/l
+TURB:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.QuantificationLimitCheck
+    limit: 0.01  # UMSC

@@ -10,14 +10,14 @@ def test_qc_flags_has_three_sections():
     qc_flags = QcFlags()
 
     # Then it has an incoming flag
-    assert qc_flags.incoming == QcFlag.NO_QC_PERFORMED
+    assert qc_flags.incoming == QcFlag.NO_QUALITY_CONTROL
 
     # And it has a tuple of automatic flags
     assert len(qc_flags.automatic)
-    assert all(flag == QcFlag.NO_QC_PERFORMED for flag in qc_flags.automatic)
+    assert all(flag == QcFlag.NO_QUALITY_CONTROL for flag in qc_flags.automatic)
 
     # And it has a manual flag
-    assert qc_flags.manual == QcFlag.NO_QC_PERFORMED
+    assert qc_flags.manual == QcFlag.NO_QUALITY_CONTROL
 
 
 def test_automatic_qc_flags_are_always_qc_flag_tuples():
@@ -28,7 +28,7 @@ def test_automatic_qc_flags_are_always_qc_flag_tuples():
     assert isinstance(given_qc_flags.automatic, QcFlagTuple)
 
     # When setting a new value using a list
-    given_qc_flags.automatic = [QcFlag.VALUE_CHANGED, QcFlag.BELOW_DETECTION]
+    given_qc_flags.automatic = [QcFlag.CHANGED_VALUE, QcFlag.VALUE_BELOW_DETECTION]
 
     # Then the manual section is still a QcFlagTuple
     assert isinstance(given_qc_flags.automatic, QcFlagTuple)
@@ -42,10 +42,10 @@ def test_empty_flags_string_becomes_non_empty_qc_flags_object():
     qc_flags = QcFlags.from_string(given_string)
 
     # Then the object has values
-    assert qc_flags.incoming == QcFlag.NO_QC_PERFORMED
+    assert qc_flags.incoming == QcFlag.NO_QUALITY_CONTROL
     assert len(qc_flags.automatic)
-    assert all(flag == QcFlag.NO_QC_PERFORMED for flag in qc_flags.automatic)
-    assert qc_flags.manual == QcFlag.NO_QC_PERFORMED
+    assert all(flag == QcFlag.NO_QUALITY_CONTROL for flag in qc_flags.automatic)
+    assert qc_flags.manual == QcFlag.NO_QUALITY_CONTROL
 
 
 @pytest.mark.parametrize(
@@ -63,7 +63,7 @@ def test_qc_flags_roundtrip(given_qc_flags: str):
 @pytest.mark.parametrize(
     "given_qc_flags, given_field, expected_value",
     (
-        ("3_2257111317_4_4", QcField.DetectionLimit, QcFlag.PROBABLY_GOOD_DATA),
+        ("3_2257111317_4_4", QcField.QuantificationLimit, QcFlag.PROBABLY_GOOD_VALUE),
         ("5_8876543210_6_4", QcField.Range, QcFlag.INTERPOLATED_VALUE),
     ),
 )
@@ -81,15 +81,17 @@ def test_get_automatic_qc_flag_by_position(given_qc_flags, given_field, expected
 @pytest.mark.parametrize(
     "given_qc_flags, expected_value",
     (
-        ((1, 0, 0), QcFlag.GOOD_DATA),
-        ((1, 0, 3), QcFlag.BAD_DATA_CORRECTABLE),
-        ((1, 4, 0), QcFlag.BAD_DATA),
-        ((1, 4, 6), QcFlag.BELOW_DETECTION),
+        ((1, 0, 0), QcFlag.GOOD_VALUE),
+        ((1, 0, 3), QcFlag.PROBABLY_BAD_VALUE),
+        ((1, 4, 0), QcFlag.BAD_VALUE),
+        ((1, 4, 6), QcFlag.VALUE_BELOW_DETECTION),
     ),
 )
 def test_return_total_from_auto_inc_manual(given_qc_flags, expected_value):
     qf = QcFlags()
-    qf.incoming = given_qc_flags[0]
-    qf.automatic = (given_qc_flags[1], given_qc_flags[1])
-    qf.manual = given_qc_flags[2]
+    qf.incoming = QcFlag.parse(given_qc_flags[0])
+    qf.automatic = QcFlagTuple(
+        (QcFlag.parse(given_qc_flags[1]), QcFlag.parse(given_qc_flags[1]))
+    )
+    qf.manual = QcFlag.parse(given_qc_flags[2])
     assert qf.total == expected_value

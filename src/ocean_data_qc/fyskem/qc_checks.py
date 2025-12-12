@@ -8,7 +8,7 @@ import polars as pl
 
 
 @dataclass
-class DetectionLimitCheck:
+class QuantificationLimitCheck:
     limit: float
 
 

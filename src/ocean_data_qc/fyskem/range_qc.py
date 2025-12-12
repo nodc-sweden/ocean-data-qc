@@ -44,7 +44,7 @@ class RangeQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD {} in range {} - {}",
                             pl.col("value"),
@@ -57,7 +57,7 @@ class RangeQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD {} out of range {} - {}",
                             pl.col("value"),

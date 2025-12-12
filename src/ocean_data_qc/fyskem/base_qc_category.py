@@ -41,8 +41,8 @@ class BaseQcCategory(abc.ABC):
         # Add a column for the specific category
         self._data = self._data.with_columns(
             [
-                pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias(self._column_name),
-                pl.lit(str(QcFlag.NO_QC_PERFORMED)).alias(self._info_column_name),
+                pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias(self._column_name),
+                pl.lit(str(QcFlag.NO_QUALITY_CONTROL)).alias(self._info_column_name),
             ]
         )
 

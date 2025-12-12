@@ -112,7 +112,7 @@ class SpikeQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD DATA CORRECTABLE: threshold_high > spike >= threshold_low. {} > {} >= {}. Previous {}, Next {}, rate_of_change {}",  # noqa: E501
                             configuration.threshold_high,
@@ -132,7 +132,7 @@ class SpikeQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD DATA: spike >= threshold_high. {} >= {}. Previous {}, Next {}, rate_of_change {}",  # noqa: E501
                             pl.col("delta").round(2),
@@ -147,7 +147,7 @@ class SpikeQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD DATA: spike < threshold_low. {} < {}. Rate of change {}.Tested values: {}, {}, {}",  # noqa: E501,
                             pl.col("delta").round(2),

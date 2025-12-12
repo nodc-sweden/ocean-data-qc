@@ -28,7 +28,7 @@ from tests.setup_methods import (
             ),
             "01",
             0,
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),
         (
             3,
@@ -44,7 +44,7 @@ from tests.setup_methods import (
             ),
             "01",
             1,
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),
         (
             5,
@@ -60,7 +60,7 @@ from tests.setup_methods import (
             ),
             "01",
             2,
-            QcFlag.NO_QC_PERFORMED,
+            QcFlag.NO_QUALITY_CONTROL,
         ),
         (
             1,
@@ -76,7 +76,7 @@ from tests.setup_methods import (
             ),
             "01",
             1000,
-            QcFlag.NO_QC_PERFORMED,
+            QcFlag.NO_QUALITY_CONTROL,
         ),
         (
             1,
@@ -92,7 +92,7 @@ from tests.setup_methods import (
             ),
             "13",  # monht is 13 so no thresholds therefore no qc
             1000,
-            QcFlag.NO_QC_PERFORMED,
+            QcFlag.NO_QUALITY_CONTROL,
         ),
         (
             0.9,
@@ -108,7 +108,7 @@ from tests.setup_methods import (
             ),
             "01",
             0,
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),
         (
             -1,
@@ -124,7 +124,7 @@ from tests.setup_methods import (
             ),
             "01",
             0,
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),
         (
             np.nan,

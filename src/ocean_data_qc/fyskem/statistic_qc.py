@@ -70,7 +70,7 @@ class StatisticQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
                             "NO_QC_PERFORMED thresholds missing for {}",
                             pl.lit(self._parameter),
@@ -85,7 +85,7 @@ class StatisticQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD {} in [{}, {}]",
                             pl.col("value"),
@@ -108,7 +108,7 @@ class StatisticQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "PROBABLY_GOOD: {} in range {}-{}]",
                             pl.col("value"),
@@ -131,7 +131,7 @@ class StatisticQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD_DATA_CORRECTABLE: {} in range {}-{}",
                             pl.col("value"),
@@ -144,7 +144,7 @@ class StatisticQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD {} outside range [{}, {}]",
                             pl.col("value"),

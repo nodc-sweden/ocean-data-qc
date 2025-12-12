@@ -11,11 +11,11 @@ from tests.setup_methods import generate_data_frame, generate_range_check_config
 @pytest.mark.parametrize(
     "given_value, given_global_range, expected_flag",
     (
-        (1.235, (1.23, 1.24), QcFlag.GOOD_DATA),
-        (1.23, (1.23, 1.24), QcFlag.GOOD_DATA),  # Inclusive lower limit
-        (1.24, (1.23, 1.24), QcFlag.GOOD_DATA),  # Inclusive upper limit
-        (1.22999, (1.23, 1.24), QcFlag.BAD_DATA),
-        (1.24001, (1.23, 1.24), QcFlag.BAD_DATA),
+        (1.235, (1.23, 1.24), QcFlag.GOOD_VALUE),
+        (1.23, (1.23, 1.24), QcFlag.GOOD_VALUE),  # Inclusive lower limit
+        (1.24, (1.23, 1.24), QcFlag.GOOD_VALUE),  # Inclusive upper limit
+        (1.22999, (1.23, 1.24), QcFlag.BAD_VALUE),
+        (1.24001, (1.23, 1.24), QcFlag.BAD_VALUE),
         (np.nan, (1.23, 1.24), QcFlag.MISSING_VALUE),
     ),
 )
@@ -30,7 +30,7 @@ def test_quality_flag_for_value_with_global_limits_using_override_configuration(
 
     # And no QC has been made
     parameter_before = Parameter(given_data)
-    assert expected_flag != QcFlag.NO_QC_PERFORMED
+    assert expected_flag != QcFlag.NO_QUALITY_CONTROL
     assert expected_flag not in parameter_before.qc.automatic
 
     # And a limits object has been initiated with an override configuration that includes

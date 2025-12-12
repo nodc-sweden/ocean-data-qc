@@ -19,7 +19,7 @@ from tests.setup_methods import generate_data_frame, generate_dependency_configu
             ["NTRZ", "NTRI"],
             [7.9, 0.1],
             ["0_1113201000_0_0", "6_6110001000_0_0"],
-            QcFlag.BAD_DATA_CORRECTABLE,
+            QcFlag.PROBABLY_BAD_VALUE,
         ),
         (
             "SALT_CTD",
@@ -28,7 +28,7 @@ from tests.setup_methods import generate_data_frame, generate_dependency_configu
             ["TEMP_CTD", "Derived in situ density CTD"],
             [10.3, 1025.2],
             ["0_1113200000_0_0", "0_0000400000_0_0"],
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),
         (
             "DOXY_CTD",
@@ -42,7 +42,7 @@ from tests.setup_methods import generate_data_frame, generate_dependency_configu
             ],
             [10.2, 34.7, 1025.3, 97.8],
             ["1_1110000000_0_1", "1_0000100000_0_1", "1_0100000000_0_1"],
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),
     ),
 )
