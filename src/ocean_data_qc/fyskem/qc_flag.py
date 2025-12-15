@@ -19,14 +19,6 @@ class QcFlag(enum.Enum):
 
     __PRIORITY = ("4", "9", "8", "7", "B", "A", "Q", "6", "5", "3", "2", "1", "0")
 
-    # @classmethod
-    # def key_function(cls, value):
-    #     """Key function for QcFlag
-    #
-    #     Used for sorting, min and max.
-    #     """
-    #     return cls.__PRIORITY.index(value)
-
     @classmethod
     def key_function(cls, flag):
         """Return sort key for QcFlag."""
@@ -34,18 +26,6 @@ class QcFlag(enum.Enum):
 
     def __str__(self):
         return self.name.replace("_", " ").capitalize().replace("qc", "QC")
-
-    #
-    # @classmethod
-    # def parse(cls, value):
-    #     """A more liberal parser for the Enum
-    #
-    #     The parser will accept str, int and None. None and the empty string will be
-    #     interpreted as "NO_QUALTIY_CONTROL".
-    #     """
-    #     if value in ("", None):
-    #         return cls.NO_QUALITY_CONTROL
-    #     return cls(int(value))
 
     @classmethod
     def parse(cls, value):
@@ -68,18 +48,6 @@ class QcFlag(enum.Enum):
         raise ValueError(f"Invalid QC flag: {value!r}")
 
 
-# QC_FLAG_CSS_COLORS = defaultdict(
-#     lambda: "gray",
-#     {
-#         QcFlag.NO_QUALITY_CONTROL: "navy",
-#         QcFlag.PROBABLY_GOOD_VALUE: "#9AC23D",
-#         QcFlag.PROBABLY_BAD_VALUE: "orange",
-#         QcFlag.BAD_VALUE: "red",
-#         QcFlag.GOOD_VALUE: "#008000",
-#         QcFlag.VALUE_BELOW_DETECTION: "pink",
-#         QcFlag.VALUE_IN_EXCESS: "pink",
-#     },
-# )
 QC_FLAG_CSS_COLORS = defaultdict(
     lambda: "gray",
     {

@@ -83,15 +83,6 @@ class QcFlags:
     def total(self) -> QcFlag:
         return self._total
 
-        # def _update_total(self):
-        # # Manual QC should always be used if it is performed.
-        # # If not, use the worst flag.
-        # self._total = self.manual or min(
-        #     [flag for flag in (self.incoming, *tuple(self.automatic))],
-        #     key=QcFlag.key_function,
-        #     default=QcFlag.NO_QUALITY_CONTROL,
-        # )
-
     def _update_total(self):
         if self.manual != QcFlag.NO_QUALITY_CONTROL:
             self._total = self.manual
@@ -112,18 +103,6 @@ class QcFlags:
             f"{self.manual.value}_"
             f"{self.total.value}"
         )
-
-    # @classmethod
-    # def from_string(cls, value: str):
-    #     if not value:
-    #         return cls()
-    #
-    #     incoming, automatic, manual, _ = value.split("_")
-    #     incoming = QcFlag(int(incoming))
-    #     automatic = QcFlagTuple(QcFlag(flag) for flag in map(int, automatic))
-    #     manual = QcFlag(int(manual))
-    #
-    #     return cls(incoming, automatic, manual)
 
     @classmethod
     def from_string(cls, value: str):
