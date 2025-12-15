@@ -89,11 +89,11 @@ QC_FLAG_CSS_COLORS = defaultdict(
         QcFlag.PROBABLY_BAD_VALUE: "orange",  # 3 orange
         QcFlag.BAD_VALUE: "red",  # 4 röd
         QcFlag.CHANGED_VALUE: "#0066FF",  # 5 blå
-        QcFlag.VALUE_BELOW_DETECTION: "pink",  # 6 rosa
+        QcFlag.VALUE_BELOW_DETECTION: "#DE3163",  # 6 cerise
         QcFlag.VALUE_IN_EXCESS: "pink",  # 7 rosa
         QcFlag.INTERPOLATED_VALUE: "#9370DB",  # 8 lila
         QcFlag.MISSING_VALUE: "gray",  # 9 grå
-        QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION: "#FFB6C1",  # Q ljusrosa
+        QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION: "pink",  # rosa
         QcFlag.NOMINAL_VALUE: "#1E90FF",  # B blå nyans
         QcFlag.VALUE_PHENOMENON_UNCERTAIN: "#8A2BE2",  # A blålila
     },
