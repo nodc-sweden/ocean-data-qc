@@ -7,19 +7,19 @@ from ocean_data_qc.fyskem.qc_flag_tuple import QcField, QcFlagTuple
 
 @dataclass
 class QcFlags:
-    _incoming: QcFlag = QcFlag.NO_QC_PERFORMED
+    _incoming: QcFlag = QcFlag.NO_QUALITY_CONTROL
     _automatic: QcFlagTuple = field(
-        default_factory=lambda: QcFlagTuple((QcFlag.NO_QC_PERFORMED,) * len(QcField))
+        default_factory=lambda: QcFlagTuple((QcFlag.NO_QUALITY_CONTROL,) * len(QcField))
     )
-    _manual: QcFlag = QcFlag.NO_QC_PERFORMED
-    _total: QcFlag = QcFlag.NO_QC_PERFORMED
+    _manual: QcFlag = QcFlag.NO_QUALITY_CONTROL
+    _total: QcFlag = QcFlag.NO_QUALITY_CONTROL
 
     def __post_init__(self):
-        self._incoming = self._incoming or QcFlag.NO_QC_PERFORMED
+        self._incoming = self._incoming or QcFlag.NO_QUALITY_CONTROL
         self._automatic = self._automatic or QcFlagTuple(
-            (QcFlag.NO_QC_PERFORMED,) * len(QcField)
+            (QcFlag.NO_QUALITY_CONTROL,) * len(QcField)
         )
-        self._manual = self._manual or QcFlag.NO_QC_PERFORMED
+        self._manual = self._manual or QcFlag.NO_QUALITY_CONTROL
         self._update_total()
 
     def get_field(self, field_name: QcField):
@@ -51,7 +51,7 @@ class QcFlags:
         return min(
             self._automatic,
             key=QcFlag.key_function,
-            default=QcFlag.NO_QC_PERFORMED,
+            default=QcFlag.NO_QUALITY_CONTROL,
         )
 
     @property
@@ -84,12 +84,16 @@ class QcFlags:
         return self._total
 
     def _update_total(self):
-        # Manual QC should always be used if it is performed.
-        # If not, use the worst flag.
-        self._total = self.manual or min(
-            [flag for flag in (self.incoming, *tuple(self.automatic))],
+        if self.manual != QcFlag.NO_QUALITY_CONTROL:
+            self._total = self.manual
+            return
+
+        flags = [self.incoming, *list(self.automatic)]
+
+        self._total = min(
+            flags,
             key=QcFlag.key_function,
-            default=QcFlag.NO_QC_PERFORMED,
+            default=QcFlag.NO_QUALITY_CONTROL,
         )
 
     def __str__(self):
@@ -106,21 +110,24 @@ class QcFlags:
             return cls()
 
         incoming, automatic, manual, _ = value.split("_")
-        incoming = QcFlag(int(incoming))
-        automatic = QcFlagTuple(QcFlag(flag) for flag in map(int, automatic))
-        manual = QcFlag(int(manual))
+
+        incoming = QcFlag.parse(incoming)
+
+        automatic = QcFlagTuple(QcFlag.parse(flag) for flag in automatic)
+
+        manual = QcFlag.parse(manual)
 
         return cls(incoming, automatic, manual)
 
 
 if __name__ == "__main__":
-    qcflags = QcFlags().from_string("0_04004000_0_0")
+    qcflags = QcFlags().from_string("0_0400400000_0_0")
     print(f"qcflags {qcflags:}")
     print(f"qcflags.automatic {qcflags.automatic:}")
     total_flag_index = min(
         enumerate([flag for flag in (qcflags.automatic)]),
         key=lambda x: QcFlag.key_function(x[1]),
-        default=(None, QcFlag.NO_QC_PERFORMED),
+        default=(None, QcFlag.NO_QUALITY_CONTROL),
     )[0]
     print(f"QcField(total_flag_index).name: {QcField(total_flag_index).name:}")
     print(f"qcflags.total_automatic: {qcflags.total_automatic:}")

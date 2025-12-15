@@ -31,7 +31,7 @@ def test_run_checks_for_parameters():
     # And no automatic CQ has been performed
     assert len(given_fyskemeqc)
     assert all(
-        qc_flag == QcFlag.NO_QC_PERFORMED
+        qc_flag == QcFlag.NO_QUALITY_CONTROL
         for parameter in given_fyskemeqc.parameters
         for qc_flag in parameter.qc.automatic
     )
@@ -45,19 +45,19 @@ def test_run_checks_for_parameters():
     parameter_5 = given_fyskemeqc[4]
 
     # Then Range QC flags are changed
-    assert parameter_1.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
-    assert parameter_2.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
-    assert parameter_3.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
-    assert parameter_4.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
-    assert parameter_5.qc.automatic[QcField.Range] != QcFlag.NO_QC_PERFORMED
+    assert parameter_1.qc.automatic[QcField.Range] != QcFlag.NO_QUALITY_CONTROL
+    assert parameter_2.qc.automatic[QcField.Range] != QcFlag.NO_QUALITY_CONTROL
+    assert parameter_3.qc.automatic[QcField.Range] != QcFlag.NO_QUALITY_CONTROL
+    assert parameter_4.qc.automatic[QcField.Range] != QcFlag.NO_QUALITY_CONTROL
+    assert parameter_5.qc.automatic[QcField.Range] != QcFlag.NO_QUALITY_CONTROL
 
 
 @pytest.mark.parametrize(
     "given_incoming_qc, given_manual_qc",
     (
-        (QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA),
-        (QcFlag.BAD_DATA, QcFlag.BAD_DATA_CORRECTABLE),
-        (QcFlag.VALUE_CHANGED, QcFlag.BELOW_DETECTION),
+        (QcFlag.GOOD_VALUE, QcFlag.PROBABLY_GOOD_VALUE),
+        (QcFlag.BAD_VALUE, QcFlag.PROBABLY_BAD_VALUE),
+        (QcFlag.CHANGED_VALUE, QcFlag.VALUE_BELOW_DETECTION),
         (QcFlag.VALUE_IN_EXCESS, QcFlag.INTERPOLATED_VALUE),
         (QcFlag.MISSING_VALUE, QcFlag.MISSING_VALUE),
     ),
@@ -136,8 +136,12 @@ def test_qc_categories_match_qcfield():
 @pytest.mark.parametrize(
     "given_incoming_qc, expected_total, expected_auto",
     (
-        (QcFlag.GOOD_DATA, QcFlag.BELOW_DETECTION, QcFlag.BELOW_DETECTION),
-        (QcFlag.BAD_DATA, QcFlag.BAD_DATA, QcFlag.BELOW_DETECTION),
+        (
+            QcFlag.GOOD_VALUE,
+            QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION,
+            QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION,
+        ),
+        (QcFlag.BAD_VALUE, QcFlag.BAD_VALUE, QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION),
     ),
 )
 def test_qc_returns_new_flags_in_df(given_incoming_qc, expected_total, expected_auto):

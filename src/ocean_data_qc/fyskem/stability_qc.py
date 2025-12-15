@@ -51,7 +51,7 @@ class StabilityQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD, instable profile, decrease of {} is larger than the "
                             "allowed limit {} kg/m3",
@@ -68,7 +68,7 @@ class StabilityQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "PROBABLY BAD, instable profile, decrease of {} is between:"
                             "{} and {} kg/m3",
@@ -86,7 +86,7 @@ class StabilityQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.PROBABLY_GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "PROBABLY GOOD, instable profile, decrease of {} is between:"
                             "{} and {} kg/m3",
@@ -101,7 +101,7 @@ class StabilityQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD, stable profile, change of {} kg/m3 is acceptable",
                             pl.col("difference").round(4),
@@ -112,7 +112,7 @@ class StabilityQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
                             "Difference is {} e.g. first depth with value at visit",
                             pl.col("difference").round(4),

@@ -22,10 +22,10 @@ from tests.setup_methods import (
             {"DOXY_BTL": [1, 0.5, 7, 2], "SALT_CTD": [20, 20, 20, 20]},
             [0, 5, 10, 15],
             [
-                QcFlag.NO_QC_PERFORMED,
-                QcFlag.GOOD_DATA,  # this is hard to catch should be flag 3 but since previous is not flgged yet this will be in a steep gradient  # noqa: E501
-                QcFlag.BAD_DATA,
-                QcFlag.NO_QC_PERFORMED,
+                QcFlag.NO_QUALITY_CONTROL,
+                QcFlag.GOOD_VALUE,  # this is hard to catch should be flag 3 but since previous is not flgged yet this will be in a steep gradient  # noqa: E501
+                QcFlag.BAD_VALUE,
+                QcFlag.NO_QUALITY_CONTROL,
             ],
         ),
         (
@@ -33,10 +33,10 @@ from tests.setup_methods import (
             {"DOXY_BTL": [8.59, 8.93, 8.61, 8.60], "SALT_CTD": [20, 20, 20, 20]},
             [0, 5, 10, 15],
             [
-                QcFlag.NO_QC_PERFORMED,
-                QcFlag.BAD_DATA_CORRECTABLE,
-                QcFlag.GOOD_DATA,
-                QcFlag.NO_QC_PERFORMED,
+                QcFlag.NO_QUALITY_CONTROL,
+                QcFlag.PROBABLY_BAD_VALUE,
+                QcFlag.GOOD_VALUE,
+                QcFlag.NO_QUALITY_CONTROL,
             ],
         ),
         (
@@ -44,10 +44,10 @@ from tests.setup_methods import (
             {"DOXY_BTL": [8.85, 8.84, 9.60, 8.68], "SALT_CTD": [20, 20, 20, 20]},
             [0, 5, 10, 15],
             [
-                QcFlag.NO_QC_PERFORMED,
-                QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA_CORRECTABLE,
-                QcFlag.NO_QC_PERFORMED,
+                QcFlag.NO_QUALITY_CONTROL,
+                QcFlag.GOOD_VALUE,
+                QcFlag.PROBABLY_BAD_VALUE,
+                QcFlag.NO_QUALITY_CONTROL,
             ],
         ),
         (
@@ -58,13 +58,13 @@ from tests.setup_methods import (
             },
             [50, 60, 65, 70, 75, 80, 85],
             [
-                QcFlag.NO_QC_PERFORMED,  # first value not test
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.NO_QC_PERFORMED,  # gradient let through
+                QcFlag.NO_QUALITY_CONTROL,  # first value not test
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.NO_QUALITY_CONTROL,  # gradient let through
             ],
         ),
         (
@@ -75,10 +75,10 @@ from tests.setup_methods import (
             },
             [30, 40, 50, 74],
             [
-                QcFlag.NO_QC_PERFORMED,  # first value not test
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.GOOD_DATA,  # gradient let through
-                QcFlag.NO_QC_PERFORMED,  # gradient let through
+                QcFlag.NO_QUALITY_CONTROL,  # first value not test
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.GOOD_VALUE,  # gradient let through
+                QcFlag.NO_QUALITY_CONTROL,  # gradient let through
             ],
         ),
         (
@@ -105,13 +105,13 @@ from tests.setup_methods import (
             },
             [30, 40, 50, 60, 75, 80, 81],
             [
-                QcFlag.NO_QC_PERFORMED,
-                QcFlag.BAD_DATA_CORRECTABLE,  # GOOD?
-                QcFlag.GOOD_DATA,
-                QcFlag.BAD_DATA_CORRECTABLE,  # hade tänkt att denna skulla flagga B
-                QcFlag.GOOD_DATA,
-                QcFlag.GOOD_DATA,
-                QcFlag.NO_QC_PERFORMED,
+                QcFlag.NO_QUALITY_CONTROL,
+                QcFlag.PROBABLY_BAD_VALUE,  # GOOD?
+                QcFlag.GOOD_VALUE,
+                QcFlag.PROBABLY_BAD_VALUE,  # hade tänkt att denna skulla flagga B
+                QcFlag.GOOD_VALUE,
+                QcFlag.GOOD_VALUE,
+                QcFlag.NO_QUALITY_CONTROL,
             ],
         ),
     ),

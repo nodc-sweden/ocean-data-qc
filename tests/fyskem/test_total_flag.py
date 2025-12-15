@@ -45,7 +45,7 @@ def test_manual_qc_trumps_all_other_flags(given_flag_string):
     given_qc_flags = QcFlags.from_string(given_flag_string)
 
     # Given manual QC has been performed
-    assert given_qc_flags.manual != QcFlag.NO_QC_PERFORMED
+    assert given_qc_flags.manual != QcFlag.NO_QUALITY_CONTROL
 
     # When reading the total flag
     # Then the total flag is equal to the manual flag
@@ -55,17 +55,17 @@ def test_manual_qc_trumps_all_other_flags(given_flag_string):
 @pytest.mark.parametrize(
     "given_flag_string, expected_total",
     (
-        ("0_0_0_0", QcFlag.NO_QC_PERFORMED),
-        ("1_0_0_1", QcFlag.GOOD_DATA),
-        ("0_1_0_1", QcFlag.GOOD_DATA),
-        ("2_0_0_2", QcFlag.PROBABLY_GOOD_DATA),
+        ("0_0_0_0", QcFlag.NO_QUALITY_CONTROL),
+        ("1_0_0_1", QcFlag.GOOD_VALUE),
+        ("0_1_0_1", QcFlag.GOOD_VALUE),
+        ("2_0_0_2", QcFlag.PROBABLY_GOOD_VALUE),
         ("0_78_0_0", QcFlag.INTERPOLATED_VALUE),
-        ("2_3_0_3", QcFlag.BAD_DATA_CORRECTABLE),
-        ("4_3_0_4", QcFlag.BAD_DATA),
-        ("1_111511_0_5", QcFlag.VALUE_CHANGED),
+        ("2_3_0_3", QcFlag.PROBABLY_BAD_VALUE),
+        ("4_3_0_4", QcFlag.BAD_VALUE),
+        ("1_111511_0_5", QcFlag.CHANGED_VALUE),
         ("9_5678_0_9", QcFlag.MISSING_VALUE),
         ("7_56_0_7", QcFlag.VALUE_IN_EXCESS),
-        ("3_561_0_6", QcFlag.BELOW_DETECTION),
+        ("3_561_0_6", QcFlag.VALUE_BELOW_DETECTION),
     ),
 )
 def test_without_manual_the_total_flag_is_worst_from_incoming_and_automatic(
@@ -75,7 +75,7 @@ def test_without_manual_the_total_flag_is_worst_from_incoming_and_automatic(
     given_qc_flags = QcFlags.from_string(given_flag_string)
 
     # Given manual QC is not performed
-    assert given_qc_flags.manual == QcFlag.NO_QC_PERFORMED
+    assert given_qc_flags.manual == QcFlag.NO_QUALITY_CONTROL
 
     # When reading the total flag
     # Then the total flag is the lowest individual flag
@@ -105,37 +105,37 @@ def test_no_qc_performed_should_always_be_chosen_last(given_flag_string):
 
     # Given "No QC performed" is present in either incoming or automatic.
     all_present_flags = {given_qc_flags.incoming} | set(given_qc_flags.automatic)
-    assert QcFlag.NO_QC_PERFORMED in all_present_flags
+    assert QcFlag.NO_QUALITY_CONTROL in all_present_flags
 
     # Given there are other flags present
-    assert all_present_flags - {QcFlag.NO_QC_PERFORMED}
+    assert all_present_flags - {QcFlag.NO_QUALITY_CONTROL}
 
     # When reading the total flag
     # Then the total flag is not "No QC performed"
-    assert given_qc_flags.total != QcFlag.NO_QC_PERFORMED
+    assert given_qc_flags.total != QcFlag.NO_QUALITY_CONTROL
 
 
 def test_changing_incoming_auto_or_manual_flags_changes_total():
     # Given default QC flags
     given_qc_flag = QcFlags()
-    assert given_qc_flag.total == QcFlag.NO_QC_PERFORMED
+    assert given_qc_flag.total == QcFlag.NO_QUALITY_CONTROL
 
     # When setting incoming value
-    given_qc_flag.incoming = QcFlag.VALUE_CHANGED
+    given_qc_flag.incoming = QcFlag.CHANGED_VALUE
 
     # Then total value changes
-    assert given_qc_flag.total == QcFlag.VALUE_CHANGED
+    assert given_qc_flag.total == QcFlag.CHANGED_VALUE
 
     # When setting auto flags (including a worse value)
     given_qc_flag.automatic = QcFlagTuple(
-        (QcFlag.GOOD_DATA, QcFlag.PROBABLY_GOOD_DATA, QcFlag.BAD_DATA)
+        (QcFlag.GOOD_VALUE, QcFlag.PROBABLY_GOOD_VALUE, QcFlag.BAD_VALUE)
     )
 
     # Then total value changes
-    assert given_qc_flag.total == QcFlag.BAD_DATA
+    assert given_qc_flag.total == QcFlag.BAD_VALUE
 
     # When setting manual value (to a different value)
-    given_qc_flag.manual = QcFlag.GOOD_DATA
+    given_qc_flag.manual = QcFlag.GOOD_VALUE
 
     # Then total value changes
-    assert given_qc_flag.total == QcFlag.GOOD_DATA
+    assert given_qc_flag.total == QcFlag.GOOD_VALUE

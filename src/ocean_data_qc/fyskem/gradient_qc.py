@@ -56,7 +56,7 @@ class GradientQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD change from previous depth {} is within {}-{}",
                             pl.col("gradient").round(3),
@@ -73,7 +73,7 @@ class GradientQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD change from previous depth {} not within {}-{}",
                             pl.col("gradient").round(3),
@@ -86,7 +86,7 @@ class GradientQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
                             "Gradient is {} e.g. first depth with value at visit",
                             pl.col("gradient").round(3),

@@ -88,7 +88,7 @@ class ConsistencyQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
                             "NO_QC_PERFORMED: {} not available",
                             pl.lit(param_list_str),
@@ -104,7 +104,7 @@ class ConsistencyQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.GOOD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
                             "GOOD: difference {}-{} {} - {} = {} is within {}-{}",
                             pl.lit(self._parameter),
@@ -126,7 +126,7 @@ class ConsistencyQc(BaseQcCategory):
             .then(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA_CORRECTABLE.value)).alias("flag"),
+                        pl.lit(str(QcFlag.PROBABLY_BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD_DATA_CORRECTABLE: difference {}-{} {} - {} = {} "
                             "outside allowed range but within range {}-{}",
@@ -145,7 +145,7 @@ class ConsistencyQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.BAD_DATA.value)).alias("flag"),
+                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
                             "BAD: difference {}-{} {} - {} = {} "
                             "outside allowed range {}-{}",

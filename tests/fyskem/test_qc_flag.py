@@ -12,16 +12,19 @@ def test_sort_flags_using_key_function():
 
     # Then the order is as expected
     expected_order = [
-        QcFlag.BAD_DATA,
-        QcFlag.MISSING_VALUE,
-        QcFlag.INTERPOLATED_VALUE,
-        QcFlag.VALUE_IN_EXCESS,
-        QcFlag.BELOW_DETECTION,
-        QcFlag.VALUE_CHANGED,
-        QcFlag.BAD_DATA_CORRECTABLE,
-        QcFlag.PROBABLY_GOOD_DATA,
-        QcFlag.GOOD_DATA,
-        QcFlag.NO_QC_PERFORMED,
+        QcFlag.BAD_VALUE,  # 4
+        QcFlag.MISSING_VALUE,  # 9
+        QcFlag.INTERPOLATED_VALUE,  # 8
+        QcFlag.VALUE_IN_EXCESS,  # 7
+        QcFlag.NOMINAL_VALUE,  # B
+        QcFlag.VALUE_PHENOMENON_UNCERTAIN,  # A
+        QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION,  # Q
+        QcFlag.VALUE_BELOW_DETECTION,  # 6
+        QcFlag.CHANGED_VALUE,  # 5
+        QcFlag.PROBABLY_BAD_VALUE,  # 3
+        QcFlag.PROBABLY_GOOD_VALUE,  # 2
+        QcFlag.GOOD_VALUE,  # 1
+        QcFlag.NO_QUALITY_CONTROL,  # 0
     ]
 
     assert sorted_list == expected_order
@@ -30,11 +33,11 @@ def test_sort_flags_using_key_function():
 @pytest.mark.parametrize(
     "lesser_flag, greater_flag",
     (
-        (QcFlag.GOOD_DATA, QcFlag.NO_QC_PERFORMED),
-        (QcFlag.BAD_DATA, QcFlag.PROBABLY_GOOD_DATA),
-        (QcFlag.MISSING_VALUE, QcFlag.BAD_DATA_CORRECTABLE),
-        (QcFlag.INTERPOLATED_VALUE, QcFlag.VALUE_CHANGED),
-        (QcFlag.VALUE_IN_EXCESS, QcFlag.BELOW_DETECTION),
+        (QcFlag.GOOD_VALUE, QcFlag.NO_QUALITY_CONTROL),
+        (QcFlag.BAD_VALUE, QcFlag.PROBABLY_GOOD_VALUE),
+        (QcFlag.MISSING_VALUE, QcFlag.PROBABLY_BAD_VALUE),
+        (QcFlag.INTERPOLATED_VALUE, QcFlag.CHANGED_VALUE),
+        (QcFlag.VALUE_IN_EXCESS, QcFlag.VALUE_BELOW_DETECTION),
     ),
 )
 def test_get_max_and_min_qc_flag_using_key_function(lesser_flag, greater_flag):
@@ -45,13 +48,13 @@ def test_get_max_and_min_qc_flag_using_key_function(lesser_flag, greater_flag):
 @pytest.mark.parametrize(
     "given_input, expected_flag",
     (
-        ("0", QcFlag.NO_QC_PERFORMED),
-        ("1", QcFlag.GOOD_DATA),
-        ("2", QcFlag.PROBABLY_GOOD_DATA),
-        ("3", QcFlag.BAD_DATA_CORRECTABLE),
-        ("4", QcFlag.BAD_DATA),
-        ("5", QcFlag.VALUE_CHANGED),
-        ("6", QcFlag.BELOW_DETECTION),
+        ("0", QcFlag.NO_QUALITY_CONTROL),
+        ("1", QcFlag.GOOD_VALUE),
+        ("2", QcFlag.PROBABLY_GOOD_VALUE),
+        ("3", QcFlag.PROBABLY_BAD_VALUE),
+        ("4", QcFlag.BAD_VALUE),
+        ("5", QcFlag.CHANGED_VALUE),
+        ("6", QcFlag.VALUE_BELOW_DETECTION),
         ("7", QcFlag.VALUE_IN_EXCESS),
         ("8", QcFlag.INTERPOLATED_VALUE),
         ("9", QcFlag.MISSING_VALUE),
@@ -71,13 +74,13 @@ def test_parsing_method_can_handle_str(given_input, expected_flag):
 @pytest.mark.parametrize(
     "given_input, expected_flag",
     (
-        (0, QcFlag.NO_QC_PERFORMED),
-        (1, QcFlag.GOOD_DATA),
-        (2, QcFlag.PROBABLY_GOOD_DATA),
-        (3, QcFlag.BAD_DATA_CORRECTABLE),
-        (4, QcFlag.BAD_DATA),
-        (5, QcFlag.VALUE_CHANGED),
-        (6, QcFlag.BELOW_DETECTION),
+        (0, QcFlag.NO_QUALITY_CONTROL),
+        (1, QcFlag.GOOD_VALUE),
+        (2, QcFlag.PROBABLY_GOOD_VALUE),
+        (3, QcFlag.PROBABLY_BAD_VALUE),
+        (4, QcFlag.BAD_VALUE),
+        (5, QcFlag.CHANGED_VALUE),
+        (6, QcFlag.VALUE_BELOW_DETECTION),
         (7, QcFlag.VALUE_IN_EXCESS),
         (8, QcFlag.INTERPOLATED_VALUE),
         (9, QcFlag.MISSING_VALUE),
@@ -102,7 +105,7 @@ def test_parsing_method_treats_empty_string_as_no_qc():
     cq_flag = QcFlag.parse(given_input)
 
     # Then it is interpreted as: No QC performed
-    assert cq_flag == QcFlag.NO_QC_PERFORMED
+    assert cq_flag == QcFlag.NO_QUALITY_CONTROL
 
 
 def test_parsing_method_treats_none_as_no_qc():
@@ -113,4 +116,4 @@ def test_parsing_method_treats_none_as_no_qc():
     cq_flag = QcFlag.parse(given_input)
 
     # Then it is interpreted as: No QC performed
-    assert cq_flag == QcFlag.NO_QC_PERFORMED
+    assert cq_flag == QcFlag.NO_QUALITY_CONTROL

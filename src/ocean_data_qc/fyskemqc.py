@@ -2,13 +2,13 @@ import polars as pl
 
 from ocean_data_qc.fyskem.consistency_qc import ConsistencyQc
 from ocean_data_qc.fyskem.dependency_qc import DependencyQc
-from ocean_data_qc.fyskem.detectionlimit_qc import DetectionLimitQc
 from ocean_data_qc.fyskem.gradient_qc import GradientQc
 from ocean_data_qc.fyskem.h2s_qc import H2sQc
 from ocean_data_qc.fyskem.parameter import Parameter
 from ocean_data_qc.fyskem.qc_configuration import QcConfiguration
 from ocean_data_qc.fyskem.qc_flag_tuple import QcField
 from ocean_data_qc.fyskem.qc_flags import QcFlags
+from ocean_data_qc.fyskem.quantification_limit_qc import QuantificationLimitQc
 from ocean_data_qc.fyskem.range_qc import RangeQc
 from ocean_data_qc.fyskem.repeated_value_qc import RepeatedValueQc
 from ocean_data_qc.fyskem.spike_qc import SpikeQc
@@ -16,7 +16,7 @@ from ocean_data_qc.fyskem.stability_qc import StabilityQc
 from ocean_data_qc.fyskem.statistic_qc import StatisticQc
 
 QC_CATEGORIES = (
-    DetectionLimitQc,
+    QuantificationLimitQc,
     RangeQc,
     StatisticQc,
     RepeatedValueQc,

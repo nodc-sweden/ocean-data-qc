@@ -68,7 +68,7 @@ class DependencyQc(BaseQcCategory):
             .otherwise(
                 pl.struct(
                     [
-                        pl.lit(str(QcFlag.NO_QC_PERFORMED.value)).alias("flag"),
+                        pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
                             "No QC performed since associated parameters "
                             "contain flag: {}",

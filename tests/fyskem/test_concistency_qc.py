@@ -26,7 +26,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),  # 1.23-(0.123+0.123)=0.984 vilket är >= 0
         (
             "TOT",
@@ -36,7 +36,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),  # 1-(0.5+0.5)=0 vilket är >= 0
         (
             "TOT",
@@ -46,7 +46,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.BAD_DATA_CORRECTABLE,
+            QcFlag.PROBABLY_BAD_VALUE,
         ),  # 1-(1+0.5)=-0.5 vilket är > -1
         (
             "TOT",
@@ -56,7 +56,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),  # 1-(1+2)=-2 vilket är < -1
         (
             "TOT",
@@ -66,7 +66,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),  # 1-(3)=-2 vilket är < -1
         (
             "TOT",
@@ -76,7 +76,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.BAD_DATA_CORRECTABLE,
+            QcFlag.PROBABLY_BAD_VALUE,
         ),  # 1-(1+0.1+0.1)=-0.2 vilket är > -1
         (
             "TOT",
@@ -96,7 +96,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1.0,
-            QcFlag.BAD_DATA_CORRECTABLE,
+            QcFlag.PROBABLY_BAD_VALUE,
         ),  # 1-(2)=-1 which is >= -1
         (
             "TOT",
@@ -106,7 +106,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.NO_QC_PERFORMED,
+            QcFlag.NO_QUALITY_CONTROL,
         ),  # 1-(np.nan)=1 vilket är >=0
         (
             "TOT",
@@ -126,7 +126,7 @@ from tests.setup_methods import (
             -0.05,
             0,
             -1,
-            QcFlag.NO_QC_PERFORMED,
+            QcFlag.NO_QUALITY_CONTROL,
         ),
         (
             "CTD",
@@ -136,7 +136,7 @@ from tests.setup_methods import (
             -0.4,
             1,
             -1,
-            QcFlag.BAD_DATA,
+            QcFlag.BAD_VALUE,
         ),  # 3-1=2 vilket är >=1
         (
             "CTD",
@@ -146,7 +146,7 @@ from tests.setup_methods import (
             -0.4,
             1,
             -1,
-            QcFlag.BAD_DATA_CORRECTABLE,
+            QcFlag.PROBABLY_BAD_VALUE,
         ),  # 1.5-1=0.5 vilket är >=0.4 men mindre än 1
         (
             "CTD",
@@ -156,7 +156,7 @@ from tests.setup_methods import (
             -0.4,
             1,
             -1,
-            QcFlag.GOOD_DATA,
+            QcFlag.GOOD_VALUE,
         ),  # 1.3-1=0.3 vilket är <=0.4 vilket är godkänt
         # TODO:
         #  - Lägg till hantering av att alla parametrar i parameter list saknas

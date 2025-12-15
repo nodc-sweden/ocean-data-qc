@@ -32,11 +32,11 @@ def test_parameter_sets_initial_qc_value_if_missing():
     parameter = Parameter(given_parameter_data)
 
     # Then no QC has been performed
-    assert parameter.qc.incoming == QcFlag.NO_QC_PERFORMED
+    assert parameter.qc.incoming == QcFlag.NO_QUALITY_CONTROL
     assert len(parameter.qc.automatic)
-    assert all(flag == QcFlag.NO_QC_PERFORMED for flag in parameter.qc.automatic)
-    assert parameter.qc.manual == QcFlag.NO_QC_PERFORMED
-    assert parameter.qc.total == QcFlag.NO_QC_PERFORMED
+    assert all(flag == QcFlag.NO_QUALITY_CONTROL for flag in parameter.qc.automatic)
+    assert parameter.qc.manual == QcFlag.NO_QUALITY_CONTROL
+    assert parameter.qc.total == QcFlag.NO_QUALITY_CONTROL
 
 
 def test_parameter_exposes_existing_qc_flags():
@@ -51,10 +51,10 @@ def test_parameter_exposes_existing_qc_flags():
     parameter = Parameter(given_parameter_data)
 
     # Then the QC reflects the initial data
-    assert parameter.qc.incoming == QcFlag.GOOD_DATA
+    assert parameter.qc.incoming == QcFlag.GOOD_VALUE
     assert parameter.qc.automatic == (
-        QcFlag.PROBABLY_GOOD_DATA,
-        QcFlag.BAD_DATA_CORRECTABLE,
-        QcFlag.BAD_DATA,
+        QcFlag.PROBABLY_GOOD_VALUE,
+        QcFlag.PROBABLY_BAD_VALUE,
+        QcFlag.BAD_VALUE,
     )
-    assert parameter.qc.manual == QcFlag.VALUE_CHANGED
+    assert parameter.qc.manual == QcFlag.CHANGED_VALUE
