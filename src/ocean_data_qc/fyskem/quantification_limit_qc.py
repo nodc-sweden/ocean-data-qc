@@ -70,7 +70,7 @@ class QuantificationLimitQc(BaseQcCategory):
             .when(
                 pl.col("LMQNT_VAL").is_not_null()
                 & (pl.col("value") == pl.col("LMQNT_VAL"))
-                & pl.col("quality_flag_long").str.contains("1")
+                & (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
             )
             .then(
                 pl.struct(
@@ -85,8 +85,18 @@ class QuantificationLimitQc(BaseQcCategory):
                 )
             )
             .when(
-                pl.col("LMQNT_VAL").is_not_null()
-                & (pl.col("value") < pl.col("LMQNT_VAL"))
+                (
+                    pl.col("LMQNT_VAL").is_not_null()
+                    & (pl.col("value") < pl.col("LMQNT_VAL"))
+                )
+                | (
+                    pl.col("LMQNT_VAL").is_not_null()
+                    & (pl.col("value") == pl.col("LMQNT_VAL"))
+                    & (
+                        pl.col("INCOMING_QC")
+                        == QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value
+                    )
+                )
             )
             .then(
                 pl.struct(
@@ -119,7 +129,7 @@ class QuantificationLimitQc(BaseQcCategory):
                 (
                     pl.col("LMQNT_VAL").is_null()
                     & (pl.col("value") == configuration.limit)
-                    & (pl.col("quality_flag_long").str.contains("1"))
+                    & (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
                 )
             )
             .then(
