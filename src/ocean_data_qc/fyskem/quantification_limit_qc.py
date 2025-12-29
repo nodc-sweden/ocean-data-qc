@@ -70,14 +70,17 @@ class QuantificationLimitQc(BaseQcCategory):
             .when(
                 pl.col("LMQNT_VAL").is_not_null()
                 & (pl.col("value") == pl.col("LMQNT_VAL"))
-                & (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
+                & (
+                    (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
+                    | (pl.col("INCOMING_QC") == QcFlag.PROBABLY_GOOD_VALUE.value)
+                )
             )
             .then(
                 pl.struct(
                     [
                         pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
-                            "GOOD value {} > quantification limit {}",
+                            "GOOD value {} at quantification limit {}",
                             pl.col("value").round(3),
                             pl.col("LMQNT_VAL").round(3),
                         ).alias("info"),
@@ -92,9 +95,11 @@ class QuantificationLimitQc(BaseQcCategory):
                 | (
                     pl.col("LMQNT_VAL").is_not_null()
                     & (pl.col("value") == pl.col("LMQNT_VAL"))
-                    & (
-                        pl.col("INCOMING_QC")
-                        == QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value
+                    & ~pl.col("INCOMING_QC").is_in(
+                        [
+                            QcFlag.GOOD_VALUE.value,
+                            QcFlag.PROBABLY_GOOD_VALUE.value,
+                        ]
                     )
                 )
             )
@@ -105,7 +110,7 @@ class QuantificationLimitQc(BaseQcCategory):
                             str(QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value)
                         ).alias("flag"),
                         pl.format(
-                            "BELOW_QUANTIFICATION {} < {}, flagged as 'Q'",
+                            "BELOW_QUANTIFICATION {} <= {}",
                             pl.col("value").round(3),
                             pl.col("LMQNT_VAL").round(3),
                         ).alias("info"),
@@ -128,8 +133,11 @@ class QuantificationLimitQc(BaseQcCategory):
             .when(
                 (
                     pl.col("LMQNT_VAL").is_null()
-                    & (pl.col("value") == configuration.limit)
-                    & (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
+                    & (pl.col("value") == pl.col("LMQNT_VAL"))
+                    & (
+                        (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
+                        | (pl.col("INCOMING_QC") == QcFlag.PROBABLY_GOOD_VALUE.value)
+                    )
                 )
             )
             .then(
@@ -137,7 +145,8 @@ class QuantificationLimitQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
                         pl.format(
-                            "GOOD value deliverer reported on quantification limit {}",
+                            "GOOD value {} at quantification limit {}",
+                            pl.col("value").round(2),
                             pl.lit(configuration.limit),
                         ).alias("info"),
                     ]
@@ -150,7 +159,7 @@ class QuantificationLimitQc(BaseQcCategory):
                             str(QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value)
                         ).alias("flag"),
                         pl.format(
-                            "BELOW_QUANTIFICATION {} < {} or flagged as 'Q'",
+                            "BELOW_QUANTIFICATION {} <= {}",
                             pl.col("value"),
                             pl.lit(configuration.limit),
                         ).alias("info"),
