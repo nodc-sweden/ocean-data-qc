@@ -58,6 +58,7 @@ def test_quality_flag_with_global_limit_using_override_configuration(
                 "value": given_value,
                 "LMQNT_VAL": given_detection_limit,
                 "quality_flag_long": str(given_qc),
+                "INCOMING_QC": given_incoming_qc.value,
             }
         ]
     )
@@ -121,6 +122,7 @@ def test_quality_flag_for_value_with_global_limit_using_override_configuration(
                 "value": given_value,
                 "LMQNT_VAL": given_detection_limit,
                 "quality_flag_long": str(given_qc),
+                "INCOMING_QC": given_incoming_qc.value,
             }
         ]
     )
