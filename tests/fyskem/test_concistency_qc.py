@@ -17,6 +17,42 @@ from tests.setup_methods import (
     "given_sigma, given_upper_limit, expected_flag",
     (
         (
+            "NTRZ",
+            8.23,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.GOOD_VALUE,
+        ),  # 8.23-(8.2+0.03)=0
+        (
+            "NTRZ",
+            8.24,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.BAD_VALUE,
+        ),  # 8.24-(8.2+0.03)=0.1, 0.1 > 0
+        (
+            "NTRZ",
+            8.22,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.BAD_VALUE,
+        ),  # 8.22-(8.2+0.03)=-0.1, -0.1 > 0
+        (
             "NTOT",
             14.23,
             1.35,
@@ -24,22 +60,22 @@ from tests.setup_methods import (
             [8.24, 0.87, 3.76],
             [0.2, 0.12, 0.15],
             [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
-            0,
+            1.4,
             999,
             QcFlag.GOOD_VALUE,
-        ),  # 14.23-(8.24+0.87+3.76)=1.36 vilket är >= 0
+        ),  # 14.23-(8.24+0.87+3.76)=1.36 vilket är >= -2*1.4
         (
             "NTOT",
-            12.23,
+            7.23,
             1.35,
             ["NTRA", "NTRI", "AMON"],
             [8.24, 0.87, 3.76],
             [0.2, 0.12, 0.15],
             [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
-            0,
+            1.4,
             999,
             QcFlag.BAD_VALUE,
-        ),  # 12.23-(8.24+0.87+3.76)=-0.64 vilket är < 0
+        ),  # 7.23-(8.24+0.87+3.76)=-5.64 vilket är < -3*1.4
         (
             "NTOT",
             12.23,
@@ -48,46 +84,46 @@ from tests.setup_methods import (
             [6.24, 8.24, 0.87, 3.76],
             [0.2, 0.12, 0.15],
             [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
-            0,
+            1.4,
             999,
             QcFlag.GOOD_VALUE,
-        ),  # 12.23-(6.24+3.76)=2.23 vilket är >= 0
+        ),  # 12.23-(6.24+3.76)=2.23 vilket är >= -2*1.4
         (
             "PTOT",
             4.23,
-            1.35,
+            0.5,
             ["PHOS"],
             [0.23],
             [0.08],
             [["PHOS"]],
-            0,
+            0.1,
             999,
             QcFlag.GOOD_VALUE,
-        ),  # 4.23-0.23=4 vilket är >= 0
+        ),  # 4.23-0.23=4 vilket är >= -2*0.5
         (
             "PTOT",
-            1.23,
+            0.23,
+            0.5,
+            ["PHOS"],
+            [2.23],
+            [0.08],
+            [["PHOS"]],
+            0.1,
+            99,
+            QcFlag.BAD_VALUE,
+        ),  # 0.23-2.23=-2 vilket är < -3*0.5
+        (
+            "PTOT",
+            123.23,
             1.35,
             ["PHOS"],
             [2.23],
             [0.08],
             [["PHOS"]],
-            0,
-            999,
+            0.1,
+            99,
             QcFlag.BAD_VALUE,
-        ),  # 1.23-2.23=-1 vilket är < 0
-        (
-            "PTOT",
-            1023.23,
-            1.35,
-            ["PHOS"],
-            [2.23],
-            [0.08],
-            [["PHOS"]],
-            0,
-            999,
-            QcFlag.BAD_VALUE,
-        ),  # 1023.23-2.23=1021 vilket är > 999
+        ),  # 123.23-2.23=121 vilket är > 99
         (
             "TOC",
             12.3,
@@ -96,13 +132,138 @@ from tests.setup_methods import (
             [463, 46],
             [110, 14],
             [["DOC", "POC"]],
-            0,
+            70,
             999,
             QcFlag.GOOD_VALUE,
-        ),
-        # TODO:
-        #  - Lägg till hantering av att alla parametrar i parameter list saknas
-        # ("TOT", 1, {"INORG_1": None, "INORG_2": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
+        ),  # 12*83.25701-(463+46) = 515
+        (
+            "TOC",
+            1,
+            0.3,
+            ["DOC", "POC"],
+            [463, 46],
+            [110, 14],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.BAD_VALUE,
+        ),  # 83.25701-(463+46) = -425.7, < 3*113.7
+        (
+            "TOC",
+            5,
+            0.3,
+            ["DOC", "POC"],
+            [300, None],
+            [110, None],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.GOOD_VALUE,
+        ),  # 5*83.25701-300 = 116
+        (
+            "TOC",
+            5,
+            0.3,
+            ["DOC", "POC"],
+            [700, None],
+            [110, None],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 5*83.25701-800 = -384, < -113*2 (3*sigma), >= -113*3
+        (
+            "TOC",
+            1,
+            0.3,
+            ["DOC", "POC"],
+            [250, 30],
+            [None, None],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 83.25701-(250+30) = -197, < -70*2 (3*sigma), >= -70*3
+        (
+            "DOXY_CTD",
+            8.2,
+            0.2,
+            ["DOXY_BTL"],
+            [8.3],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.GOOD_VALUE,
+        ),  # 8.2-8.3 = -0.1, >= -2*0.28, <= 2*0.28
+        (
+            "DOXY_CTD",
+            8.2,
+            0.2,
+            ["DOXY_BTL"],
+            [8.8],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 8.2-8.8 = -0.6, < -0.28*2, >= -0.28*3
+        (
+            "DOXY_CTD",
+            8.8,
+            0.2,
+            ["DOXY_BTL"],
+            [8.2],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 8.8-8.2 = 0.6, > 0.28*2, <= 0.28*3
+        (
+            "DOXY_CTD",
+            9.8,
+            0.2,
+            ["DOXY_BTL"],
+            [8.2],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.BAD_VALUE,
+        ),  # 8.8-8.2 = 1.6, > 0.28*3
+        (
+            "DOXY_CTD",
+            9.8,
+            0.2,
+            ["DOXY_BTL"],
+            [None],
+            [None],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.NO_QUALITY_CONTROL,
+        ),  # 8.8-8.2 = 1.6, > 0.28*3
     ),
 )
 def test_consistency_qc_using_override_configuration(
@@ -123,7 +284,6 @@ def test_consistency_qc_using_override_configuration(
     given_row_id = 1
     given_data = generate_data_frame(
         [
-            # Huvudparametern
             {
                 "parameter": given_parameter,
                 "value": given_value,
@@ -147,8 +307,6 @@ def test_consistency_qc_using_override_configuration(
             ],
         ]
     )
-    print(given_data)
-
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
     given_configuration = generate_consistency_check_configuration(

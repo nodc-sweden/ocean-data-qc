@@ -1,31 +1,57 @@
+NTRZ:
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
+    parameter_sets:
+       - [ 'NTRA', 'NTRI']
+    sigma: 0.0  # If all properties exist, the match should be exact
+              # Note: Not implemented yet
+    upper_limit: 99
 NTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
        - [ 'NTRZ', 'AMON' ]
        - [ 'NTRA', 'NTRI', 'AMON' ]
-    sigma: 0  # NTOT includes dissolved, particulate organic nitrogen, strict limit no uncertainty
+    sigma: 1.4  # std. uncertainty, SMHI
+              #  U2=14%, median 19.8 NTOT,
+              # U2=3% for median 3.38 NTRA,
+              # U2=7% for median 0.14 NTRI,
+              # U2=7%, median 0.19 AMON,
+              # SHARK 2026-01-15 (1960-2026, 54.5-65.8, 10-25)
     upper_limit: 999
 PTOT:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
         - ['PHOS']
-    sigma: 0  # PTOT includes dissolved, particulate organic phosphorous, strict limit no uncertainty
-    upper_limit: 999
+    sigma: 0.1  # std. uncertainty, SMHI
+              # U2=28%, median 0.81 PTOT
+              # U2=4%, median 0.52 PHOS
+              # SHARK 2026-01-15 (1960-2026, 54.5-65.8, 10-25)
+    upper_limit: 99
 TOC:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
       - ['DOC', 'POC']
-    sigma: 70  # std. uncertainty, from U2=30% for all params, using median values from SHARK (2026-01-13)
+    sigma: 70  # std. uncertainty,
+              # estimated from U2=30% for all params,
+              # using median values:
+              # 4 mg/l, 328 umol/l and 12.4 umol/l
+              # for TOC, DOC, and POC, respectively
+              # SHARK 2026-01-15 (1960-2026, 54.5-65.8, 10-25)
     upper_limit: 999  #
 DOXY_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
       - ['DOXY_BTL']
-    sigma: 0.3  # std. uncertainty, SMHI from U2=6% for BTL (applying the same for CTD), using median values from SHARK (2026-01-13)
+    sigma: 0.3  # std. uncertainty, SMHI
+                # U2=6% for BTL
+                # applying the same for CTD,
+                # using median values
+                # SHARK 2026-01-13 (1960-2026, 54.5-65.8, 10-25)
     upper_limit: None
 SALT_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
       - ['SALT_CTD']
-    sigma: 0.02  # std. uncertainty, SMHI U2=0.02 for BTL and U2=0.04 for CTD
+    sigma: 0.02  # std. uncertainty, SMHI
+                # U2=0.02 for BTL
+                # U2=0.04 for CTD
     upper_limit: None

@@ -23,6 +23,9 @@ class ConsistencyQc(BaseQcCategory):
             max_lower <= difference <= max_upper
         BAD_DATA: everything outside the max bounds
         """
+        upper_limit = (
+            configuration.upper_limit if configuration.upper_limit != "None" else None
+        )
         if "STD_UNCERT" not in self._data.columns:
             self._data = self._data.with_columns(
                 pl.lit(None).cast(pl.Float64).alias("STD_UNCERT")
@@ -30,14 +33,11 @@ class ConsistencyQc(BaseQcCategory):
 
         self._parameter = parameter
 
-        print("self._data.dtypes")
-        print(self._data)
-        print(self._data.dtypes)
-
         parameter_boolean = (
             (pl.col("parameter") == parameter)
             & (pl.col("value").is_not_null())
             & (pl.col("INCOMING_QC") != QcFlag.BAD_VALUE.value)
+            & (pl.col("INCOMING_QC") != QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value)
         )
 
         # Early exit if nothing matches
@@ -45,14 +45,19 @@ class ConsistencyQc(BaseQcCategory):
             return
 
         summation = None
-        use_uncertainty = parameter in ["TOC", "DOXY_CTD", "SALT_BTL"]
+        # Propagated uncertainty will not be calculated for parameters in:
+        # ["NTRZ"]
+        use_uncertainty = parameter not in ["NTRZ"]
         for idx, parameter_list in enumerate(configuration.parameter_sets):
-            # Summation per group (other parameters only)
             df = (
                 self._data.filter(
                     pl.col("parameter").is_in(parameter_list)
                     & pl.col("value").is_not_null()
                     & (pl.col("INCOMING_QC") != QcFlag.BAD_VALUE.value)
+                    & (
+                        pl.col("INCOMING_QC")
+                        != QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION.value
+                    )
                 )
                 .group_by(["visit_key", "DEPH"])
                 .agg(
@@ -64,6 +69,8 @@ class ConsistencyQc(BaseQcCategory):
                     pl.concat_str("parameter", separator=", ").alias(
                         "summation_parameters_tmp"
                     ),
+                    pl.col("parameter").count().alias("n_parameters_tmp"),
+                    pl.lit(len(parameter_list)).alias("n_parameters_expected_tmp"),
                 )
             ).select(
                 [
@@ -72,17 +79,19 @@ class ConsistencyQc(BaseQcCategory):
                     "summation_tmp",
                     "summation_variance_tmp",
                     "summation_parameters_tmp",
+                    "n_parameters_tmp",
+                    "n_parameters_expected_tmp",
                 ]
             )
 
-            # parameter_sets is treated as a prioritized list:
-            # the first matching set per visit_key/DEPH is used
             if summation is None:
                 summation = df.rename(
                     {
                         "summation_tmp": "summation",
                         "summation_variance_tmp": "summation_variance",
                         "summation_parameters_tmp": "summation_parameters",
+                        "n_parameters_tmp": "n_parameters",
+                        "n_parameters_expected_tmp": "n_parameters_expected",
                     }
                 )
             else:
@@ -107,6 +116,18 @@ class ConsistencyQc(BaseQcCategory):
                         .then(pl.col("summation_parameters_tmp"))
                         .otherwise(pl.col("summation_parameters"))
                         .alias("summation_parameters"),
+                        pl.when(pl.col("summation").is_null())
+                        .then(pl.col("n_parameters_tmp"))
+                        .when(pl.col("summation_tmp") > pl.col("summation"))
+                        .then(pl.col("n_parameters_tmp"))
+                        .otherwise(pl.col("n_parameters"))
+                        .alias("n_parameters"),
+                        pl.when(pl.col("summation").is_null())
+                        .then(pl.col("n_parameters_expected_tmp"))
+                        .when(pl.col("summation_tmp") > pl.col("summation"))
+                        .then(pl.col("n_parameters_expected_tmp"))
+                        .otherwise(pl.col("n_parameters_expected"))
+                        .alias("n_parameters_expected"),
                     )
                     .select(
                         [
@@ -115,19 +136,27 @@ class ConsistencyQc(BaseQcCategory):
                             "summation",
                             "summation_variance",
                             "summation_parameters",
+                            "n_parameters",
+                            "n_parameters_expected",
                         ]
                     )
                 )
+
+        # summation_parameters has dtype list[str],
+        # must be converted to str to function in pl.format
         summation = summation.with_columns(
             pl.when(pl.col("summation_parameters").is_not_null())
             .then(pl.col("summation_parameters").map_elements(lambda x: ", ".join(x)))
             .otherwise(None)
-            .alias("summation_parameters")
+            .alias("summation_parameters"),
+            pl.when(
+                (pl.lit(self._parameter) == "NTRZ")
+                & (pl.col("n_parameters") == pl.col("n_parameters_expected"))
+            )
+            .then(configuration.sigma)
+            .otherwise(pl.lit(upper_limit, dtype=pl.Float64))
+            .alias("upper_limit"),
         )
-
-        print("summation")
-        print(summation.dtypes)
-        print(summation)
 
         # TOC conversion factor
         toc_unit_conversion = 83.25701  # mg/l → umol/l
@@ -135,8 +164,10 @@ class ConsistencyQc(BaseQcCategory):
         # difference calculation logic
         difference_expr = (
             pl.when(pl.col("parameter") == "TOC")
-            .then((pl.col("value") * toc_unit_conversion) - pl.col("summation"))
-            .otherwise(pl.col("value") - pl.col("summation"))
+            .then(
+                ((pl.col("value") * toc_unit_conversion) - pl.col("summation")).round(10)
+            )
+            .otherwise((pl.col("value") - pl.col("summation")).round(10))
             .alias("difference")
         )
 
@@ -174,7 +205,6 @@ class ConsistencyQc(BaseQcCategory):
                 uncertainty_expr,
             )
         )
-
         result_expr = self._apply_flagging_logic(configuration=configuration)
         # Update original dataframe with qc results
         self.update_dataframe(selection=selection, result_expr=result_expr)
@@ -199,7 +229,7 @@ class ConsistencyQc(BaseQcCategory):
             # GOOD: within 2 sigma (from deliverer, 95% of normal distribution)
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (pl.col("difference") >= -2 * pl.col("uncertainty_difference"))
                 & (pl.col("difference") <= 2 * pl.col("uncertainty_difference"))
             )
@@ -223,9 +253,9 @@ class ConsistencyQc(BaseQcCategory):
             # GOOD: between -2 sigma from deliverer and upper_limit
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (pl.col("difference") >= -2 * pl.col("uncertainty_difference"))
-                & (pl.col("difference") <= configuration.upper_limit)
+                & (pl.col("difference") <= pl.col("upper_limit"))
             )
             .then(
                 pl.struct(
@@ -239,7 +269,7 @@ class ConsistencyQc(BaseQcCategory):
                             pl.col("summation").round(3),
                             pl.col("difference").round(3),
                             -2 * pl.col("uncertainty_difference").round(3),
-                            pl.lit(configuration.upper_limit),
+                            pl.col("upper_limit"),
                         ).alias("info"),
                     ]
                 )
@@ -247,7 +277,7 @@ class ConsistencyQc(BaseQcCategory):
             # GOOD: between -2 sigma and 2 sigma from default configuration
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (pl.col("difference") >= -2 * configuration.sigma)
                 & (pl.col("difference") <= 2 * configuration.sigma)
             )
@@ -271,9 +301,9 @@ class ConsistencyQc(BaseQcCategory):
             # GOOD: between -2 sigma and upper limit from default configuration
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (pl.col("difference") >= -2 * configuration.sigma)
-                & (pl.col("difference") <= configuration.upper_limit)
+                & (pl.col("difference") <= pl.col("upper_limit"))
             )
             .then(
                 pl.struct(
@@ -287,7 +317,7 @@ class ConsistencyQc(BaseQcCategory):
                             pl.col("summation").round(3),
                             pl.col("difference").round(3),
                             -2 * configuration.sigma,
-                            configuration.upper_limit,
+                            pl.col("upper_limit"),
                         ).alias("info"),
                     ]
                 )
@@ -295,7 +325,7 @@ class ConsistencyQc(BaseQcCategory):
             # Probably bad value, between 2 and 3 sigma from deliverer
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (
                     (
                         (pl.col("difference") >= -3 * pl.col("uncertainty_difference"))
@@ -331,7 +361,7 @@ class ConsistencyQc(BaseQcCategory):
             # upper limit exist
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (
                     (pl.col("difference") >= -3 * pl.col("uncertainty_difference"))
                     & (pl.col("difference") < -2 * pl.col("uncertainty_difference"))
@@ -357,7 +387,7 @@ class ConsistencyQc(BaseQcCategory):
             # Probably bad value, between 2 and 3 sigma from default configuration
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (
                     (
                         (pl.col("difference") >= -3 * configuration.sigma)
@@ -393,7 +423,7 @@ class ConsistencyQc(BaseQcCategory):
             # upper limit exist
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (
                     (pl.col("difference") >= -3 * configuration.sigma)
                     & (pl.col("difference") < -2 * configuration.sigma)
@@ -419,7 +449,7 @@ class ConsistencyQc(BaseQcCategory):
             # Bad value, below -3 sigma or above 3 sigma from deliverer
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (
                     (pl.col("difference") < -3 * pl.col("uncertainty_difference"))
                     | (pl.col("difference") > 3 * pl.col("uncertainty_difference"))
@@ -445,10 +475,10 @@ class ConsistencyQc(BaseQcCategory):
             # Bad value, below -3 sigma from deliverer or above upper limit
             .when(
                 pl.col("uncertainty_difference").is_not_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (
                     (pl.col("difference") < -3 * pl.col("uncertainty_difference"))
-                    | (pl.col("difference") > configuration.upper_limit)
+                    | (pl.col("difference") > pl.col("upper_limit"))
                 )
             )
             .then(
@@ -463,7 +493,7 @@ class ConsistencyQc(BaseQcCategory):
                             pl.col("summation").round(3),
                             pl.col("difference").round(3),
                             -3 * pl.col("uncertainty_difference").round(3),
-                            configuration.upper_limit,
+                            pl.col("upper_limit"),
                         ).alias("info"),
                     ]
                 )
@@ -471,7 +501,7 @@ class ConsistencyQc(BaseQcCategory):
             # Bad value, below -3 sigma or above 3 sigma from default configuration
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is None)
+                & pl.col("upper_limit").is_null()
                 & (
                     (pl.col("difference") < -3 * configuration.sigma)
                     | (pl.col("difference") > 3 * configuration.sigma)
@@ -497,10 +527,10 @@ class ConsistencyQc(BaseQcCategory):
             # Bad value, below -3 sigma from default configuration or above upper limit
             .when(
                 pl.col("uncertainty_difference").is_null()
-                & (configuration.upper_limit is not None)
+                & pl.col("upper_limit").is_not_null()
                 & (
                     (pl.col("difference") < -3 * configuration.sigma)
-                    | (pl.col("difference") > configuration.upper_limit)
+                    | (pl.col("difference") > pl.col("upper_limit"))
                 )
             )
             .then(
@@ -515,7 +545,7 @@ class ConsistencyQc(BaseQcCategory):
                             pl.col("summation").round(3),
                             pl.col("difference").round(3),
                             -3 * configuration.sigma,
-                            configuration.upper_limit,
+                            pl.col("upper_limit"),
                         ).alias("info"),
                     ]
                 )
