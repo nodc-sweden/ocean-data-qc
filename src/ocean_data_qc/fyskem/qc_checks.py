@@ -2,7 +2,7 @@ import math
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import polars as pl
 
@@ -45,11 +45,9 @@ class SpikeCheck:
 
 @dataclass
 class ConsistencyCheck:
-    parameter_list: list
-    good_lower: float
-    good_upper: float
-    max_lower: float
-    max_upper: float
+    parameter_sets: List[List[str]]
+    sigma: float
+    upper_limit: Optional[float] = None
 
 
 @dataclass

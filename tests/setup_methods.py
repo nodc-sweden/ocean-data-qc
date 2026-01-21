@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import polars as pl
 
@@ -221,12 +221,9 @@ def generate_quantification_limit_configuration(parameter: str, limit: float):
 
 
 def generate_consistency_check_configuration(
-    parameter: str,
-    parameter_list: list,
-    max_upper: float = 0,
-    max_lower: float = -1,
-    good_upper: float = 99,
-    good_lower: float = -0.05,
+    parameter_sets: List[List[str]],
+    sigma: float,
+    upper_limit: Optional[float] = None,
 ):
     """
     Generate a ConsistencyCheck configration entry.
@@ -234,11 +231,9 @@ def generate_consistency_check_configuration(
     Comparable to reading a parameter from a configuration yaml file.
     """
     parameter_configuration = ConsistencyCheck(
-        parameter_list=parameter_list,
-        max_upper=max_upper,
-        max_lower=max_lower,
-        good_upper=good_upper,
-        good_lower=good_lower,
+        parameter_sets=parameter_sets,
+        sigma=sigma,
+        upper_limit=upper_limit,
     )
     return parameter_configuration
 

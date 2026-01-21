@@ -1,4 +1,3 @@
-import numpy as np
 import polars as pl
 import pytest
 
@@ -11,204 +10,309 @@ from tests.setup_methods import (
     generate_data_frame,
 )
 
-"given_good_lower", "given_good_upper", "given_max_lower", "given_max_upper"
-
 
 @pytest.mark.parametrize(
-    "given_parameter, given_value, given_other_parameters_with_values, "
-    "given_good_lower, given_good_upper, given_max_lower, given_max_upper, expected_flag",
+    "given_parameter, given_value, given_std_uncert, given_parameters, "
+    "given_values, given_std_uncerts, given_parameters_sets,"
+    "given_sigma, given_upper_limit, expected_flag",
     (
         (
-            "TOT",
-            1.23,
-            {"INORG_1": 0.123, "INORG_2": 0.123},
+            "NTRZ",
+            8.23,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.GOOD_VALUE,
+        ),  # 8.23-(8.2+0.03)=0
+        (
+            "NTRZ",
+            8.24,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.BAD_VALUE,
+        ),  # 8.24-(8.2+0.03)=0.1, 0.1 > 0
+        (
+            "NTRZ",
+            8.22,
+            0.35,
+            ["NTRA", "NTRI"],
+            [8.20, 0.03],
+            [0.35, 0.01],
+            [["NTRA", "NTRI"]],
+            0,
+            99,
+            QcFlag.BAD_VALUE,
+        ),  # 8.22-(8.2+0.03)=-0.1, -0.1 > 0
+        (
+            "NTOT",
+            14.23,
+            1.35,
+            ["NTRA", "NTRI", "AMON"],
+            [8.24, 0.87, 3.76],
+            [0.2, 0.12, 0.15],
+            [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
+            1.4,
             999,
-            -0.05,
-            0,
-            -1,
             QcFlag.GOOD_VALUE,
-        ),  # 1.23-(0.123+0.123)=0.984 vilket är >= 0
+        ),  # 14.23-(8.24+0.87+3.76)=1.36 vilket är >= -2*1.4
         (
-            "TOT",
-            1,
-            {"INORG_1": 0.5, "INORG_2": 0.5},
-            0,
-            -0.05,
-            0,
-            -1,
+            "NTOT",
+            7.23,
+            1.35,
+            ["NTRA", "NTRI", "AMON"],
+            [8.24, 0.87, 3.76],
+            [0.2, 0.12, 0.15],
+            [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
+            1.4,
+            999,
+            QcFlag.BAD_VALUE,
+        ),  # 7.23-(8.24+0.87+3.76)=-5.64 vilket är < -3*1.4
+        (
+            "NTOT",
+            12.23,
+            1.35,
+            ["NTRZ", "NTRA", "NTRI", "AMON"],
+            [6.24, 8.24, 0.87, 3.76],
+            [0.2, 0.12, 0.15],
+            [["NTRZ", "AMON"], ["NTRA", "NTRI", "AMON"]],
+            1.4,
+            999,
             QcFlag.GOOD_VALUE,
-        ),  # 1-(0.5+0.5)=0 vilket är >= 0
+        ),  # 12.23-(6.24+3.76)=2.23 vilket är >= -2*1.4
         (
-            "TOT",
-            1,
-            {"INORG_1": 1, "INORG_2": 0.5},
-            0,
-            -0.05,
-            0,
-            -1,
-            QcFlag.PROBABLY_BAD_VALUE,
-        ),  # 1-(1+0.5)=-0.5 vilket är > -1
+            "PTOT",
+            4.23,
+            0.5,
+            ["PHOS"],
+            [0.23],
+            [0.08],
+            [["PHOS"]],
+            0.1,
+            999,
+            QcFlag.GOOD_VALUE,
+        ),  # 4.23-0.23=4 vilket är >= -2*0.5
         (
-            "TOT",
-            1,
-            {"INORG_1": 1, "INORG_2": 2},
-            0,
-            -0.05,
-            0,
-            -1,
+            "PTOT",
+            0.23,
+            0.5,
+            ["PHOS"],
+            [2.23],
+            [0.08],
+            [["PHOS"]],
+            0.1,
+            99,
             QcFlag.BAD_VALUE,
-        ),  # 1-(1+2)=-2 vilket är < -1
+        ),  # 0.23-2.23=-2 vilket är < -3*0.5
         (
-            "TOT",
-            1,
-            {"INORG_1": 3},
-            0,
-            -0.05,
-            0,
-            -1,
+            "PTOT",
+            123.23,
+            1.35,
+            ["PHOS"],
+            [2.23],
+            [0.08],
+            [["PHOS"]],
+            0.1,
+            99,
             QcFlag.BAD_VALUE,
-        ),  # 1-(3)=-2 vilket är < -1
+        ),  # 123.23-2.23=121 vilket är > 99
         (
-            "TOT",
+            "TOC",
+            12.3,
+            4.35,
+            ["DOC", "POC"],
+            [463, 46],
+            [110, 14],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.GOOD_VALUE,
+        ),  # 12*83.25701-(463+46) = 515
+        (
+            "TOC",
             1,
-            {"INORG_1": 1, "INORG_2": 0.1, "D": 0.1},
-            0,
-            -0.05,
-            0,
-            -1,
+            0.3,
+            ["DOC", "POC"],
+            [463, 46],
+            [110, 14],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.BAD_VALUE,
+        ),  # 83.25701-(463+46) = -425.7, < 3*113.7
+        (
+            "TOC",
+            5,
+            0.3,
+            ["DOC", "POC"],
+            [300, None],
+            [110, None],
+            [["DOC", "POC"]],
+            70,
+            999,
+            QcFlag.GOOD_VALUE,
+        ),  # 5*83.25701-300 = 116
+        (
+            "TOC",
+            5,
+            0.3,
+            ["DOC", "POC"],
+            [700, None],
+            [110, None],
+            [["DOC", "POC"]],
+            70,
+            999,
             QcFlag.PROBABLY_BAD_VALUE,
-        ),  # 1-(1+0.1+0.1)=-0.2 vilket är > -1
+        ),  # 5*83.25701-800 = -384, < -113*2 (3*sigma), >= -113*3
         (
-            "TOT",
-            np.nan,
-            {"INORG_1": 1, "INORG_2": 2},
-            0,
-            -0.05,
-            0,
-            -1,
-            QcFlag.MISSING_VALUE,
-        ),
-        (
-            "TOT",
+            "TOC",
             1,
-            {"INORG_1": np.nan, "INORG_2": 2},
-            0,
-            -0.05,
-            0,
-            -1.0,
+            0.3,
+            ["DOC", "POC"],
+            [250, 30],
+            [None, None],
+            [["DOC", "POC"]],
+            70,
+            999,
             QcFlag.PROBABLY_BAD_VALUE,
-        ),  # 1-(2)=-1 which is >= -1
+        ),  # 83.25701-(250+30) = -197, < -70*2 (3*sigma), >= -70*3
         (
-            "TOT",
-            1,
-            {"INORG_1": np.nan, "INORG_2": np.nan},
-            0,
-            -0.05,
-            0,
-            -1,
+            "DOXY_CTD",
+            8.2,
+            0.2,
+            ["DOXY_BTL"],
+            [8.3],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.GOOD_VALUE,
+        ),  # 8.2-8.3 = -0.1, >= -2*0.28, <= 2*0.28
+        (
+            "DOXY_CTD",
+            8.2,
+            0.2,
+            ["DOXY_BTL"],
+            [8.8],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 8.2-8.8 = -0.6, < -0.28*2, >= -0.28*3
+        (
+            "DOXY_CTD",
+            8.8,
+            0.2,
+            ["DOXY_BTL"],
+            [8.2],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.PROBABLY_BAD_VALUE,
+        ),  # 8.8-8.2 = 0.6, > 0.28*2, <= 0.28*3
+        (
+            "DOXY_CTD",
+            9.8,
+            0.2,
+            ["DOXY_BTL"],
+            [8.2],
+            [0.2],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
+            QcFlag.BAD_VALUE,
+        ),  # 8.8-8.2 = 1.6, > 0.28*3
+        (
+            "DOXY_CTD",
+            9.8,
+            0.2,
+            ["DOXY_BTL"],
+            [None],
+            [None],
+            [
+                [
+                    "DOXY_BTL",
+                ]
+            ],
+            0.3,
+            None,
             QcFlag.NO_QUALITY_CONTROL,
-        ),  # 1-(np.nan)=1 vilket är >=0
-        (
-            "TOT",
-            np.nan,
-            {"INORG_1": np.nan, "INORG_2": np.nan},
-            0,
-            -0.05,
-            0,
-            -1,
-            QcFlag.MISSING_VALUE,
-        ),  # 1-(np.nan)=1 vilket är >=0
-        (
-            "TOT",
-            1,
-            {},
-            0,
-            -0.05,
-            0,
-            -1,
-            QcFlag.NO_QUALITY_CONTROL,
-        ),
-        (
-            "CTD",
-            1,
-            {"BTL": 3},
-            0.4,
-            -0.4,
-            1,
-            -1,
-            QcFlag.BAD_VALUE,
-        ),  # 3-1=2 vilket är >=1
-        (
-            "CTD",
-            1,
-            {"BTL": 1.5},
-            0.4,
-            -0.4,
-            1,
-            -1,
-            QcFlag.PROBABLY_BAD_VALUE,
-        ),  # 1.5-1=0.5 vilket är >=0.4 men mindre än 1
-        (
-            "CTD",
-            1,
-            {"BTL": 1.3},
-            0.4,
-            -0.4,
-            1,
-            -1,
-            QcFlag.GOOD_VALUE,
-        ),  # 1.3-1=0.3 vilket är <=0.4 vilket är godkänt
-        # TODO:
-        #  - Lägg till hantering av att alla parametrar i parameter list saknas
-        # ("TOT", 1, {"INORG_1": None, "INORG_2": None}, 0, -1, QcFlag.NO_QC_PERFORMED), # alla parametrar i parameterlist ska returnera None från consistency_qc # noqa: E501
+        ),  # 8.8-8.2 = 1.6, > 0.28*3
     ),
 )
 def test_consistency_qc_using_override_configuration(
     given_parameter,
     given_value,
-    given_other_parameters_with_values,
-    given_good_upper,
-    given_good_lower,
-    given_max_upper,
-    given_max_lower,
+    given_std_uncert,
+    given_parameters,
+    given_values,
+    given_std_uncerts,
+    given_parameters_sets,
+    given_sigma,
+    given_upper_limit,
     expected_flag,
 ):
     # Given parameters with given values for a given depth and visit_key
     given_depth = 20
     given_visit_key = "ABC123"
+    given_row_id = 1
     given_data = generate_data_frame(
         [
             {
                 "parameter": given_parameter,
                 "value": given_value,
+                "STD_UNCERT": given_std_uncert,
                 "DEPH": given_depth,
                 "visit_key": given_visit_key,
+                "_row_id": given_row_id,
             },
-            *(
+            *[
                 {
-                    "parameter": parameter,
-                    "value": value,
+                    "parameter": param,
+                    "value": val,
+                    "STD_UNCERT": std_uncert,
                     "DEPH": given_depth,
                     "visit_key": given_visit_key,
+                    "_row_id": given_row_id,
                 }
-                for parameter, value in given_other_parameters_with_values.items()
-            ),
+                for param, val, std_uncert in zip(
+                    given_parameters, given_values, given_std_uncerts
+                )
+            ],
         ]
     )
     # Given a consistency_qc object has been initiated with an override configuration that
     # includes given parameter
-    given_other_parameters = list(given_other_parameters_with_values.keys())
-    good_lower = min(given_good_lower, given_good_upper)
-    good_upper = max(given_good_lower, given_good_upper)
-    max_lower = min(given_max_lower, given_max_upper)
-    max_upper = max(given_max_lower, given_max_upper)
     given_configuration = generate_consistency_check_configuration(
-        given_parameter,
-        given_other_parameters,
-        max_upper,
-        max_lower,
-        good_upper,
-        good_lower,
+        parameter_sets=given_parameters_sets,
+        sigma=given_sigma,
+        upper_limit=given_upper_limit,
     )
     consistency_qc = ConsistencyQc(given_data)
     consistency_qc.expand_qc_columns()
