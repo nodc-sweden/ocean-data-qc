@@ -17,13 +17,14 @@ class DependencyQc(BaseQcCategory):
         to these following the priority: 4, 3, 2, 1, 0, 9, 8, 7, 6, 5, 0
         """
         priority_list = ["4", "3", "2", "1", "9", "8", "7", "6", "5", "0"]
-        dependency_flags = (
+        dependency_flags = ((
             self._data.filter(
                 pl.col("parameter").is_in(configuration.parameter_list)
                 & pl.col("value").is_not_null()
             )
             .group_by(["visit_key", "DEPH"])
-            .agg(pl.col("quality_flag_long").alias("flags_list"))
+            .agg(pl.col("quality_flag_long").alias("flags_list"),
+                 pl.col("parameter").alias("params_list"),)
             .with_columns(pl.col("flags_list").list.join("").alias("combined_flags"))
             .with_columns(
                 pl.coalesce(
@@ -33,7 +34,11 @@ class DependencyQc(BaseQcCategory):
                     ]
                 ).alias("dependency_flag")
             )
-            .select(["visit_key", "DEPH", "dependency_flag"])
+            .explode(["flags_list", "params_list"])
+            .filter(pl.col("flags_list").str.contains(pl.col("dependency_flag").cast(pl.Utf8)))
+            .group_by(["visit_key", "DEPH", "dependency_flag"])
+            .agg(pl.col("params_list").str.join(",").alias("dependency_flag_parameters"))
+            .select(["visit_key", "DEPH", "dependency_flag", "dependency_flag_parameters"]))
         )
 
         selection = self._data.filter(
@@ -59,8 +64,10 @@ class DependencyQc(BaseQcCategory):
                     [
                         pl.col("dependency_flag").cast(pl.Utf8).alias("flag"),
                         pl.format(
-                            "Dependent parameter gets the following flag: {}",
+                            "Dependent parameter gets the following flag: {}"
+                            "as a result of the following parameters: {}",
                             pl.col("dependency_flag"),
+                            pl.col("dependency_flag_parameters"),
                         ).alias("info"),
                     ]
                 )
@@ -70,8 +77,9 @@ class DependencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
-                            "No QC performed since associated parameters "
+                            "No QC performed since associated parameters: {} "
                             "contain flag: {}",
+                            pl.col("dependency_flag_parameters"),
                             pl.col("dependency_flag"),
                         ).alias("info"),
                     ]
