@@ -23,7 +23,10 @@ class DependencyQc(BaseQcCategory):
                 & pl.col("value").is_not_null()
             )
             .group_by(["visit_key", "DEPH"])
-            .agg(pl.col("quality_flag_long").alias("flags_list"))
+            .agg(
+                pl.col("quality_flag_long").alias("flags_list"),
+                pl.col("parameter").alias("params_list"),
+            )
             .with_columns(pl.col("flags_list").list.join("").alias("combined_flags"))
             .with_columns(
                 pl.coalesce(
@@ -33,7 +36,15 @@ class DependencyQc(BaseQcCategory):
                     ]
                 ).alias("dependency_flag")
             )
-            .select(["visit_key", "DEPH", "dependency_flag"])
+            .explode(["flags_list", "params_list"])
+            .filter(
+                pl.col("flags_list").str.contains(pl.col("dependency_flag").cast(pl.Utf8))
+            )
+            .group_by(["visit_key", "DEPH", "dependency_flag"])
+            .agg(pl.col("params_list").str.join(",").alias("dependency_flag_parameters"))
+            .select(
+                ["visit_key", "DEPH", "dependency_flag", "dependency_flag_parameters"]
+            )
         )
 
         selection = self._data.filter(
@@ -43,11 +54,18 @@ class DependencyQc(BaseQcCategory):
         if selection.is_empty():
             return
 
-        result_expr = self._apply_flagging_logic(configuration=configuration)
+        result_expr = self._apply_flagging_logic(
+            configuration=configuration,
+            parameter=parameter,
+        )
         # Update original dataframe with qc results
         self.update_dataframe(selection=selection, result_expr=result_expr)
 
-    def _apply_flagging_logic(self, configuration: DependencyCheck) -> pl.DataFrame:
+    def _apply_flagging_logic(
+        self,
+        configuration: DependencyCheck,
+        parameter: str,
+    ) -> pl.DataFrame:
         """
         Apply flagging logic for dependency test using polars.
         """
@@ -59,8 +77,11 @@ class DependencyQc(BaseQcCategory):
                     [
                         pl.col("dependency_flag").cast(pl.Utf8).alias("flag"),
                         pl.format(
-                            "Dependent parameter gets the following flag: {}",
+                            "The following parameters: {} have flag {} which is "
+                            "inherited by the parameter: {}",
+                            pl.col("dependency_flag_parameters"),
                             pl.col("dependency_flag"),
+                            pl.lit(parameter),
                         ).alias("info"),
                     ]
                 )
@@ -70,8 +91,9 @@ class DependencyQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.NO_QUALITY_CONTROL.value)).alias("flag"),
                         pl.format(
-                            "No QC performed since associated parameters "
+                            "No QC performed since associated parameters: {} "
                             "contain flag: {}",
+                            pl.col("dependency_flag_parameters"),
                             pl.col("dependency_flag"),
                         ).alias("info"),
                     ]
