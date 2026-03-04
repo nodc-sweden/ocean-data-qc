@@ -203,16 +203,18 @@ def generate_statistic_parameter_files(data_directory, output_directory):
         # lower limit for bad data: 1st percentile to lower limit for bad data
         iqr_low = param_df["median"] - param_df["25p"]
         iqr_high = param_df["75p"] - param_df["median"]
-        param_df["flag1_lower"] = round(param_df["1p"], 2)  # good down 1 percentile
-        param_df["flag1_upper"] = round(param_df["99p"], 2)  # good up 99 percentile
-        param_df["flag2_lower"] = round(param_df["1p"], 2)
-        param_df["flag2_upper"] = round(param_df["99p"], 2)
-        # correctable between 1 percentile and min - iqr_low,
+        param_df["flag1_lower"] = round(param_df["min"], 2)  # good down to min
+        param_df["flag1_upper"] = round(param_df["max"], 2)  # good up to max
+        # flag 2 probabbly good between min and min - iqr_low
+        param_df["flag2_lower"] = round(param_df["min"] - iqr_low * 1.5, 2)
+        # flag 2 probabbly good between max and max + iqr_high,
+        param_df["flag2_upper"] = round(param_df["max"] + iqr_high * 1.5, 2)
+        # flag3 bad correctable between min - iqr_low and min - 1.5*iqr_low,
         # all BELOW min will be flag 4 (bad)
-        param_df["flag3_lower"] = round(param_df["min"] - iqr_low, 2)
-        # correctable between 99-1 percentile and max + iqr_high,
+        param_df["flag3_lower"] = round(param_df["min"] - iqr_low * 3, 2)
+        # flag3 bad correctable between max + iqr_high and max + 1.5*iqr_high,
         # all ABOVE will be flag 4 (bad)
-        param_df["flag3_upper"] = round(param_df["max"] + iqr_high, 2)
+        param_df["flag3_upper"] = round(param_df["max"] + iqr_high * 3, 2)
         # Convert min_depth and max_depth to numeric (since split gives strings)
         param_df["min_depth"] = pd.to_numeric(param_df["min_depth"])
         param_df["max_depth"] = pd.to_numeric(param_df["max_depth"])
