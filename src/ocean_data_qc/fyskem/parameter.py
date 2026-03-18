@@ -26,6 +26,14 @@ class Parameter:
         return self._qc
 
     @property
+    def manual_comment(self) -> str:
+        return self._data.get("MANUAL_QC_COMMENT", "")
+
+    @property
+    def manual_category(self) -> str:
+        return self._data.get("MANUAL_QC_CATEGORY", "")
+
+    @property
     def data(self):
         # Update 'quality_flag_long' before returning data
         self._data["quality_flag_long"] = str(self._qc)
