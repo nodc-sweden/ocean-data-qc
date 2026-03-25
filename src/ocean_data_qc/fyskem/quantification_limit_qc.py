@@ -133,7 +133,7 @@ class QuantificationLimitQc(BaseQcCategory):
             .when(
                 (
                     pl.col("LMQNT_VAL").is_null()
-                    & (pl.col("value") == pl.col("LMQNT_VAL"))
+                    & (pl.col("value") == configuration.limit)
                     & (
                         (pl.col("INCOMING_QC") == QcFlag.GOOD_VALUE.value)
                         | (pl.col("INCOMING_QC") == QcFlag.PROBABLY_GOOD_VALUE.value)
