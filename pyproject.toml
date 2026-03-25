@@ -1,10 +1,11 @@
 [project]
 name = "ocean-data-qc"
-version = "2026.1.0"
+version = "v2026.1.1"
 description = "Automatisk kvalitetskontroll av lågupplöst data"
 authors = [
     { name = "Lena Viktorsson", email = "lena.viktorsson@smhi.se" },
     { name = "Jonatan Skogsfors", email = "jonatan.skogsfors@smhi.se" },
+    { name = "Ylva Ericson", email = "ylva.ericson@smhi.se" },
 ]
 dependencies = [
     "jinja2>=3.1.6",
