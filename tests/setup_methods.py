@@ -238,13 +238,13 @@ def generate_consistency_check_configuration(
     return parameter_configuration
 
 
-def generate_h2s_configuration(parameter: str, skip_flag: str):
+def generate_h2s_configuration(parameter: str):
     """
     Generate a H2sCheck configration entry.
 
     Comparable to reading a parameter from a configuration yaml file.
     """
-    parameter_configuration = H2sCheck(skip_flag)
+    parameter_configuration = H2sCheck()
     return parameter_configuration
 
 

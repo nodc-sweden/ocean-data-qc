@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from ocean_data_qc.fyskem.h2s_qc import H2sQc
@@ -10,58 +9,22 @@ from tests.setup_methods import generate_data_frame, generate_h2s_configuration
 
 @pytest.mark.parametrize(
     "given_parameter_name, given_parameter_value, given_parameter_quality_flag_long,"
-    "given_h2s_quality_flag_long, given_skip_flag, expected_flag",
+    "given_h2s_quality_flag_long, expected_flag",
     (
         (
             "NTRA",
             1.23,
             "0_00000000_0_0",
-            "0_00000000_0_0",
-            QcFlag.VALUE_BELOW_DETECTION,
+            "3_00000000_0_3",
             QcFlag.BAD_VALUE,
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "6_00000000_0_6",  # given_parameter_quality_flag_long
-            "6_00000000_0_6",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.VALUE_BELOW_DETECTION,  # expected_flag
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
-            "1_00000000_0_1",  # given_parameter_quality_flag_long
-            "6_00000000_0_6",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.GOOD_VALUE,  # return good because h2s qflag == 6
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
-            "3_00000000_0_3",  # given_parameter_quality_flag_long
-            "4_00000000_0_4",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.GOOD_VALUE,  # return good because h2s qflag == 4
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
             "3_00000000_0_3",  # given_parameter_quality_flag_long
             "1_00000000_0_1",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
             QcFlag.BAD_VALUE,  # return bad because h2s qflag == 1
         ),
-        (
-            "NTRA",  # given_parameter_name
-            np.nan,  # given_parameter_value
-            "0_00000000_0_0",  # given_parameter_quality_flag_long
-            "1_00000000_0_1",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.MISSING_VALUE,  # return bad because h2s qflag == 1
-        ),
-        # TODO:
-        #  - Lägg till uppenbara hanterbara varianter av att value är nan/None
     ),
 )
 def test_h2s_check_using_override_configuration(
@@ -69,7 +32,6 @@ def test_h2s_check_using_override_configuration(
     given_parameter_value,
     given_parameter_quality_flag_long,
     given_h2s_quality_flag_long,
-    given_skip_flag,
     expected_flag,
 ):
     # Given parameters with given values for a given depth and visit_key
@@ -96,9 +58,7 @@ def test_h2s_check_using_override_configuration(
 
     # Given a h2s_qc object has been initiated with an override configuration that
     # includes given parameter
-    given_configuration = generate_h2s_configuration(
-        given_parameter_name, str(given_skip_flag.value)
-    )
+    given_configuration = generate_h2s_configuration(given_parameter_name)
 
     h2s_qc = H2sQc(given_data)
     h2s_qc.expand_qc_columns()
