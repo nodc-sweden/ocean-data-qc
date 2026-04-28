@@ -52,7 +52,9 @@ class ConsistencyCheck:
 
 @dataclass
 class H2sCheck:
-    skip_flag: str
+    """No configuration parameters"""
+
+    pass
 
 
 @dataclass

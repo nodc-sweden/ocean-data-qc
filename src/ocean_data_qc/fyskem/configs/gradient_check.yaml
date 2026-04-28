@@ -16,11 +16,11 @@ CPHL:
     allowed_increase: 3
 DOXY_BTL:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
-    allowed_decrease: -0.5
+    allowed_decrease: -5 # för att tillåta skarpa oxykliner
     allowed_increase: 0.5
 DOXY_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck
-    allowed_decrease: -0.5
+    allowed_decrease: -5 # för att tillåta skarpa oxykliner
     allowed_increase: 0.5
 H2S:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.GradientCheck

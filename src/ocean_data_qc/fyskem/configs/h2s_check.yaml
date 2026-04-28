@@ -1,16 +1,11 @@
+# skip this test when parameter has flag bad (4), < detections limit (6) or < limit of quantification (Q)
 NTRA:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
-    skip_flag: "6"
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck {}
 NTRI:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
-    skip_flag: "6"
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck {}
 NTRZ:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
-    skip_flag: "6"
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck {}
 DOXY_BTL:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
-    skip_flag: "6"
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck {}
 DOXY_CTD:
-  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck
-    skip_flag: "6"
-    
+  global: !!python/object:ocean_data_qc.fyskem.qc_checks.H2sCheck {}

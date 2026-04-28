@@ -75,7 +75,7 @@ class GradientQc(BaseQcCategory):
                     [
                         pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
                         pl.format(
-                            "BAD change from previous depth {} not within {}-{}",
+                            "BAD change from previous depth is {} < allowed decrease {} or > allowed increase {}",  # noqa: E501
                             pl.col("gradient").round(3),
                             pl.lit(configuration.allowed_decrease),
                             pl.lit(configuration.allowed_increase),

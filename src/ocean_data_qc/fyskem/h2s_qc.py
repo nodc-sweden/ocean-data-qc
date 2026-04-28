@@ -12,32 +12,42 @@ class H2sQc(BaseQcCategory):
 
     def check(self, parameter: str, configuration: H2sCheck):
         """
-        GOOD_DATA: H2S has flag bad or below detection or value isna
-        BAD_DATA: all other H2S flags or value not isna
-        BELOW_DETECTIONs: given parameter flag BELOW_DETECTION
+        This check is performed when H2S has values and acceptable quality flags
+        (i.e. not Q or 4),
+        and similarly when the parameter has values and acceptable quality flags
+
+        BAD_DATA: if parameter has values above detection limit,
+        and H2S has values above detection limit
         """
 
         self._parameter = parameter
+
+        flag_boolean = ~pl.col("quality_flag_long").str.contains(r"(?:6|4|Q)")
+        value_boolean = pl.col("value").is_not_null()
         parameter_boolean = pl.col("parameter") == parameter
+        selection = self._data.filter(parameter_boolean & value_boolean & flag_boolean)
 
         # Early exit if nothing matches
-        if self._data.filter(parameter_boolean).is_empty():
+        if selection.is_empty():
             return
 
-        selection = self._data.filter(pl.col("parameter") == parameter).join(
+        selection = selection.join(
             self._data.filter(
-                (pl.col("parameter") == "H2S")
-                & (~pl.col("quality_flag_long").str.contains(r"(?:6|4)"))
+                (pl.col("parameter") == "H2S") & value_boolean & flag_boolean
             ).select(
                 [
                     pl.col("value").alias("h2s"),
-                    pl.col("visit_key"),
-                    pl.col("DEPH"),
+                    "visit_key",
+                    "DEPH",
                 ]
             ),
             on=["visit_key", "DEPH"],
-            how="left",
+            how="inner",
         )
+
+        # Exit if nothing matches
+        if selection.is_empty():
+            return
 
         result_expr = self._apply_flagging_logic(configuration)
         # Update original dataframe with qc results
@@ -47,46 +57,11 @@ class H2sQc(BaseQcCategory):
         """
         Apply the tests logic to selection
         """
-        result_expr = (
-            pl.when(pl.col("value").is_null() | pl.col("value").is_nan())
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.MISSING_VALUE.value)).alias("flag"),
-                        pl.lit(f"MISSING no value for {self._parameter}").alias("info"),
-                    ]
-                )
-            )
-            .when(pl.col("quality_flag_long").str.contains(configuration.skip_flag))
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.VALUE_BELOW_DETECTION.value)).alias("flag"),
-                        pl.lit(
-                            f"BELOW_DETECTION {self._parameter} is below detection limit"
-                        ).alias("info"),
-                    ]
-                )
-            )
-            .when(pl.col("h2s").is_null())
-            .then(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.GOOD_VALUE.value)).alias("flag"),
-                        pl.lit("GOOD no h2s present").alias("info"),
-                    ]
-                )
-            )
-            .otherwise(
-                pl.struct(
-                    [
-                        pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
-                        pl.lit(f"BAD {self._parameter} because h2s present").alias(
-                            "info"
-                        ),
-                    ]
-                )
-            )
+        result_expr = pl.struct(
+            [
+                pl.lit(str(QcFlag.BAD_VALUE.value)).alias("flag"),
+                pl.lit(f"BAD {self._parameter} because h2s present").alias("info"),
+            ]
         )
 
         return result_expr

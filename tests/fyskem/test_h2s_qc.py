@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from ocean_data_qc.fyskem.h2s_qc import H2sQc
@@ -10,58 +9,32 @@ from tests.setup_methods import generate_data_frame, generate_h2s_configuration
 
 @pytest.mark.parametrize(
     "given_parameter_name, given_parameter_value, given_parameter_quality_flag_long,"
-    "given_h2s_quality_flag_long, given_skip_flag, expected_flag",
+    "given_h2s_quality_flag_long, expected_automatic_flag, expected_total_flag",
     (
+        (
+            "NTRA",  # given_parameter_name
+            1.23,  # given_parameter_value
+            "Q_00000000_0_Q",  # given_parameter_quality_flag_long
+            "1_00000000_0_1",  # given_h2s_quality_flag_long
+            QcFlag.NO_QUALITY_CONTROL,  # return total 0 because no h2s check is performed on Q flag data  # noqa: E501
+            QcFlag.VALUE_BELOW_LIMIT_OF_QUANTIFICATION,  # return total Q because it was incoming  # noqa: E501
+        ),
         (
             "NTRA",
             1.23,
             "0_00000000_0_0",
-            "0_00000000_0_0",
-            QcFlag.VALUE_BELOW_DETECTION,
+            "3_00000000_0_3",
+            QcFlag.BAD_VALUE,
             QcFlag.BAD_VALUE,
         ),
         (
             "NTRA",  # given_parameter_name
             1.23,  # given_parameter_value
-            "6_00000000_0_6",  # given_parameter_quality_flag_long
-            "6_00000000_0_6",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.VALUE_BELOW_DETECTION,  # expected_flag
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
-            "1_00000000_0_1",  # given_parameter_quality_flag_long
-            "6_00000000_0_6",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.GOOD_VALUE,  # return good because h2s qflag == 6
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
-            "3_00000000_0_3",  # given_parameter_quality_flag_long
-            "4_00000000_0_4",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.GOOD_VALUE,  # return good because h2s qflag == 4
-        ),
-        (
-            "NTRA",  # given_parameter_name
-            1.23,  # given_parameter_value
             "3_00000000_0_3",  # given_parameter_quality_flag_long
             "1_00000000_0_1",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
+            QcFlag.BAD_VALUE,  # return bad because h2s qflag == 1
             QcFlag.BAD_VALUE,  # return bad because h2s qflag == 1
         ),
-        (
-            "NTRA",  # given_parameter_name
-            np.nan,  # given_parameter_value
-            "0_00000000_0_0",  # given_parameter_quality_flag_long
-            "1_00000000_0_1",  # given_h2s_quality_flag_long
-            QcFlag.VALUE_BELOW_DETECTION,  # given_skip_flag
-            QcFlag.MISSING_VALUE,  # return bad because h2s qflag == 1
-        ),
-        # TODO:
-        #  - Lägg till uppenbara hanterbara varianter av att value är nan/None
     ),
 )
 def test_h2s_check_using_override_configuration(
@@ -69,8 +42,8 @@ def test_h2s_check_using_override_configuration(
     given_parameter_value,
     given_parameter_quality_flag_long,
     given_h2s_quality_flag_long,
-    given_skip_flag,
-    expected_flag,
+    expected_automatic_flag,
+    expected_total_flag,
 ):
     # Given parameters with given values for a given depth and visit_key
     given_depth = 20
@@ -96,9 +69,7 @@ def test_h2s_check_using_override_configuration(
 
     # Given a h2s_qc object has been initiated with an override configuration that
     # includes given parameter
-    given_configuration = generate_h2s_configuration(
-        given_parameter_name, str(given_skip_flag.value)
-    )
+    given_configuration = generate_h2s_configuration([])
 
     h2s_qc = H2sQc(given_data)
     h2s_qc.expand_qc_columns()
@@ -115,5 +86,7 @@ def test_h2s_check_using_override_configuration(
     parameter_after = Parameter(given_data.row(0, named=True))
     assert len(parameter_after.qc.automatic) >= (QcField.H2s + 1)
 
-    # And the parameter is given the expected flag at the expected position
-    assert parameter_after.qc.automatic[QcField.H2s] == expected_flag
+    # And the parameter is given the total expected flag at the expected position
+    assert parameter_after.qc.total == expected_total_flag
+    # And the parameter is given the total automatic flag at the expected position
+    assert parameter_after.qc.automatic[QcField.H2s] == expected_automatic_flag
