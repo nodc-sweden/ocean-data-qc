@@ -238,7 +238,7 @@ def generate_consistency_check_configuration(
     return parameter_configuration
 
 
-def generate_h2s_configuration(parameter: str):
+def generate_h2s_configuration(skip_flags: list):
     """
     Generate a H2sCheck configration entry.
 
