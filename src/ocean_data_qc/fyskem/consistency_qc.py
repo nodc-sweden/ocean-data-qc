@@ -146,7 +146,12 @@ class ConsistencyQc(BaseQcCategory):
         # must be converted to str to function in pl.format
         summation = summation.with_columns(
             pl.when(pl.col("summation_parameters").is_not_null())
-            .then(pl.col("summation_parameters").map_elements(lambda x: ", ".join(x)))
+            .then(
+                pl.col("summation_parameters").map_elements(
+                    lambda x: ", ".join(x),
+                    return_dtype=pl.String,
+                )
+            )
             .otherwise(None)
             .alias("summation_parameters"),
             pl.when(
