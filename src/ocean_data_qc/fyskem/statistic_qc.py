@@ -23,7 +23,10 @@ class StatisticQc(BaseQcCategory):
         selection = (
             self._data.lazy()
             .filter(pl.col("parameter") == parameter)
-            .with_columns(pl.col("visit_month").cast(pl.Int32))
+            .with_columns(
+                pl.col("visit_month").cast(pl.Int32),
+                pl.col("sea_basin").cast(pl.String),
+            )
             .join(
                 configuration.data.lazy(),
                 left_on=["sea_basin", "visit_month"],
