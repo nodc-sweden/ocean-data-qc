@@ -47,10 +47,10 @@ DOXY_CTD:
                 # using median values
                 # SHARK 2026-01-13 (1960-2026, 54.5-65.8, 10-25)
     upper_limit: None
-SALT_BTL:
+SALT_CTD:
   global: !!python/object:ocean_data_qc.fyskem.qc_checks.ConsistencyCheck
     parameter_sets:
-      - ['SALT_CTD']
+      - ['SALT_BTL']
     sigma: 0.02  # std. uncertainty, SMHI
                 # U2=0.02 for BTL
                 # U2=0.04 for CTD
