@@ -25,6 +25,9 @@ def get_profile_statistics_for_parameter_and_sea_basin(
     point_in_time: datetime.datetime,
     statistics: tuple[str, ...] = ("median", "25p", "75p"),
 ) -> dict:
+    if not isinstance(point_in_time, datetime.datetime):
+        return _empty_result(statistics)
+
     statistic_path = STATISTIC_FILES.get(parameter)
     if not statistic_path:
         print(f"No statistic for {parameter} in sea basin {sea_basin}")
